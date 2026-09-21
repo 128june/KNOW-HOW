@@ -246,6 +246,25 @@ test('line citations resolve the requested source excerpt and its provenance', a
   assert.equal(resolved.record.rawText, record.rawText);
 });
 
+test('a draft without explicit content uses only its cited lines and preserves the original bytes', async () => {
+  const store = makeStore();
+  const rawText = '\uFEFF# 원문 제목\r\n선택한 첫 줄\r\n선택한 둘째 줄\r\n인용하지 않은 줄\r\n';
+  const bytes = Buffer.from(rawText, 'utf8');
+  const record = await store.importFile(file('subset.md', bytes));
+  const citation = { recordId: record.id, startLine: 2, endLine: 3 };
+  const draft = store.createDraft(citation);
+  assert.deepEqual(draft.citations, [citation]);
+  assert.equal(newest(draft).content, '선택한 첫 줄\n선택한 둘째 줄');
+  assert.equal(newest(draft).content, store.resolveCitation(draft.citations[0]).text);
+  const explicit = store.createDraft({ ...citation, content: '따로 작성한 지식 초안' });
+  assert.deepEqual(explicit.citations, [citation]);
+  assert.equal(newest(explicit).content, '따로 작성한 지식 초안');
+  assert.deepEqual(store.getRecord(record.id), record);
+  assert.equal(store.getRecord(record.id).rawText, rawText);
+  assert.equal(store.getRecord(record.id).sha256, sha256(bytes));
+  assert.deepEqual(Buffer.from(store.originalBytes(record.id)), bytes);
+});
+
 test('all department/category KB citations resolve to collected sample lines', async () => {
   const store = makeStore();
   await store.collectSamples();

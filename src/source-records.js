@@ -146,7 +146,7 @@
       const record = required(input.recordId), citation = range(record, input.startLine, input.endLine);
       const category = input.category || record.category || 'guide';
       if (!Object.prototype.hasOwnProperty.call(categories, category)) throw Error('지식 분류를 확인하세요.');
-      const draft = {id:'source-draft-' + (++sequence), recordId:record.id, title:nonempty(input.title || record.title, '제목', 300), category, sample:record.sample, citations:[{recordId:record.id, startLine:citation.startLine, endLine:citation.endLine}], versions:[{version:1, content:nonempty(input.content === undefined ? record.rawText : input.content, '초안 본문'), reason:'원문에서 만든 미확인 초안', createdAt:now(), state:'draft'}]};
+      const draft = {id:'source-draft-' + (++sequence), recordId:record.id, title:nonempty(input.title || record.title, '제목', 300), category, sample:record.sample, citations:[{recordId:record.id, startLine:citation.startLine, endLine:citation.endLine}], versions:[{version:1, content:nonempty(input.content === undefined ? citation.text : input.content, '초안 본문'), reason:'원문에서 만든 미확인 초안', createdAt:now(), state:'draft'}]};
       drafts.set(draft.id, draft); changed(); return copy(draft);
     }
     const api = {
