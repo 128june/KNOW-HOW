@@ -37,3 +37,7 @@ main push 또는 workflow_dispatch로 `.github/workflows/pages.yml` 실행. 저�
 ## 장소 기반 업무 API
 
 인증 후 POST `/api/workflow/search {q,limit,offset}` → 후보/실제 검색어, `/api/workflow/chargers {station_key,limit,offset}` → 공개 충전기 원문, `/api/workflow/inquiry {station_key,record_keys,question}` → 문의 초안/원문 확인 정보/미확인 정보. station_key와 record_key는 조회 맥락 키이며 내부 장비 ID가 아닙니다. 스냅샷 미설정 503은 오류로 표시하고 후보를 만들어내지 않습니다.
+
+## 부서별 KB
+
+환경부 충전기 ID는 문자열 그대로 검색하며 장소조건과 AND로 결합합니다. 문의부서는 앱개발팀을 기본으로 하고 충전기개발팀 ID와 구분합니다. 모든 가상매핑은 샘플 표시를 유지합니다. 명시적인 KB 저장은 기본private/초안이며 서버 request_id로 재시도 중복을 방지합니다. 부서별KB모음은 서버의 부서/검색어/상태/페이지 필터를 사용합니다. 저장된KB 재사용 시 최신버전·상태를 표시하고, 본문 정정으로 무효화된 구조화ID는 현재관계로 제시하지 않습니다.

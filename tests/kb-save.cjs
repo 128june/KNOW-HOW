@@ -16,6 +16,8 @@ context.fetch=async(url,options)=>{calls.push(JSON.parse(options.body));throw ne
  context.fetch=async(url,options)=>{calls.push(JSON.parse(options.body));return {ok:true,json:async()=>({id:72,state:'초안',replayed:true})}};
  await exec('saveWorkflowKB()');await exec('saveWorkflowKB()');
  assert.equal(calls.length,2);assert.deepEqual(calls[0],calls[1]);assert.equal(calls[0].request_id,'request-once');assert.equal(exec('workflow.savedId'),72);
+ assert.ok(exec("sourceMarkup({dataset_scope: 'sample_subset',row_count:50})").includes("sample_subset") === false);
+ assert.ok(exec("sourceMarkup({dataset_scope: 'sample_subset',row_count:50})").includes("50"));
  const markup=exec("mappingMarkup([{public_charger_id:'01',app_charger_id:'APP-01',device_charger_id:'DEV-01'}])");
  for(const text of ['샘플 DB 기준','앱개발팀 ID','충전기개발팀 ID','APP-01','DEV-01'])assert.ok(markup.includes(text));
  exec("workflow.savedId=null;workflow.saveRequest=null");let release;context.fetch=()=>new Promise(r=>release=r);
