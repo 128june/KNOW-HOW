@@ -15,7 +15,7 @@ let posted;
 context.fetch=async(url,options)=>{posted=JSON.parse(options.body);return {ok:true,json:async()=>({draft:'가상 초안',context:{station_key:station.station_key,record_keys:['opaque-row']}})}};
 (async()=>{
  await exec('createInquiry()');
- assert.deepEqual(posted,{station_key:'opaque-station',record_keys:['opaque-row'],question:'내부 장비와 어떻게 연결하나요?'});
+ assert.deepEqual(posted,{station_key:'opaque-station',record_keys:['opaque-row'],question:'내부 장비와 어떻게 연결하나요?',department:'app'});
  const contextText=exec('workflowContext()');for(const part of ['가상 장소','가상 주소','가상 운영사','01','미확인'])assert.ok(contextText.includes(part));
  let release;context.fetch=()=>new Promise(r=>release=r);
  const old=exec('createInquiry()');exec('workflow.revision++;workflow.inquiry=null');release({ok:true,json:async()=>({draft:'stale'})});await old;assert.equal(exec('workflow.inquiry'),null);
