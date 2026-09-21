@@ -50,7 +50,7 @@ function hostFixture(){
  const controller=c.window.KnowHowOrganizationUI.createController({adapter,allowInquiry:true}),host=hostFixture();
  controller.mount(host,{mode:'library'});controller.focusAI();
  const initial=calls.length;
- assert.ok(host.innerHTML.includes('의미 검색 사용 불가'));
+ assert.ok(host.innerHTML.includes('문서를 선택하거나 정확한 ID로 근거를 찾아보세요.'));
  assert.equal(calls.length,initial,'opening the question panel never submits a query');
  async function settle(){await new Promise(setImmediate);assert.equal(controller.getState().busy,false)}
  async function submit(question,{generate=false,exact=''}={}){
@@ -68,7 +68,7 @@ function hostFixture(){
  capabilities=enabled;await controller.catalog();
  assert.equal(adapter.requiresDocument,false,'getter follows freshly received capability');
  assert.equal(adapter.canSearchSemantically(),true);assert.equal(adapter.canGenerate('knowledge'),false);
- controller.focusAI();assert.ok(host.innerHTML.includes('의미 검색 가능'));
+ controller.focusAI();assert.ok(host.innerHTML.includes('질문의 뜻에 맞는 문서를 찾아 답변 근거로 연결합니다.'));
  const beforeNavigation=calls.length;
  host.date.value='2026-09-23';host.date.onchange();controller.setAnswerMode('inquiry');
  assert.equal(calls.length,beforeNavigation,'date/mode changes never submit a query');
