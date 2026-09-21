@@ -31,7 +31,7 @@ const clone=x=>JSON.parse(JSON.stringify(x));
  Object.assign(api.state,{chargers:clone(fixture.chargers),recordKey:fixture.selected_record_key});api.resetContext();assert(api.mappingReference());
  c.fetch=async()=>{throw Error('offline')};await api.loadMapping();assert.equal(api.mappingReference(),null);assert.match(api.state.mappingError,/서버/);
  // Existing KB source wins and is never refreshed implicitly with a different mapping.
- const doc={id:'saved',department:'device',version:2,history:[],source:{kind:'company_charger_knowledge',station,record_key:api.state.recordKey,department_identifier:'HUMAN-REVIEWED-ID'}};
+ const doc={id:'saved',department:'device',version:2,history:[],source:{...clone(api.draftSource()),kind:'company_charger_knowledge',station,record_key:api.state.recordKey,department_identifier:'HUMAN-REVIEWED-ID'}};
  c.fetch=async(url)=>{if(url.endsWith('/session'))return response({session_id:'local-test'});if(url.endsWith('/catalog'))return response({documents:[doc]});if(url.endsWith('/document'))return response(doc);throw Error('existing KB must not request new mapping')};
  await api.openSelected();assert.equal(api.currentId(),'HUMAN-REVIEWED-ID');assert.deepEqual(clone(api.state.document.source),doc.source);
  // Context changes discard late API mappings, including failures.
