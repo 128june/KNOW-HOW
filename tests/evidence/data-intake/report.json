@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "checkedAt": "2026-09-21T12:06:29.096Z",
+  "checkedAt": "2026-09-21T12:11:06.712Z",
   "scope": "Local fixture browser integration; not evidence of external downloading or production API behavior.",
   "cases": [
     "Mount performs no fetch, session creation, source collection, or AI call",
