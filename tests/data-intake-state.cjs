@@ -116,7 +116,7 @@ test('AI review sends only the explicit command, never source rows or original c
   const call = f.calls[0];
   assert.equal(call.url, 'https://fixture.invalid/data-platform/visitor/datasets/raw-A/privacy-review');
   assert.equal(call.options.headers.Authorization, 'Bearer private-visitor-token');
-  assert.deepEqual(JSON.parse(call.options.body), { generate: true });
+  assert.deepEqual(JSON.parse(call.options.body), { generate: true, department: 'data', include_company: false });
   assert.doesNotMatch(call.options.body, /PRIVATE_RAW_VALUE|phone/);
 });
 
@@ -148,7 +148,7 @@ test('AI pause keeps policy lookup available and is checked again after an enabl
   assert.equal(f.calls.length, 0);
   await f.controller.review(false);
   assert.equal(f.calls.length, 1);
-  assert.deepEqual(JSON.parse(f.calls[0].options.body), { generate: false });
+  assert.deepEqual(JSON.parse(f.calls[0].options.body), { generate: false, department: 'data', include_company: false });
   f.controller.destroy();
 });
 
@@ -195,7 +195,7 @@ test('review completion resolves its pointer under current permissions instead o
   Object.assign(f.state,{job:{id:'review-job',state:'succeeded',result:{review_id:'r1',policies:[{content:'STALE_POLICY'}]}},jobFlow:'review'});
   f.setReply(async url=>ok(url.includes('/jobs?')?{jobs:[]}:url.includes('/datasets?')?{datasets:[]}:{review_id:'r1',proposals:[],policies:[{content:'CURRENT_POLICY'}]}));
   await f.controller.finishJob();
-  assert.ok(f.calls.some(c=>c.url.endsWith('/privacy-reviews/r1')));
+  assert.ok(f.calls.some(c=>c.url.endsWith('/privacy-reviews/r1?department=data')));
   assert.equal(f.state.policies[0].content,'CURRENT_POLICY');
   assert.doesNotMatch(JSON.stringify(f.state.proposal),/STALE_POLICY/);
 });

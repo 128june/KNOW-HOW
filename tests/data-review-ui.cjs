@@ -94,12 +94,13 @@ test('A review exposes only supported protection decisions and preserves legacy 
   assert.match(ui.privacyMarkup({ dataset, preview }), /<select name="type"/);
 });
 
-test('Policy sources remain read-only and unavailable API actions are disabled by default', () => {
+test('Policy source browsing and authoring require an available API and never seed examples', () => {
   const initial = ui.privacyMarkup({ dataset, preview });
   assert.match(initial, /data-data-action="privacy-propose" disabled/);
   const markup = ui.policyMarkup({ dataset, policies: [policy] });
   assert.match(markup, /data-data-action="policy-search" disabled/);
-  assert.match(markup, /data-data-action="policy-example" disabled/);
+  assert.doesNotMatch(markup, /data-data-action="policy-example"/);
+  assert.match(markup, /data-policy-action="new" disabled/);
   assert.match(markup, /data-data-action="policy-review-rules"/);
   assert.doesNotMatch(markup, /name="policy_id"|data-data-action="policy-apply"/);
   assert.doesNotMatch(ui.policyMarkup({ dataset, proposal: { policies: [{ id: 'made-up', title: 'model-only-policy' }] } }), /model-only-policy/);
@@ -113,6 +114,42 @@ test('Dynamic values in rows, sources, decisions and policy evidence are escaped
   const output = ui.policyMarkup({ dataset, application: { ...completed, policies: [{ ...policy, title: attack, content: attack, source: { url: 'javascript:alert(1)', title: attack }, applications: [] }], applications: [{ ...decision, column: attack, decision: attack, policy_refs: [{ id: attack, version: attack }] }] } });
   assert.doesNotMatch(output, /<img|href="javascript:/);
   assert.match(output, /&lt;img/);
+});
+
+test('Current candidates require explicit checkbox selection and a human reason', () => {
+  const rendered = ui.privacyMarkup({ dataset, proposal: {...proposal, policies:[policy]} });
+  assert.match(rendered, /name="policy_ref" value="policy-1" data-policy-version="4"/);
+  assert.doesNotMatch(rendered, /name="policy_ref"[^>]*checked/);
+  assert.match(rendered, /name="decision_reason"/);
+  const empty = ui.policyMarkup({ dataset, policies: [], policySearchEnabled:true });
+  assert.match(empty,/현재 범위에 유효하고 검토 완료된 정책 문서가 없습니다/);
+  assert.match(empty,/정책 작성 열기/);
+  assert.doesNotMatch(empty,/data-policy-company[^>]*checked/);
+});
+test('Review and company approval are explicit separate current-version actions', () => {
+  const kb = {editor:{...policy,state:'draft',company_status:'none'},draft:{title:'<b>policy</b>',content:'<script>no</script>',valid_from:'2026-09-22'}};
+  let rendered=ui.policyWorkspaceMarkup({kb,enabled:true});
+  assert.match(rendered,/현재 버전 검토 완료/);
+  assert.match(rendered,/data-policy-mutation="promote" disabled/);
+  assert.match(rendered,/저장된 현재 원문·버전·적용일을 직접 읽고 확인/);
+  assert.doesNotMatch(rendered,/<b>policy|<script>no/);
+  kb.editor.state='confirmed';kb.editor.company_status='requested';
+  rendered=ui.policyWorkspaceMarkup({kb,enabled:true});
+  assert.match(rendered,/data-policy-mutation="promote" >요청된 전사 공유 승인/);
+});
+test('Completed evidence keeps human reason and source SHA visible', () => {
+  const markup=ui.policyMarkup({dataset,application:{...completed,source_sha256:'source-sha-test',applications:[{...decision,decision:'human_policy_selection',reason:'연락처 외부 공개 방지'}]}});
+  assert.match(markup,/사람이 정책 선택/);assert.match(markup,/연락처 외부 공개 방지/);assert.match(markup,/source-sha-test/);
+});
+
+test('Unavailable historical policy shows immutable identity without inventing current text', () => {
+  const entry={...decision,reason:'적용 당시 원문을 확인함'};
+  const markup=ui.policyMarkup({dataset,application:{...completed,policies:[{id:'revoked-policy',version:3,availability:'unavailable',sha256:'policy-content-sha',content:'',applications:[entry]}]}});
+  assert.match(markup,/정책 revoked-policy/);assert.match(markup,/적용 당시 근거 · 현재 원문 사용 불가/);assert.match(markup,/policy-content-sha/);
+});
+test('Policy effective dates remain business dates without a fabricated time', () => {
+  const markup=ui.policyMarkup({dataset,policies:[{...policy,valid_from:'2026-09-22',valid_to:'2026-12-31',source:{reference:'담당자가 제공한 정책 제3조'}}]});
+  assert.match(markup,/2026-09-22 ~ 2026-12-31/);assert.doesNotMatch(markup,/오전 9/);assert.match(markup,/담당자가 제공한 정책 제3조/);
 });
 
 console.log(`PASS: ${cases.length} data review UI contract cases\n${cases.map(name => '- ' + name).join('\n')}`);
