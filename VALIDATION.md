@@ -162,3 +162,13 @@
 - `tests/data-explorer.cjs`: 숫자/문자 비교값, null조건, 정렬중복거절, CSV에 페이지제한없음, 적용조건 유지, dataset 전환 늦은응답 배제, 바이트 진행률 검사 PASS.
 - `tests/data-explorer-http.cjs`: 실제 서버301행 CSV의 ID 전체목록 및 합180901, 페이지50행/offset50, 파티션1000+203, latest/versions/settings 검증 PASS. 환경변수로 배포 API와 기존 fixture를 지정할 수 있다. 임시 공개 fixture는 24시간 후 만료될 수 있다.
 - 기존 `platform-workflows.cjs`, `data-knowledge-bridge.cjs` PASS. 이 UI 작업은 새 처리 job0 / 유료 AI 호출0. 실제 외부 커넥터 접속, GPT 생성 품질, 100만행 성능을 이 결과로 보증하지 않는다.
+
+## 2026-09-21 범용 사례 재설계와 저장·공유 표현
+
+- 대표 사례를 매출 집계(결제일/정산일), 고객 중복(계정/법인/고객키), 환불 수수료(계약/귀책/면제)로 교체했다. 서로 다른 업무 목적의 지표는 모두 유효할 수 있으며, 재사용은 목적에 맞는 정의·기준일·키를 선택하고 차이를 설명하는 과정이다.
+- 소개·좌측 단계·질문·자료·확인 근거·정정·재사용·조직 문서의 계약을 일치시켰다. `tests/fixtures/general-examples-v2.json`과 UI seed 동등성을 검사한다. 시나리오 세트는 v2, 각 최초 문서는 v1이며 보완 후 문서 v2가 된다. 새 부서는 finance/data/operations이고 fixture ID도 새로 부여했다.
+- `knowhow.general.v2`에 새 기록을 저장한다. 기존 v1 저장 키는 읽기만 하며 보관 목록에서 이전 버전을 확인할 수 있다. 동시 정정 검사를 유지하고 다른 사례 저장 시 기존 정정 이력을 보존한다.
+- CTA는 ‘확인한 기준을 지식으로 남기기’, 저장 직후에는 ‘이 기기에 기준을 저장했습니다. 아직 팀에 공유되지 않았습니다.’로 변경했다. 별도 ‘팀과 공유할 초안 만들기’는 등록 양식을 준비하며 자동 전송·검토·공유를 하지 않는다. 이후 지속 배지는 기기 저장과 별도의 공유 상태를 구분하고 실제 담당자 확인 상태는 서버 영역에서 표시한다. 충전 회사 사례의 CTA만 정리했으며 원문·비교용 fixture는 바꾸지 않았다.
+- 공개 샘플 서버로 보내는 본문에 schema/guide를 중복 첨부하지 않는다. 수정하지 않은 일반 예시의 filename과 중복되는 source label만 생략하며, 사용자가 편집한 출처 설명은 보존한다. API 담당자가 실제 조직→provider 모의 요청으로 6개 초기/정정 예시의 입력 경계를 검사했다(유료 호출 없음). 모의 검사는 생성 품질 평가가 아니다.
+- 로컬 실제 API `127.0.0.1:58096`과 CUA에서 3사례 모두 정정 v2 → 공유 초안 → 기존 seed의 서버 v2 미확인 초안 → 담당자 확인 → document_id + generate:false로 정확한 v2 근거를 확인했다. 확인 전 질문 버튼 비활성, 회사 데이터와 이전 저장 기록 유지, 320px 가로 넘침 없음. 공급자 전송은 로컬에서 mock/disabled였고 유료 호출0, 데이터 처리 job0.
+- `general-examples.cjs`, `organization-kb.cjs`, `platform-workflows.cjs`, `demo-isolation.cjs`, `data-knowledge-bridge.cjs` 통과. 실제 GPT 설명 품질은 이 검증에 포함하지 않는다.
