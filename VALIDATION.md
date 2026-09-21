@@ -90,3 +90,15 @@
 - KB collection has policy, department-data-structure and documented-guide categories; readable summary cards lead to detail. Data fields have human explanations and sample values; raw tracking keys and history are collapsed. Corrections suppress old structured ID values.
 - Local actual-browser checks: all five hash URLs load independently with five navigation tabs, no login dialog, hidden session control. Reply save → comment → fictional reviewer → correction v2 → other-member question returns corrected text and preserves new question. Reload retains correction; 2027-01-01 applicability excludes the answer. Desktop KB screenshot visually inspected.
 - Five regression suites pass, including expanded demo-isolation tests for unsaved seeds, comments not granting confirmation, correction linkage, persistence and expired applicability.
+
+### Deployed five-scenario and mobile acceptance
+- Commit `cf699d8`, successful Pages run `35573668226`.
+- Separate public tab 11, 390×844 viewport: all five direct hash URLs showed five scenario buttons, no open login dialog, and document width 390px. No page-level horizontal overflow.
+- Scenario 2 fictional reply save → scenario 3 unreviewed comment → reviewer-role switch → correction v2 → comment resolved to v2 all succeeded. Scenario 4 opened via keyboard Enter, preserved a new question, returned the newly corrected request-time/error-code sentence, and retained v2 after reload.
+- Scenario 5 app filter returned its single department example; data-structure detail displayed field meanings and sample values, with the table scrolling inside its container. Mobile screenshots of data detail and latest-answer reuse were visually inspected; desktop collection was also visually inspected.
+- Screenshots are recorded inline in the browser tool transcript. Existing user login tabs were not operated.
+
+### Explicit AI request UI
+- Scenario 4 keeps full browser KB reuse separate from AI output. AI is requested only by an explicit submit; tab entry, navigation and refresh never call the endpoint.
+- Modes distinguish server fixture v1, server-approved fictional correction v2, and unreviewed browser input. Server v2 is explicitly not the user's arbitrary local correction. Long local text is never silently truncated.
+- Mock checks cover true-generation labels, not-configured messaging, HTML escaping, no auth headers, pending-request duplicate suppression, and discarding a late response after context changes. No paid calls were made by UI verification; API task owns the agreed two live verification calls.
