@@ -71,3 +71,12 @@
 - Real browser local test against actual sample API `127.0.0.1:18763`: address chip → GS타워 → 7 chargers → ID 01 → distinct app/device IDs → browser KB v1 → corrected v2 → reload → saved list → same-target inquiry reuses v2 corrected text. No organization login used.
 - Regression suites: session-race, evidence-scope, workflow-context, kb-save, demo-isolation passed. The last test checks no organization token/cookies, isolated storage, latest corrected body, and stale mode response rejection.
 - Public sample remains a 50-row subset, not nationwide search. Browser storage is specific to the browser/site; clearing browser data removes sample KB. Existing organization API still requires authentication.
+
+### Deployed browser acceptance (public site)
+- UI commit `4a6d1f8`; successful Pages run `35571833391`.
+- Actual URL: https://128june.github.io/KNOW-HOW/ . Used a separate new browser tab (tab 9); did not operate the user's existing login tab or enter organization credentials.
+- Clicked sample experience → GS타워 + public ID 01 → GS차지비 station at 논현로 508 → all 7 chargers displayed → selected 01 → app inquiry with distinct synthetic app/device identifiers.
+- Saved browser KB v1, appended `[공개 체험 검증] 문의 시 앱 오류코드와 요청 시각을 전달합니다.`, saved corrected v2, then navigated/reloaded the public site.
+- Re-entered sample mode: department filter device returned 0 and app returned 1 saved KB. Reopened and requested the same target again.
+- DOM assertions: corrected marker present = true; `이번 후속 문의:` present = true; reused v2 / 정정 present = true; organization navigation hidden = true; horizontal overflow = false at tested desktop viewport.
+- This is actual deployed anonymous UI/API/browser-storage acceptance, not an authenticated organization-account test. The fixture has 50 public-source rows and synthetic department IDs. Browser KB is confined to this site/browser storage and is not organization KB.
