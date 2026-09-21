@@ -2,7 +2,7 @@
 import json, os, shutil
 from pathlib import Path
 from urllib.parse import urlparse
-root = Path(__file__).resolve().parent
+root = Path(__file__).resolve().parents[1]
 base = os.environ.get('KNOWHOW_API_BASE', '').strip().rstrip('/')
 if base:
     u = urlparse(base)
@@ -11,7 +11,7 @@ if base:
 out = root / 'dist'
 if out.exists(): shutil.rmtree(out)
 out.mkdir()
-for name in ('index.html','style.css','app.js'): shutil.copyfile(root/name,out/name)
+for name in ('index.html','style.css','app.js'): shutil.copyfile(root/'src'/name,out/name)
 (out/'config.js').write_text('window.KNOWHOW_CONFIG = '+json.dumps({'apiBase':base})+';\n')
 (out/'.nojekyll').touch()
 print('Built dist: '+', '.join(sorted(p.name for p in out.iterdir())))
