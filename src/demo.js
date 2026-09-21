@@ -13,7 +13,7 @@ const sampleDemo=(()=>{
  function charger(){return state.chargers.find(c=>c.record_key===state.recordKey)}
  function context(){return [state.station?.station_key,state.recordKey,state.department].join('|')}
  function matches(d){const s=d.source;return s?.kind==='company_charger_knowledge'&&s.station?.station_key===state.station?.station_key&&s.record_key===state.recordKey&&d.department===state.department}
- function fixtureId(){if(state.station?.station_key!==fixture.station.station_key||state.recordKey!==fixture.selected_record_key)return '';const m=fixture.inquiries[state.department].synthetic_mapping?.[0];return m?.[state.department==='app'?'app_charger_id':'device_charger_id']||''}
+ function fixtureId(){if(state.recordKey!==fixture.selected_record_key)return '';const m=fixture.inquiries[state.department].synthetic_mapping?.[0];return m?.[state.department==='app'?'app_charger_id':'device_charger_id']||''}
  function currentId(){return state.document?state.document.source?.department_identifier||'':fixtureId()}
  function remember(){try{localStorage.setItem(sessionKey,JSON.stringify({session:state.session,selection:{station:state.station,chargers:state.chargers,recordKey:state.recordKey,source:state.source,department:state.department}}))}catch{state.notice='이 기기에 연결 정보를 보관하지 못했습니다. 현재 탭에서는 계속할 수 있습니다.'}}
  function restore(){try{const saved=JSON.parse(localStorage.getItem(sessionKey)||'null');if(saved?.session){if(typeof saved.session!=='string')throw Error();state.session=saved.session;}const s=saved?.selection;if(s?.station?.station_key&&Array.isArray(s.chargers)&&s.chargers.some(c=>c.record_key===s.recordKey)&&['app','device'].includes(s.department))Object.assign(state,s)}catch{state.error='이전 연결 정보를 읽지 못했습니다. 저장된 기록은 변경하지 않았습니다.'}}
