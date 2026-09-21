@@ -23,6 +23,11 @@
   event.preventDefault();controls[next]?.focus();
  });
  mobile?.addEventListener('change',()=>menu(false));
+ // Scenario buttons update history directly, and same-route links emit no hashchange.
+ $('aside').addEventListener('click',event=>{
+  if(!menuOpen||!event.target.closest('a[href^="#"],button[data-scenario]'))return;
+  menu(false);root.queueMicrotask(focusPage);
+ });
  function home(){
   $('#page').innerHTML=`<section class="home-intro"><div class="eyebrow">부서마다 다른 기록을 연결하는 지식 플랫폼</div><h1>한 사람이 확인한 답을,<br>다음 사람의 기준으로.</h1><p class="home-lead">같은 ‘충전기 ID’를 두고 여러 부서에 다시 물어야 했던 업무.<br>부서별 정보와 정책을 근거로 연결하고, 확인·정정한 내용을 함께 사용합니다.</p><div class="home-start"><a class="button primary" href="#scenario-1">충전 업무에서 직접 확인하기 <span aria-hidden="true">→</span></a><a class="home-secondary" href="#general-1">매출·고객·환불 업무로 보기</a></div></section><section class="home-path" aria-label="KNOW:HOW 사용 흐름"><article><span>01 · 연결</span><h2>어떤 근거로 연결됐나요?</h2><p>부서의 ID·정책·문서를 출처와 관계로 묶습니다.</p></article><article><span>02 · AI 활용과 검토</span><h2>어떤 지식을 참고했나요?</h2><p>질문에 쓰인 문서와 추가 확인할 내용을 살펴봅니다.</p></article><article><span>03 · 한눈에 확인</span><h2>지금 쓸 기준은 무엇인가요?</h2><p>연결된 정보, 적용 조건과 확인 상태를 함께 봅니다.</p></article><article><span>04 · 관리</span><h2>기준이 바뀌면 어떻게 되나요?</h2><p>댓글·담당자 확인·새 버전을 다음 업무에 반영합니다.</p></article></section><section class="home-data"><div><div class="eyebrow">데이터 플랫폼</div><h2>근거가 되는 자료도 직접 가져옵니다.</h2><p>웹 표와 엑셀을 가져와 저장하고, 어떤 정책으로 처리했는지 확인합니다.</p></div><a class="button" href="#data">실제 자료 가져오기 <span aria-hidden="true">↗</span></a></section>`;
  }
