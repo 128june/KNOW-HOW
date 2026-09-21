@@ -169,6 +169,8 @@
 .data-workspace .data-rule-evidence textarea{min-width:0;width:100%;min-height:100px;font-family:inherit;line-height:1.7;resize:vertical;margin:7px 0}
 .data-workspace .data-review-rules.is-reviewed th:first-child{width:42%}
 .data-workspace .data-policy-workspace,.data-workspace .data-policy-application{overflow-wrap:anywhere}
+/* Preserve complete source URLs and filenames without widening the page. */
+.data-workspace #data-preview>h2,.data-workspace #data-preview>.muted{overflow-wrap:anywhere}
 .data-workspace .data-policy-workspace .actions{flex-wrap:wrap}
 .data-workspace .data-review textarea:focus-visible{outline:3px solid #587c44;outline-offset:3px}
 @media(max-width:760px){.data-workspace .data-policy-scope,.data-workspace .data-policy-dates{grid-template-columns:1fr;gap:10px}.data-workspace .data-policy-editor .actions>*{width:100%;white-space:normal;line-height:1.7}}
