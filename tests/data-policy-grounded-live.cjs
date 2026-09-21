@@ -77,7 +77,13 @@ async function main(){
   await page.locator('[data-policy-company]').check();
   const review=await search();assert.equal(review.policies.length,1);assert.equal(review.policies[0].scope,'company');
   assert.ok(review.proposals.every(p=>p.policy_refs.length===0));report.observations.policies=review.policies;report.observations.reviewId=review.review_id;
-  const summaries=page.locator('.data-policy-document details summary');for(let i=0;i<await summaries.count();i++)await summaries.nth(i).click();
+  const card=page.locator('.data-policy-document').first(),originalBody=card.locator('.data-policy-evidence p'),technical=card.locator('.data-policy-technical'),technicalSummary=technical.locator('summary');
+  assert.equal(await originalBody.isVisible(),true);assert.equal(await originalBody.textContent(),body);
+  assert.equal(crypto.createHash('sha256').update(await originalBody.textContent()).digest('hex'),review.policies[0].sha256);
+  assert.equal(await technical.evaluate(element=>element.open),false);assert.equal(await technical.locator('dd').first().isVisible(),false);
+  await technicalSummary.focus();await technicalSummary.press('Enter');assert.equal(await technical.evaluate(element=>element.open),true);
+  assert.deepEqual(await technical.locator('dd').allTextContents(),[review.policies[0].id,review.policies[0].sha256]);
+  await technicalSummary.press('Enter');assert.equal(await technical.evaluate(element=>element.open),false);
   await capture('policy-source');
   await page.locator('[data-data-action=policy-review-rules]').click();await page.locator('#data-transform').waitFor();
   const email=page.locator('[data-rule-column=email]');await email.locator('[name=action]').selectOption('mask');await email.locator('[name=policy_ref]').check();await email.locator('[name=decision_reason]').fill(reason);

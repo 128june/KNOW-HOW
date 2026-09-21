@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const crypto=require('node:crypto');
 const {chromium}=require('playwright');
 const repo=path.resolve(__dirname,'..');
 const output=process.env.POLICY_UI_EVIDENCE_DIR||'/tmp/knowhow-policy-ui';
@@ -21,7 +22,7 @@ const fixture={calls:[],docs:[],result:false,review:null,decisions:[],deny:false
    let status=200,value;const action=url.pathname.split('/').at(-1),doc=fixture.docs.find(d=>d.id===body.id);
    if(url.pathname.includes('/kb/')){
     if(action==='catalog')value={documents:fixture.docs.filter(d=>d.department===body.department)};
-    else if(action==='save'){assert.equal(body.visibility,'department');const saved={...body,id:'b'.repeat(32),version:1,state:'draft',company_status:'none'};fixture.docs.push(saved);value={id:saved.id,version:1,state:'draft'};}
+    else if(action==='save'){assert.equal(body.visibility,'department');const saved={...body,id:'b'.repeat(32),version:1,state:'draft',company_status:'none',sha256:crypto.createHash('sha256').update(body.content).digest('hex')};fixture.docs.push(saved);value={id:saved.id,version:1,state:'draft'};}
     else if(action==='document')value=doc;
     else if(action==='revise'){assert.equal(body.version,doc.version);Object.assign(doc,body,{version:doc.version+1,state:'draft',company_status:'stale'});value=doc;}
     else {assert.equal(body.version,doc.version);assert.ok(body.reason);if(action==='review'){assert.equal(body.state,'confirmed');doc.state='confirmed'}if(action==='request-promotion')doc.company_status='requested';if(action==='promote'){assert.equal(doc.company_status,'requested');doc.company_status='approved'}if(action==='revoke')doc.company_status='revoked';value=doc;}
@@ -51,6 +52,19 @@ const fixture={calls:[],docs:[],result:false,review:null,decisions:[],deny:false
   const mount=section=>page.evaluate(section=>{controller.destroy();controller.mount(document.querySelector('#page'),{section});},section);
   async function mutate(action){await page.locator('#data-policy-review [name=reason]').fill(action==='review'?'현재 원문·적용일·처리 대상 열 확인':'같은 방문자 조직 공유 범위 확인');await page.locator('#data-policy-review [name=confirmed]').check();await page.locator('[data-policy-mutation='+action+']').click();await idle();}
   async function lookup(){await page.locator('[data-data-action=policy-search]').click();await page.waitForFunction(()=>!controller.getState().busy&&!!controller.getState().proposal);}
+  async function verifyPolicyCard(){
+   const card=page.locator('[data-policy-document]').first(),body=card.locator('.data-policy-evidence p'),technical=card.locator('.data-policy-technical'),summary=technical.locator('summary');
+   assert.equal(await body.isVisible(),true,'the complete policy is visible without expanding anything');
+   assert.equal(await body.textContent(),original,'all original characters remain unchanged');
+   const hash=crypto.createHash('sha256').update(await body.textContent()).digest('hex');
+   assert.equal(hash,fixture.docs[0].sha256);
+   assert.equal(await technical.evaluate(element=>element.open),false);
+   assert.equal(await technical.locator('dd').first().isVisible(),false);
+   await summary.focus();await summary.press('Enter');
+   assert.equal(await technical.evaluate(element=>element.open),true);
+   assert.deepEqual(await technical.locator('dd').allTextContents(),[fixture.docs[0].id,hash]);
+   await summary.press('Enter');assert.equal(await technical.evaluate(element=>element.open),false);
+  }
   const measurements=[];
   async function measure(label){for(const width of [1440,390,320]){await page.setViewportSize({width,height:1050});const m=await page.evaluate(()=>({width:innerWidth,overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth),header:document.querySelector('.app-header').getBoundingClientRect().height,originalFont:getComputedStyle(document.querySelector('.data-policy-evidence p')||document.body).fontSize}));assert.equal(m.overflow,0,label+' '+width+' overflow');assert.equal(m.header,width>760?48:56);measurements.push({label,...m});await page.screenshot({path:path.join(output,label+'-'+width+'.png'),fullPage:true});}await page.setViewportSize({width:1440,height:1050});}
   await page.locator('[data-policy-department]').selectOption('app');await lookup();assert.equal(await page.locator('[data-policy-document]').count(),0);assert.match(await page.locator('.data-policy-review').innerText(),/현재 범위에 유효하고 검토 완료된 정책 문서가 없습니다/);
@@ -60,13 +74,13 @@ const fixture={calls:[],docs:[],result:false,review:null,decisions:[],deny:false
   await measure('policy-draft');await mutate('review');assert.equal(fixture.docs[0].state,'confirmed');assert.equal(fixture.docs[0].company_status,'none');
   await mutate('request-promotion');assert.equal(fixture.docs[0].company_status,'requested');await mutate('promote');assert.equal(fixture.docs[0].company_status,'approved');
   await page.locator('[data-policy-department]').selectOption('device');await lookup();assert.equal(await page.locator('[data-policy-document]').count(),0);await page.locator('[data-policy-company]').check();assert.equal(await page.evaluate(()=>controller.getState().proposal),null);await lookup();assert.equal(await page.locator('[data-policy-document]').count(),1);assert.match(await page.locator('[data-policy-document]').innerText(),/승인된 전사 범위/);
-  await page.locator('[data-policy-department]').selectOption('app');await page.locator('[data-policy-company]').uncheck();await lookup();await page.locator('.data-policy-evidence details').first().locator('summary').click();assert.equal(await page.locator('.data-policy-evidence details p').first().textContent(),original);await measure('policy-found');
+  await page.locator('[data-policy-department]').selectOption('app');await page.locator('[data-policy-company]').uncheck();await lookup();await verifyPolicyCard();await measure('policy-found');
   await mount('privacy');assert.equal(await page.locator('[name=policy_ref]:checked').count(),0);const phone=page.locator('[data-rule-column=phone]');await phone.locator('[name=action]').selectOption('mask');await phone.locator('[name=policy_ref]').check();assert.equal(await phone.locator('[name=decision_reason]').getAttribute('required'),'');await phone.locator('[name=decision_reason]').fill('phone은 연락처이므로 원문의 외부 공유 가림 기준을 적용');await measure('policy-decisions');
   fixture.deny=true;await page.locator('#data-transform button[type=submit]').click();await idle();assert.match(await page.locator('[data-data-error]').innerText(),/정책 버전이 변경/);assert.equal(await phone.locator('[name=policy_ref]').isChecked(),true);assert.equal(await phone.locator('[name=decision_reason]').inputValue(),'phone은 연락처이므로 원문의 외부 공유 가림 기준을 적용');
   fixture.deny=false;await page.locator('#data-transform button[type=submit]').click();await page.waitForFunction(()=>controller.getState().dataset.id==='clean-policy-fixture'&&!controller.getState().busy);assert.equal(fixture.decisions[0].policy_refs[0].id,fixture.docs[0].id);assert.equal(fixture.decisions[0].policy_refs[0].version,1);assert.deepEqual(fixture.decisions[1].policy_refs,[]);
-  await mount('policies');assert.match(await page.locator('.data-policy-application').innerText(),/정책 1개 적용/);assert.match(await page.locator('.data-policy-application').innerText(),/phone은 연락처/);assert.match(await page.locator('.data-policy-application').innerText(),new RegExp(raw.source_sha256));await measure('policy-result');
+  await mount('policies');assert.match(await page.locator('.data-policy-application').innerText(),/정책 1개 적용/);assert.match(await page.locator('.data-policy-application').innerText(),/phone은 연락처/);assert.match(await page.locator('.data-policy-application').innerText(),new RegExp(raw.source_sha256));await verifyPolicyCard();await measure('policy-result');
   assert.equal(errors.length,0,errors.join('\n'));assert.ok(fixture.calls.every(c=>!c.body.generate));
-  const report={passed:true,scope:'API-response-substituted UI transport/render fixture; not actual API/Worker validation',apiResponsesSubstituted:true,aiCalls:0,externalMutations:0,cases:['draft preserves exact original','review/request/approve explicit steps','department exclusion and company opt-in','per-column manual selection reason','409 preserves entered decisions','saved result reason and source SHA','1440/390/320 full-shell layout'],measurements,errors,requestCount:fixture.calls.length};
+  const report={passed:true,scope:'API-response-substituted UI transport/render fixture; not actual API/Worker validation',apiResponsesSubstituted:true,aiCalls:0,externalMutations:0,cases:['draft preserves exact original','review/request/approve explicit steps','department exclusion and company opt-in','whole original visible by default before and after application','technical ID/SHA hidden by default, Enter opens and closes exact values','rendered original SHA matches fixture source metadata','per-column manual selection reason','409 preserves entered decisions','saved result reason and source SHA','1440/390/320 full-shell layout'],policySHA256:fixture.docs[0].sha256,measurements,errors,requestCount:fixture.calls.length};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log('PASS policy UI fixture: '+output);
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
