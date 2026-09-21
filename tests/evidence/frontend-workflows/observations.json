@@ -12,7 +12,14 @@
     "schema_columns": 9,
     "stale_open_detail_closed_after_review": true,
     "query": "exact_id DATASET-81a8fb73d19246dd88a541e73a82bbb0; generate=false",
-    "provider_transport": "Blocked by preview server; no paid calls"
+    "provider_transport": "Blocked by preview server; no paid calls",
+    "selected_document_followup": {
+      "document_id_selection": true,
+      "manual_exact_id_required": false,
+      "evidence_count": 1,
+      "generate": false,
+      "immutable_body_does_not_claim_draft_after_confirmation": true
+    }
   },
   "local_selected_company_document": {
     "api": "http://127.0.0.1:58096/knowhow",

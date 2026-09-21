@@ -19,16 +19,17 @@ class Host {
 }
 const deferred=()=>{let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no});return {promise,resolve,reject}};
 function fixture(){
- const calls=[],opens=[],mounts=[],changes=[];
+ const calls=[],opens=[],asks=[],mounts=[],changes=[];
  const orgState={session:null,org:'alpha',department:'operations',includeCompany:false};
- let handler=async action=>action==='data-manifest'?{status:'active',manifest:{dataset_id:'data-1',source_sha256:'verified-sha',schema:[{name:'amount',type:'number'}]}}:{id:'doc-1',version:1,state:'draft',identifier:'DATA-GUIDE-1'};
+ let handler=async action=>action==='data-manifest'?{status:'active',manifest:{dataset_id:'data-1',source_sha256:'verified-sha',schema:[{name:'amount',type:'number'}]}}:{id:'doc-1',title:'Original data guide',version:1,state:'draft',identifier:'DATA-GUIDE-1'};
  const org={
   getState:()=>orgState,
   changeScope(value){Object.assign(orgState,value);changes.push(value)},
   async connect(){calls.push({action:'session'});orgState.session='opaque-kb-session'},
   mount(target,options){mounts.push(options.mode);target.innerHTML='Existing organization UI';return ()=>mounts.push('unmount')},
   async request(action,payload){calls.push({action,payload,org:orgState.org,department:orgState.department});return handler(action,payload)},
-  async openDocument(id){opens.push(id)}
+  async openDocument(id){opens.push(id)},
+  askDocument(document){asks.push(document);orgState.questionDocument=document}
  };
  const context=vm.createContext({window:{KnowHowOrganizationUI:{createController(options){calls.push({action:'factory',options});return org}}}});
  vm.runInContext(fs.readFileSync('src/data-knowledge-bridge.js','utf8'),context);
@@ -38,7 +39,7 @@ function fixture(){
   const button=host.querySelector(`[data-knowledge-action="${action}"]`)||host.querySelector('[data-knowledge-region="actions"]')?.querySelector(`[data-knowledge-action="${action}"]`);
   assert.ok(button,`button ${action} exists`);return button.onclick();
  };
- return {controller,host,calls,opens,mounts,changes,orgState,click,setHandler(value){handler=value}};
+ return {controller,host,calls,opens,asks,mounts,changes,orgState,click,setHandler(value){handler=value}};
 }
 
 (async()=>{
@@ -58,6 +59,9 @@ function fixture(){
  assert.equal(f.controller.getState().draft.identifier,'DATA-GUIDE-1');
  assert.match(f.host.querySelector('[data-knowledge-region="actions"]').innerHTML,/DATA-GUIDE-1/);
  const beforeQuery=f.calls.length;await f.click('query');assert.equal(f.mounts.at(-1),'chat');assert.equal(f.calls.length,beforeQuery,'opening questions must not query or generate');
+ assert.deepEqual(JSON.parse(JSON.stringify(f.asks.at(-1))),{id:'doc-1',title:'Original data guide',department:'data'});
+ assert.match(f.host.querySelector('[data-knowledge-region="actions"]').innerHTML,/담당자 확인을 마친 현재 버전/);
+ assert.doesNotMatch(f.host.querySelector('[data-knowledge-region="actions"]').innerHTML,/정확히 찾을 ID/);
  await f.click('manifest');assert.deepEqual(JSON.parse(JSON.stringify(f.calls.at(-1).payload)),{id:'doc-1'});assert.equal(f.controller.getState().manifest.status,'active');
  f.setHandler(async()=>{throw Error('데이터 출처가 만료되었습니다.')});await f.click('manifest');assert.equal(f.controller.getState().manifest,null,'failed revalidation must discard previously displayed metadata');assert.match(f.controller.getState().error,/만료/);
  assert.equal(f.calls.some(c=>['save','review','promote','chat','embedding'].includes(c.action)),false,'bridge never automatically reviews, promotes, queries or embeds');
@@ -75,6 +79,7 @@ function fixture(){
  const nextCleanup=f.controller.mount(f.host,{dataset:{id:'data-2'}});cleanup();
  pending.resolve({id:'stale-document',version:1,state:'draft',identifier:'STALE'});await late;
  assert.equal(f.controller.getState().datasetId,'data-2');assert.equal(f.controller.getState().draft,null);assert.equal(f.opens.includes('stale-document'),false);assert.equal(f.controller.getState().busy,false);
+ assert.equal(f.orgState.questionDocument,null,'changing datasets clears the selected question document');
  await f.click('reveal');assert.ok(f.host.querySelector('[data-knowledge-region="actions"]'),'old cleanup cannot clear new mount');
 
  // A scope change while a request is in flight also suppresses the old response.
@@ -89,6 +94,7 @@ function fixture(){
  f.setHandler(async()=>({id:'doc-safe',state:'draft',version:2,identifier:'<img src=x onerror=alert(1)>'}));await f.click('draft');
  assert.match(f.host.querySelector('[data-knowledge-region="actions"]').innerHTML,/&lt;img/);
  assert.doesNotMatch(f.host.querySelector('[data-knowledge-region="actions"]').innerHTML,/<img/);
+ await f.click('query');assert.deepEqual(JSON.parse(JSON.stringify(f.asks.at(-1))),{id:'doc-safe',title:'데이터 구조·업무 가이드',department:'hr'});
  nextCleanup();assert.equal(f.host.listeners.size,0,'cleanup removes the delegated scope listener');
 
  // Run the real organization controller against a mock HTTP provider as a contract check.
@@ -99,6 +105,8 @@ function fixture(){
   return {ok:true,json:async()=>response};
  }});
  for(const path of ['src/organization-kb.js','src/data-knowledge-bridge.js'])vm.runInContext(fs.readFileSync(path,'utf8'),integrated);
+ const createOrganization=integrated.window.KnowHowOrganizationUI.createController;let realOrg;
+ integrated.window.KnowHowOrganizationUI.createController=options=>(realOrg=createOrganization(options));
  const realBridge=integrated.window.KnowHowDataKnowledgeBridge.createController({apiBase:'https://mock.test/knowhow'}),realHost=new Host();
  realBridge.mount(realHost,{dataset:{id:'integrated-dataset'}});assert.equal(http.length,0);
  realHost.querySelector('[data-knowledge-action="reveal"]').onclick();
@@ -107,6 +115,14 @@ function fixture(){
  assert.deepEqual(http.map(call=>call.url.split('/').at(-1)),['session','catalog','data-draft','catalog','document']);
  assert.equal(http[2].payload.session_id,'integration-session');assert.equal(http[2].payload.org,'alpha');assert.equal(http[2].payload.department,'data');assert.equal(http[2].payload.sample_pack,'general');assert.equal(http[2].payload.visibility,'department');
  assert.equal(realBridge.getState().draft.id,'integrated-doc');assert.equal(http.some(call=>call.payload.generate),false);
+ const beforeSelection=http.length;
+ await realHost.querySelector('[data-knowledge-region="actions"]').querySelector('[data-knowledge-action="query"]').onclick();
+ assert.equal(http.length,beforeSelection,'selecting the real document does not search or generate');
+ assert.equal(realOrg.getState().questionDocument.id,'integrated-doc');assert.equal(realOrg.getState().chatDraft.generate,false);
+ assert.equal(realOrg.getState().includeCompany,false);
+ await realOrg.submitChat({question:'이 집계표의 기준은 무엇인가요?',as_of:realOrg.getState().asOf,generate:false});
+ assert.equal(http.at(-1).payload.document_id,'integrated-doc');assert.equal(http.at(-1).payload.exact_id,undefined);assert.equal(http.at(-1).payload.generate,false);
+ realBridge.mount(realHost,{dataset:{id:'another-dataset'}});assert.equal(realOrg.getState().questionDocument,null);assert.equal(realOrg.getState().purpose,'read');
  realBridge.destroy();
  console.log('PASS: explicit metadata draft flow; no automatic API, review, AI or promotion; denial; dataset/scope response isolation; escaped identifiers');
 })().catch(error=>{console.error(error);process.exitCode=1});
