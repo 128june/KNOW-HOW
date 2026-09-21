@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "checkedAt": "2026-09-21T07:47:35.378Z",
+  "cases": [
+    "explicit sample collection",
+    "uncollected source preview",
+    "department citation lines",
+    "both conflicting originals",
+    "browser TXT/MD import",
+    "BOM/CRLF exact hash and original download",
+    "HTML stays literal",
+    "separate draft correction",
+    "original unchanged",
+    "desktop/mobile rendering",
+    "no mobile overflow",
+    "no fetch/XHR",
+    "existing scenario storage unchanged",
+    "refresh clears memory"
+  ],
+  "screenshots": [
+    "desktop.png",
+    "mobile.png"
+  ]
+}
