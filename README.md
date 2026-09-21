@@ -25,6 +25,7 @@ main push 또는 workflow_dispatch로 `.github/workflows/pages.yml` 실행. 저�
 - 로그인 `/api/login {name,password,auth:'bearer'}` → 메모리 토큰. `credentials:omit` + Authorization 헤더.
 - `/api/me`, `/api/logout`, `/api/docs`, `/api/docs/{id}`.
 - `/api/upload {name,content,scope}`: MD/TXT/CSV, UTF-8 256KiB.
+- `/api/upload/xlsx {name,content_base64,scope}`: XLSX 2MiB. 원본 보존, 시트·셀 출처 표시 및 인증 다운로드. 서버 Excel 의존성이 필요합니다.
 - `/api/ask {question,context,as_of,generate}`: 정확 질문·맥락·기간에 맞는 담당자 답변 또는 관련 근거. 자유 질문 일반화는 보장하지 않습니다.
 - `/comments {body,version}` / `/revise {version,content,state,reason,resolve_comments,rule?}`.
 - 401 세션 초기화, 403/409/413 서버 메시지, 연결 실패 재시도 안내. 정정 409 시 입력은 유지됩니다.
