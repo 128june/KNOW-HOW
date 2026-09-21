@@ -11,7 +11,7 @@ if base:
 out = root / 'dist'
 if out.exists(): shutil.rmtree(out)
 out.mkdir()
-for name in ('index.html','style.css','app.js','demo.js'): shutil.copyfile(root/'src'/name,out/name)
+for name in ('index.html','style.css','app.js','demo-example.js','demo.js'): shutil.copyfile(root/'src'/name,out/name)
 (out/'config.js').write_text('window.KNOWHOW_CONFIG = '+json.dumps({'apiBase':base})+';\n')
 (out/'.nojekyll').touch()
 print('Built dist: '+', '.join(sorted(p.name for p in out.iterdir())))

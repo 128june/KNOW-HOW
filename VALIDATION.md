@@ -80,3 +80,13 @@
 - Re-entered sample mode: department filter device returned 0 and app returned 1 saved KB. Reopened and requested the same target again.
 - DOM assertions: corrected marker present = true; `이번 후속 문의:` present = true; reused v2 / 정정 present = true; organization navigation hidden = true; horizontal overflow = false at tested desktop viewport.
 - This is actual deployed anonymous UI/API/browser-storage acceptance, not an authenticated organization-account test. The fixture has 50 public-source rows and synthetic department IDs. Browser KB is confined to this site/browser storage and is not organization KB.
+
+## Scenario-first public experience — 2026-09-21
+- Five direct-entry scenarios replace the public login-first flow. Public header has no login/API-connection control. Protected organization endpoints are unchanged.
+- `demo-example.js` contains a captured response from the anonymous 50-row public fixture: GS타워, seven chargers, selected public ID 01, and distinct app/device guides. Department IDs and responder examples are explicitly fictional.
+- Every scenario has a prepared example. Merely entering a tab does not save it. Browser-only namespace `knowhow.scenarios.v1` preserves saved replies, comments, correction reasons, versions and latest-body reuse. Earlier sample storage is untouched.
+- Scenario 2 saves a separate fictional responder reply with context, evidence and example applicability dates, not a generated inquiry draft promoted to confirmation.
+- Scenario 3 links a member's unreviewed comment to a reviewer-role correction, reason and resolved version. Scenario 4 reuses the full latest body while preserving the new question; dates outside the example applicability range are excluded from current answers.
+- KB collection has policy, department-data-structure and documented-guide categories; readable summary cards lead to detail. Data fields have human explanations and sample values; raw tracking keys and history are collapsed. Corrections suppress old structured ID values.
+- Local actual-browser checks: all five hash URLs load independently with five navigation tabs, no login dialog, hidden session control. Reply save → comment → fictional reviewer → correction v2 → other-member question returns corrected text and preserves new question. Reload retains correction; 2027-01-01 applicability excludes the answer. Desktop KB screenshot visually inspected.
+- Five regression suites pass, including expanded demo-isolation tests for unsaved seeds, comments not granting confirmation, correction linkage, persistence and expired applicability.

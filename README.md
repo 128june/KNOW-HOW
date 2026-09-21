@@ -44,3 +44,6 @@ main push 또는 workflow_dispatch로 `.github/workflows/pages.yml` 실행. 저�
 
 ### Login-free sample experience
 Choose **샘플로 체험** to search the fixed public 50-row subset and generate department inquiry guides. The sample API is read-only and receives no organization token. Sample KB is saved only to this browser (`knowhow.public-sample-kb.v1`), with department filtering, versioned corrections and latest-body reuse. It does not write to organizational KB. Clearing browser data removes these samples.
+
+### Scenario-first public UI (current)
+The public site now opens directly into five example scenarios without login. Direct links use `#scenario-1` through `#scenario-5`. Each includes prepared GS타워/01 examples; fictional replies, roles and sample IDs are labeled. Saved replies, comments and versioned corrections live only in this browser under `knowhow.scenarios.v1`. Prepared examples never overwrite saved corrections. The KB has policy, department data structure and document/guide categories. Protected organizational APIs retain authentication.
