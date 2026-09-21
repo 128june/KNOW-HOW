@@ -49,6 +49,15 @@
 .data-workspace .data-policy-list{display:grid;gap:14px;margin:18px 0}
 .data-workspace .data-policy-document{border:1px solid #d9e3d3;border-radius:10px;padding:20px;background:#fff}
 .data-workspace .data-policy-document h3{font-size:17px;overflow-wrap:anywhere}
+.data-workspace .data-policy-summary{margin:14px 0 16px;color:#53674c;font-size:13px;line-height:1.65}
+.data-workspace .data-policy-summary p{margin:3px 0}
+.data-workspace .data-policy-summary strong{color:#32492d}
+.data-workspace .data-policy-source{margin:16px 0;color:#53674c;font-size:13px;line-height:1.7}
+.data-workspace .data-policy-source h4{margin:0 0 5px;font-size:13px}
+.data-workspace .data-policy-source p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.data-workspace .data-policy-technical{margin-top:18px;padding-top:8px;border-top:1px solid #e3e9df}
+.data-workspace .data-policy-technical>summary{min-height:44px;padding:10px 0;color:#62725a;font-size:12px;line-height:1.8;cursor:pointer}
+.data-workspace .data-policy-technical .data-policy-meta{grid-template-columns:1fr;margin:8px 0 0;font-size:12px}
 .data-workspace .data-policy-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 22px;margin:20px 0;font-size:13px;line-height:1.6}
 .data-workspace .data-policy-meta>div{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px}
 .data-workspace .data-policy-meta dt{color:#62725a}

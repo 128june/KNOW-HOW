@@ -181,7 +181,6 @@
     const id = policyId(policy);
     const evidence = policy.content ?? policy.evidence ?? policy.excerpt ?? policy.reason;
     const fullEvidence = valueText(evidence);
-    const evidenceExcerpt = fullEvidence.length > 700 ? fullEvidence.slice(0, 700) + '…' : fullEvidence;
     const relatedRules = !applied && !completed ? list(proposal?.proposals || proposal?.rules).filter(rule => list(rule.policy_refs).some(reference => String(reference.id) === String(id) && (reference.version == null || policy.version == null || String(reference.version) === String(policy.version)))) : [];
     const effect = completed && !applied ? null : policy.applied_effect ?? policy.effect ?? policy.application_effect;
     const source = policy.source;
@@ -189,15 +188,18 @@
     const url = typeof sourceUrl === 'string' && /^https?:\/\//i.test(sourceUrl) ? sourceUrl : '';
     const sourceName = typeof source === 'string' ? source : source?.reference || source?.title || source?.name || source?.type;
     const unavailable = policy.availability === 'unavailable';
+    const department = policy.department ?? policy.owner_department ?? '미제공';
+    const departmentLabel = { app: '앱개발팀', device: '충전기개발팀', data: '데이터팀', operations: '고객운영팀', finance: '재무팀', hr: '인사운영팀' }[department] || valueText(department);
     return `<article class="data-policy-document" data-policy-document="${esc(id)}">
       <div class="row"><h3>${esc(policy.title || policy.name || (unavailable ? `정책 ${id}` : `정책 문서 ${index + 1}`))}</h3><span class="data-review-badge ${applied ? 'is-complete' : ''}">${applied ? '확정 적용' : completed ? '검색 근거 · 미적용' : '검색 근거 · 적용 전'}</span></div>
       ${unavailable ? '<p class="notice">적용 당시 근거 · 현재 원문 사용 불가</p>' : ''}${policy.synthetic === true ? '<p><span class="data-review-badge is-sample">체험용 샘플 정책</span></p>' : ''}
-      <dl class="data-policy-meta"><div><dt>문서</dt><dd>${esc(id || '미제공')}</dd></div><div><dt>버전</dt><dd>${esc(policy.version ?? policy.document_version ?? '미제공')}</dd></div><div><dt>담당부서</dt><dd>${esc(valueText(policy.department ?? policy.owner_department ?? '미제공'))}</dd></div><div><dt>검토 상태</dt><dd>${esc(statusName(policy.review_status ?? policy.review_state ?? policy.state))}</dd></div><div><dt>범위</dt><dd>${policy.scope === 'company' ? '승인된 전사 범위' : '부서 범위'}</dd></div>${policy.valid_from || policy.valid_to ? `<div><dt>유효기간</dt><dd>${policy.valid_from ? esc(timeText(policy.valid_from)) : '시작일 미제공'} ~ ${policy.valid_to ? esc(timeText(policy.valid_to)) : '종료일 미제공'}</dd></div>` : '<div><dt>유효기간</dt><dd>시작·종료일 미등록</dd></div>'}${sourceName ? `<div><dt>출처</dt><dd>${esc(sourceName)}</dd></div>` : ''}${policy.sha256 ? `<div><dt>정책 SHA-256</dt><dd>${esc(policy.sha256)}</dd></div>` : ''}</dl>
-      ${evidence ? `<div class="data-policy-evidence"><h4>정책 원문</h4><p>${esc(evidenceExcerpt)}</p>${fullEvidence.length > 700 ? `<details><summary>정책 근거 전체 보기</summary><p>${esc(fullEvidence)}</p></details>` : ''}</div>` : `<p class="muted">${esc(unavailable ? policy.notice || '현재 권한·버전·검토 상태에서 원문을 사용할 수 없습니다. 적용 당시 정책 번호와 버전, 처리 이유는 기록에 보존됩니다.' : '이 문서의 판단 근거가 제공되지 않았습니다.')}</p>`}
+      <div class="data-policy-summary"><p><strong>v${esc(policy.version ?? policy.document_version ?? '미제공')}</strong> · ${esc(departmentLabel)}</p><p>${esc(statusName(policy.review_status ?? policy.review_state ?? policy.state))} · ${policy.scope === 'company' ? '승인된 전사 범위' : '부서 범위'}</p><p>적용 ${policy.valid_from || policy.valid_to ? `${policy.valid_from ? esc(timeText(policy.valid_from)) : '시작일 미제공'} ~ ${policy.valid_to ? esc(timeText(policy.valid_to)) : '종료일 미제공'}` : '시작·종료일 미등록'}</p></div>
+      ${evidence ? `<div class="data-policy-evidence"><h4>정책 원문</h4><p>${esc(fullEvidence)}</p></div>` : `<p class="muted">${esc(unavailable ? policy.notice || '현재 권한·버전·검토 상태에서 원문을 사용할 수 없습니다. 적용 당시 정책 번호와 버전, 처리 이유는 기록에 보존됩니다.' : '이 문서의 판단 근거가 제공되지 않았습니다.')}</p>`}
+      ${sourceName || url ? `<div class="data-policy-source"><h4>출처</h4>${sourceName ? `<p>${esc(sourceName)}</p>` : ''}${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">정책 원문 보기</a>` : ''}</div>` : ''}
       ${policy.reason && policy.reason !== evidence ? `<p>${esc(valueText(policy.reason))}</p>` : ''}
       ${effect ? `<div class="data-policy-effect"><h4>${applied ? '데이터에 적용된 내용' : '제안된 처리 내용'}</h4><p>${esc(valueText(effect))}</p></div>` : applied ? `<div class="data-policy-effect"><h4>데이터에 적용된 내용</h4><ul>${list(policy.applications).map(entry => `<li>${esc(entry.column)} · ${esc(actions.find(([key]) => key === entry.action)?.[1] || entry.action)} · ${count(entry.affected_count)}행</li>`).join('')}</ul></div>` : relatedRules.length ? `<div class="data-policy-effect"><h4>제안된 처리 내용</h4><ul>${relatedRules.map(rule => `<li><strong>${esc(rule.column)}</strong> · ${esc(actions.find(([key]) => key === rule.action)?.[1] || rule.action)}${rule.affected_count != null ? ` · 영향 범위 ${count(rule.affected_count)}행` : ''}${rule.reason ? `<p>${esc(rule.reason)}</p>` : ''}</li>`).join('')}</ul></div>` : `<p class="muted">${completed ? '이 처리에 적용된 정책 기록이 없습니다.' : '이 정책은 아직 데이터에 적용되지 않았습니다.'}</p>`}
       ${list(policy.columns || policy.target_columns).length ? `<p class="muted">대상 열: ${list(policy.columns || policy.target_columns).map(column => esc(valueText(column))).join(', ')}</p>` : ''}
-      ${url ? `<div class="actions"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">정책 원문 보기</a></div>` : ''}
+      <details class="data-policy-technical"><summary>문서 식별·검증 정보</summary><dl class="data-policy-meta"><div><dt>문서 ID</dt><dd>${esc(id || '미제공')}</dd></div>${policy.sha256 ? `<div><dt>정책 SHA-256</dt><dd>${esc(policy.sha256)}</dd></div>` : ''}</dl></details>
     </article>`;
   }
   function applicationRowsMarkup(entries) {
