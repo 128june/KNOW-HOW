@@ -43,3 +43,76 @@
 .org-history-entry summary>span{display:block;margin-top:4px}.org-history-entry{padding:10px 0}.org-document-status{font-size:14px}.org-document-status dd{margin-bottom:0}.org-document-detail summary,.org-document summary,.org-history summary{min-height:44px;padding:10px 0;cursor:pointer}.org-document-detail summary:focus-visible,.org-document summary:focus-visible{outline:2px solid #52734b;outline-offset:3px}
 
 .company-review-summary .company-judgment{font-size:15px;line-height:1.55;margin:8px 0}
+
+/* KB documents only. The platform shell, intake and lineage keep their own styles. */
+:where(.org-kb,.company-document,.company-history,.company-human-review,.kb-document){--kb-ink:#253b35;--kb-muted:#596b63;--kb-line:#dce5df;--kb-paper:#f7f9f7;--kb-accent:#345d4c;min-width:0;overflow-wrap:anywhere}
+:where(.org-kb,.company-document,.kb-document) .kb-document-heading{margin:0 0 12px}
+:where(.org-kb,.company-document,.kb-document) .kb-document-kicker{margin:0 0 5px;color:var(--kb-accent);font-size:12px;font-weight:700;line-height:1.6;letter-spacing:.03em}
+:where(.org-kb,.company-document,.kb-document) .kb-document-heading :is(h2,h3){margin:0;color:var(--kb-ink);font-size:22px;font-weight:750;line-height:1.45;letter-spacing:-.025em;text-wrap:pretty;overflow-wrap:anywhere}
+:where(.org-kb,.company-document,.kb-document) .kb-document-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px;margin:14px 0 18px;font-size:13px;line-height:1.65}
+:where(.org-kb,.company-document,.kb-document) .kb-document-meta div{min-width:0}
+:where(.org-kb,.company-document,.kb-document) .kb-document-meta dt{font-size:12px;color:var(--kb-muted);margin-bottom:3px}
+:where(.org-kb,.company-document,.kb-document) .kb-document-meta dd{margin:0;overflow-wrap:anywhere}
+.company-document .kb-document-period{font-size:13px;color:var(--kb-muted);margin:12px 0;line-height:1.6}
+.company-document .kb-document-period strong{font-weight:500;margin-right:8px}
+.company-document .company-current-summary{background:var(--kb-paper);border-color:var(--kb-line);border-radius:6px;gap:12px;margin:12px 0;padding:12px 14px}
+.company-document .company-current-summary dt{color:var(--kb-muted)}
+.company-document .company-current-summary dd{font-size:14px;color:var(--kb-ink)}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .company-review-summary{white-space:normal;margin:16px 0;padding:14px 16px;border-left:3px solid #9daea4;background:#f5f8f6;font-size:14px;line-height:1.7}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .company-review-summary[data-review-outcome="unknown"]{border-left-color:#b48335;background:#fcf8ef}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .company-review-summary .company-judgment{margin:0 0 3px;font-size:17px;line-height:1.5;color:#394b41}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .company-review-summary[data-review-outcome="unknown"] .company-judgment{color:#795314}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .kb-review-record{font-size:12px;font-weight:500;color:#5e6c63}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .kb-review-fields{margin:12px 0 0}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .kb-review-fields>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:9px 0;border-top:1px solid #dfe4da;min-width:0}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .kb-review-fields dt{font-size:12px;font-weight:700;color:#58665c}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .kb-review-fields dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+:where(.company-document,.org-kb,.company-source-result,.company-evidence) .kb-review-caveat{margin:8px 0 0;font-size:12px;color:#606a60}
+:where(.company-document,.org-kb,.kb-document) .company-document-summary{margin:20px 0;line-height:1.85;font-size:15px;white-space:pre-wrap;color:#293e35}
+:where(.company-document,.org-kb,.kb-document) .company-document-summary>strong{font-size:12px;font-weight:700;color:#536b5e}
+:where(.company-document,.org-kb,.kb-document) :is(.source,.company-body){font:inherit;font-size:15px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;max-width:100%;border:1px solid #e0e7e1;border-left:3px solid #a3b7aa;border-radius:4px;background:#f8faf8;padding:18px;margin:12px 0}
+.org-kb :is(.org-document,.org-document-detail) .source,.kb-original .source{max-height:none;overflow:visible}
+:where(.company-document,.org-kb,.kb-document) :is(.company-full-document,.company-source,.kb-original,.kb-document-sources){border-top:1px solid #dce5df;margin:16px 0 0}
+:where(.company-document,.org-kb,.kb-document) summary{font-size:14px;font-weight:600;line-height:1.6;min-height:44px;padding:11px 0;cursor:pointer;overflow-wrap:anywhere}
+:where(.company-document,.org-kb,.kb-document) details[open]>summary{margin-bottom:8px}
+.org-kb :is(.org-document,.org-document-detail){border:0;border-top:1px solid #dce5df;border-radius:0;background:white;padding:22px 0;margin:18px 0 0;min-width:0}
+.org-kb .org-document-status{background:#f7f9f7;border-top:1px solid #e2e8e2;border-bottom:1px solid #e2e8e2;grid-template-columns:104px minmax(0,1fr);gap:6px 14px;padding:12px 14px;margin:12px 0;font-size:13px;line-height:1.55}
+.org-kb .org-document-status dt{color:#596b63;font-size:12px}
+.org-kb .org-document-status dd{margin:0}
+.org-kb :is(.org-document,.org-document-detail)>.actions{gap:8px;margin:12px 0}
+.org-kb .org-share-actions{padding-top:12px;border-top:1px dashed #dce5df}
+.org-kb :is(button,input,select,textarea){max-width:100%;min-width:0}
+.org-kb button{white-space:normal;overflow-wrap:anywhere;min-height:44px}
+.org-kb .org-document-detail>[data-org-action="close-document"]{margin-bottom:16px}
+.org-kb .org-history{margin-top:24px;border-top:1px solid #dce5df}
+.org-kb .org-history-entry{background:transparent;border:0;border-bottom:1px solid #e3e9e4;border-radius:0;padding:6px 0;margin:0}
+.org-kb .source-record-meta{grid-template-columns:132px minmax(0,1fr);font-size:13px;line-height:1.75}
+.company-document .company-comments{margin-top:24px;padding-top:16px;border-color:#dce5df}
+.company-document .company-comments h3{font-size:16px;line-height:1.5;margin:0 0 12px}
+.company-document .company-comment{border:0;border-left:2px solid #c9d6ce;border-radius:0;background:#f7f9f7;padding:12px 16px;margin:12px 0;font-size:14px;line-height:1.75}
+.company-document .company-comment .row{align-items:baseline;gap:6px 12px}
+.company-document .company-comment .row>strong{font-size:12px}
+.company-document .company-comment p{margin:8px 0 0}
+.company-history :is(.company-version,.company-history-option){border-top:1px solid #dce5df;border-left:2px solid #c9d6ce;padding:8px 0 8px 16px;margin:12px 0}
+.company-history .company-version summary{font-size:14px}
+.company-history .company-version summary>.muted{font-size:12px}
+.company-human-review :is(input,select,textarea){font:inherit;font-size:14px;line-height:1.7}
+.kb-document .kb-document-excerpt{border-left:3px solid #a3b7aa;padding:10px 16px;margin:16px 0;background:#f7f9f7;line-height:1.85}
+.kb-document .kb-document-excerpt p{margin:6px 0}
+.kb-document .kb-document-excerpt :is(strong,small){font-size:12px;color:#536b5e}
+.kb-document .kb-document-version{border-bottom:1px solid #dce5df;margin:8px 0;padding:0 0 8px}
+.kb-document :is(code,pre),.org-kb code{overflow-wrap:anywhere;white-space:pre-wrap}
+@media(max-width:600px){
+ :where(.org-kb,.company-document,.kb-document) .kb-document-heading :is(h2,h3){font-size:20px}
+ :where(.org-kb,.company-document,.kb-document) .kb-document-meta{grid-template-columns:1fr;gap:10px;margin:12px 0}
+ :where(.company-document,.org-kb,.company-source-result,.company-evidence) .company-review-summary{padding:12px;margin:12px 0}
+ :where(.company-document,.org-kb,.company-source-result,.company-evidence) .company-review-summary .company-judgment{font-size:16px}
+ :where(.company-document,.org-kb,.company-source-result,.company-evidence) .kb-review-fields>div{grid-template-columns:1fr;gap:3px;padding:8px 0}
+ :where(.company-document,.org-kb,.kb-document) :is(.source,.company-body){padding:13px;font-size:14px;line-height:1.85}
+ .org-kb .source-record-meta{grid-template-columns:1fr;gap:3px}.org-kb .source-record-meta dd{margin-bottom:10px}
+ .org-kb .org-document-status{grid-template-columns:82px minmax(0,1fr);padding:10px;gap:6px 10px}
+ .org-kb :is(.org-document,.org-document-detail){padding:16px 0}
+ .company-document .company-current-summary{gap:10px;padding:10px}
+ .company-document .company-current-summary dd{font-size:13px}
+ .company-document .company-comment{padding:12px}
+}

@@ -95,9 +95,22 @@
    const first=d.versions.find(v=>v.version===1),earliest=first||d.versions[d.versions.length-1];
    const originalContent=first?.content??d.content??earliest.content;
    const hasOriginal=!!first||typeof d.content==='string';
-   return `<details><summary>원문·확인 근거·정정 이력</summary><p>${esc(d.filename||'저장된 파일명 없음')} · 모든 규칙·수치·자료는 가상 예시입니다.</p><h3>처음 받은 자료</h3><pre class="source">${esc(d.raw??'처음 받은 자료가 이 기록에 저장되어 있지 않습니다.')}</pre><h3>${hasOriginal?'담당 부서가 확인한 최초 기준':'보관된 가장 이른 기준'}</h3><pre class="source">${readableContent(originalContent)}</pre><h3>정정 이력</h3><p>최신 본문은 v${d.versions[0].version}입니다. ${hasOriginal?'저장된 최초 원문은 그대로 유지합니다.':'최초 기준은 이 기록에 남아 있지 않습니다.'}</p>${d.versions.map(v=>`<p><strong>v${v.version}</strong> · ${esc(v.reason)}</p><pre class="source">${readableContent(v.content)}</pre>`).join('')}</details>`
+   return `<details class="kb-document-sources"><summary>원문·확인 근거·정정 이력</summary>
+    <p class="muted">모든 규칙·수치·자료는 가상 예시입니다.</p>
+    <dl class="kb-document-meta"><div><dt>원본 파일</dt><dd>${esc(d.filename||'저장된 파일명 없음')}</dd></div>${d.basis?`<div><dt>사례의 확인 근거</dt><dd>${esc(d.basis)}</dd></div>`:''}</dl>
+    <h3>처음 받은 자료</h3><pre class="source kb-original">${esc(d.raw??'처음 받은 자료가 이 기록에 저장되어 있지 않습니다.')}</pre>
+    <h3>${hasOriginal?'담당 부서가 확인한 최초 기준':'보관된 가장 이른 기준'}</h3><pre class="source kb-original">${readableContent(originalContent)}</pre>
+    <h3>정정 이력</h3><p class="muted">최신 본문은 v${esc(d.versions[0].version)}입니다. ${hasOriginal?'저장된 최초 원문은 그대로 유지합니다.':'최초 기준은 이 기록에 남아 있지 않습니다.'}</p>
+    ${d.versions.map(v=>`<details class="kb-document-version"><summary>v${esc(v.version)}${v===d.versions[0]?' · 현재 버전':''} · ${esc(v.reason)}</summary><pre class="source kb-original">${readableContent(v.content)}</pre></details>`).join('')}
+   </details>`
   }
-  function body(d){const v=d.versions[0];return `<span class="badge">${esc(d.category)} · ${esc(d.owner)} · v${v.version}</span><h2>${esc(d.title)}</h2><p class="muted">이 사례에서 확인할 핵심</p><p class="answer">${esc(d.finding)}</p><details><summary>적용 조건·예외·출처가 담긴 지식 본문</summary><pre class="source">${readableContent(v.content)}</pre></details><p class="muted">${d.prepared?'준비된 기준 · 아직 이 기기에 저장하지 않음':'이 기기에 저장됨 · 팀 공유 상태는 별도 확인'} · 적용 ${esc(v.validFrom)} ~ ${esc(v.validTo)}</p>${v.version>1?`<p>보완한 이유: ${esc(v.reason)}</p>`:''}${source(d)}`}
+  function body(d){const v=d.versions[0];return `<article class="kb-document">
+   <div class="kb-document-heading"><p class="kb-document-kicker">${esc(d.category)} · 가상 사례</p><h2>${esc(d.title)}</h2></div>
+   <dl class="kb-document-meta"><div><dt>기준 부서</dt><dd>${esc(d.owner)}</dd></div><div><dt>현재 버전</dt><dd>v${esc(v.version)}</dd></div><div><dt>적용 기간</dt><dd>${esc(v.validFrom)} ~ ${esc(v.validTo)}</dd></div><div><dt>저장·공유 상태</dt><dd>${d.prepared?'준비된 기준 · 아직 이 기기에 저장하지 않음':'이 기기에 저장됨 · 팀 공유 상태는 별도 확인'}</dd></div></dl>
+   <div class="kb-document-excerpt"><p class="kb-document-kicker">준비된 가상 사례의 핵심</p><p>${esc(d.finding)}</p><p class="muted">사례 설명입니다. 현재 버전의 본문은 아래에서 확인하세요.</p></div>
+   <details class="kb-document-current" open><summary>적용 조건·예외·출처가 담긴 지식 본문 · v${esc(v.version)}</summary><pre class="source kb-original">${readableContent(v.content)}</pre></details>
+   ${v.version>1?`<p class="muted">보완한 이유: ${esc(v.reason)}</p>`:''}${source(d)}
+  </article>`}
   function transfer(d){return `<p class="muted">이 기기의 최신 v${d.versions[0].version} 본문으로 공유할 초안을 준비합니다. 등록 뒤 담당자 확인을 마쳐야 팀에서 조회할 수 있습니다. 실제 팀이 아닌 가상 조직 체험입니다.</p><button data-general-transfer="${esc(d.id)}">팀과 공유할 초안 만들기</button>`}
   function render(){if(!host)return;unmount?.();unmount=null;const d=current(),v=d.versions[0];let html='';
    if(tab===1)html=`<section class="card"><h2>${esc(d.question)}</h2><p>${esc(d.problem)}</p><h3>자료는 있는데 무엇을 모르나요?</h3><pre class="source">${esc(d.raw)}</pre><p>${esc(d.gap)}</p><h3>담당 부서에 확인할 내용</h3><p><strong>${esc(d.owner)}</strong>에 이번 업무의 목적·적용일과 함께 기준을 확인합니다.</p><pre class="source">${esc(d.question)}
