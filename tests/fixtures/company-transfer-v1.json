@@ -1,0 +1,38 @@
+{
+  "derivation": "src/demo.js organizationScenarioDraft(seed(app)); explicit default save form fields; session_id deliberately omitted",
+  "content_sha256": "b7f9dedb80e682a656306557ded098c6afeb4d13296d08fb2e5019b00f056ab0",
+  "save": {
+    "org": "alpha",
+    "department": "app",
+    "sample_pack": "company",
+    "title": "GS타워 · 충전기 01 문의 기준",
+    "content": "앱개발팀은 앱개발팀이 사용하는 샘플 충전기 ID DEMO-APP-d9c51dac6e274c75를 기준으로 확인합니다. 환경부 충전기 ID 01, GS타워 주소와 운영사를 함께 대조한 뒤 앱 오류 화면을 전달하세요. 실제 운영 시스템의 대응 관계는 별도 확인이 필요합니다.",
+    "valid_from": "2026-09-01",
+    "valid_to": "2026-12-31",
+    "source": {
+      "kind": "browser_scenario_kb",
+      "label": "GS타워 · 충전기 01 문의 기준 · 브라우저 최신 v1",
+      "document_id": "scenario-gs-01-app",
+      "browser_version": 1,
+      "record_keys": [
+        "178075ad71a94a8f86f182e809d859db:2b949940462649e981395c05ccffec0a:part-000001.sqlite:20183"
+      ],
+      "public_source_url": "https://ev.or.kr/nportal/monitor/evMapExcel.do",
+      "department": "app",
+      "synthetic": true
+    },
+    "visibility": "department",
+    "identifiers": []
+  },
+  "chat": {
+    "org": "alpha",
+    "department": "app",
+    "sample_pack": "company",
+    "question": "GS타워 충전기 01의 앱 오류 문의에 어떤 정보를 전달하나요?",
+    "include_company": false,
+    "as_of": "2026-09-21",
+    "document_id": "<id returned by save>",
+    "generate": false
+  },
+  "notes": "The UI does not send exact_id when document_id is selected. cache_only is omitted; document selection uses no embedding."
+}
