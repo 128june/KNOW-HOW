@@ -1,0 +1,214 @@
+{
+  "evidence": [
+    {
+      "id": "9a7fbdce97804cf174854562d85334e4",
+      "org": "alpha",
+      "department": "app",
+      "current": 2,
+      "visibility": "department",
+      "company_status": "none",
+      "shared_version": 0,
+      "deleted": 0,
+      "title": "GS타워 · 공공 ID 01 · 앱개발팀 문의 기준",
+      "content": "앱개발팀 문의 기준\n\n대상: GS타워 / 공공 충전기 ID 01\n주소: 서울특별시 강남구 논현로 508\n운영사: GS차지비\n\n부서 문의 ID: DEMO-APP-d9c51dac6e274c75\n조회 테이블: app_development_chargers\n조회 필드: app_charger_id\n공개 ID·주소·운영사로 같은 대상인지 대조합니다.\n\n전달할 정보\n앱 오류 화면, 발생 시각, 오류 코드\n공공 충전기 ID, 충전소 주소, 운영사, 원본 행 참조\n\n적용 조건\n체험용 연결표의 문의 절차입니다. 실제 대응 관계는 별도 확인이 필요합니다.\n\n[사람이 남긴 검토 기록]\n문서 버전: 2\n검토 결론: 일부 조건에서만 적용\n확인한 내용과 근거:\n  공개 원본의 충전기 ID·주소·운영사와 시연용 앱 부서 연결표를 대조했습니다.\n적용 조건·재확인 조건:\n  선택한 충전기의 앱 문의 준비에 사용합니다.\n미확인 사항:\n  실제 운영 시스템의 내부 ID 대응 관계와 현재 오류 여부는 확인되지 않았습니다.\n다음 확인 행동:\n  앱개발팀에 ID 대응 관계를 확인하고, 오류가 있다면 화면·발생 시각·오류 코드를 전달합니다.\n[검토 기록 끝]",
+      "source": {
+        "kind": "company_charger_knowledge",
+        "mapping_reference": {
+          "table": "app_development_chargers",
+          "field": "app_charger_id",
+          "value": "DEMO-APP-d9c51dac6e274c75",
+          "source_record_key": "178075ad71a94a8f86f182e809d859db:2b949940462649e981395c05ccffec0a:part-000001.sqlite:20183",
+          "mapping_basis": "synthetic fixture; BID PI supplied by user; not verified internal mapping",
+          "synthetic": true
+        },
+        "station": {
+          "station_key": "9cd11748db680748193d8e1500ae0b9f1beee001db2f5ebc000d1aacc968447b",
+          "name": "GS타워",
+          "address": "서울특별시 강남구 논현로 508 ",
+          "operator": "GS차지비",
+          "row_count": 7
+        },
+        "record_key": "178075ad71a94a8f86f182e809d859db:2b949940462649e981395c05ccffec0a:part-000001.sqlite:20183",
+        "public_charger_id": "01",
+        "department": "app",
+        "public_source": {
+          "source_url": "https://ev.or.kr/nportal/monitor/evMapExcel.do",
+          "dataset_id": "178075ad71a94a8f86f182e809d859db",
+          "run_id": "2b949940462649e981395c05ccffec0a",
+          "collection_started_at": "2026-09-18T02:55:02.178461+00:00",
+          "collection_finished_at": "2026-09-18T02:57:16.561974+00:00",
+          "snapshot_kind": "historical_raw_snapshot",
+          "original_sha256": "ffb0145bd2d2e9b7322c8765b65a25aaf79cb766c7f76ac2e9cb9ef4db51c49e",
+          "search_fields_version": 2,
+          "dataset_scope": "full_snapshot",
+          "row_count": 520460,
+          "selection_policy": "전체 보존 RAW 원본 행; 필터·행 제한 없음",
+          "imported_by": "full-public-snapshot-bootstrap",
+          "imported_at": "2026-09-21T16:35:06.541773+00:00",
+          "public_snapshot_index_version": 1,
+          "package_manifest_sha256": "2944aa6d7c8f9d580dfe9a2af93d1c0a6dcedea818ef2a40c0014c6c429003f3",
+          "records_sha256": "7e081b9bdbb3ecafbbf9942efad9dc0da2791cf2c8e04249a529d539a5f6a696",
+          "compressed_bytes": 14874574,
+          "collected_at": "2026-09-18T02:57:16.561974+00:00",
+          "station_count": 99586,
+          "search_index": "sqlite-fts5-trigram",
+          "live": false
+        },
+        "mapping_status": "synthetic_fixture",
+        "department_identifier": "DEMO-APP-d9c51dac6e274c75",
+        "synthetic": true
+      },
+      "identifiers": [
+        "DEMO-APP-d9c51dac6e274c75"
+      ],
+      "valid_from": "2026-09-01",
+      "valid_to": "2026-12-31",
+      "state": "confirmed",
+      "sha256": "127114cd95895d7d71c97c6297ac7e397e945ff331da1da9043fe18d13491980",
+      "author": "808081dd09bb86d19eb033a85b21dcfaca0b14d286d287369826e1de7d2f5307",
+      "created": 1790031194.6597068,
+      "reason": "이 버전 검토 완료: 일부 조건에서만 적용",
+      "version": 2,
+      "source_department": "app",
+      "synthetic": true,
+      "scope": "department",
+      "score": 1,
+      "match": "document",
+      "citation_number": 1
+    }
+  ],
+  "vector": {
+    "status": "document_only",
+    "backend": "qdrant-local",
+    "model": "text-embedding-3-small",
+    "dimension": 1536,
+    "collection": "knowhow_openai_small_1536_v1",
+    "persistent": true,
+    "embedding_requests": 0
+  },
+  "document_id": "9a7fbdce97804cf174854562d85334e4",
+  "history": [
+    {
+      "question": "GS타워의 환경부 충전기 ID 01을 앱개발팀에 문의하려면 어떤 부서 ID와 자료를 전달해야 하나요? 확인한 근거와 미확인 사항을 구분해 바로 보낼 문의 초안을 만들어 주세요.",
+      "evidence_ids": [
+        "9a7fbdce97804cf174854562d85334e4"
+      ],
+      "document_id": "9a7fbdce97804cf174854562d85334e4"
+    }
+  ],
+  "answer": "앱개발팀께, GS타워 공공 충전기 01의 부서 ID가 DEMO-APP-d9c51dac6e274c75인지 확인 부탁드립니다.[1] 대조용 공개 ID·주소·운영사·원본 행 참조를 전달드립니다.[1] 오류가 있다면 화면·발생 시각·오류 코드도 보내겠습니다.[1] 해당 ID는 체험용 연결표라 실제 내부 ID 대응과 현재 오류 여부는 미확인입니다.[1]",
+  "ai_generated": true,
+  "ai": {
+    "status": "AI 문의 초안 · 검토 필요",
+    "answerable": false,
+    "provider": "codex_cli",
+    "model_answerable": true,
+    "model": null,
+    "answer": "앱개발팀께, GS타워 공공 충전기 01의 부서 ID가 DEMO-APP-d9c51dac6e274c75인지 확인 부탁드립니다.[1] 대조용 공개 ID·주소·운영사·원본 행 참조를 전달드립니다.[1] 오류가 있다면 화면·발생 시각·오류 코드도 보내겠습니다.[1] 해당 ID는 체험용 연결표라 실제 내부 ID 대응과 현재 오류 여부는 미확인입니다.[1]",
+    "evidence": [
+      {
+        "id": "9a7fbdce97804cf174854562d85334e4",
+        "name": "GS타워 · 공공 ID 01 · 앱개발팀 문의 기준",
+        "version": 2,
+        "source": {
+          "kind": "company_charger_knowledge",
+          "mapping_reference": {
+            "table": "app_development_chargers",
+            "field": "app_charger_id",
+            "value": "DEMO-APP-d9c51dac6e274c75",
+            "source_record_key": "178075ad71a94a8f86f182e809d859db:2b949940462649e981395c05ccffec0a:part-000001.sqlite:20183",
+            "mapping_basis": "synthetic fixture; BID PI supplied by user; not verified internal mapping",
+            "synthetic": true
+          },
+          "station": {
+            "station_key": "9cd11748db680748193d8e1500ae0b9f1beee001db2f5ebc000d1aacc968447b",
+            "name": "GS타워",
+            "address": "서울특별시 강남구 논현로 508 ",
+            "operator": "GS차지비",
+            "row_count": 7
+          },
+          "record_key": "178075ad71a94a8f86f182e809d859db:2b949940462649e981395c05ccffec0a:part-000001.sqlite:20183",
+          "public_charger_id": "01",
+          "department": "app",
+          "public_source": {
+            "source_url": "https://ev.or.kr/nportal/monitor/evMapExcel.do",
+            "dataset_id": "178075ad71a94a8f86f182e809d859db",
+            "run_id": "2b949940462649e981395c05ccffec0a",
+            "collection_started_at": "2026-09-18T02:55:02.178461+00:00",
+            "collection_finished_at": "2026-09-18T02:57:16.561974+00:00",
+            "snapshot_kind": "historical_raw_snapshot",
+            "original_sha256": "ffb0145bd2d2e9b7322c8765b65a25aaf79cb766c7f76ac2e9cb9ef4db51c49e",
+            "search_fields_version": 2,
+            "dataset_scope": "full_snapshot",
+            "row_count": 520460,
+            "selection_policy": "전체 보존 RAW 원본 행; 필터·행 제한 없음",
+            "imported_by": "full-public-snapshot-bootstrap",
+            "imported_at": "2026-09-21T16:35:06.541773+00:00",
+            "public_snapshot_index_version": 1,
+            "package_manifest_sha256": "2944aa6d7c8f9d580dfe9a2af93d1c0a6dcedea818ef2a40c0014c6c429003f3",
+            "records_sha256": "7e081b9bdbb3ecafbbf9942efad9dc0da2791cf2c8e04249a529d539a5f6a696",
+            "compressed_bytes": 14874574,
+            "collected_at": "2026-09-18T02:57:16.561974+00:00",
+            "station_count": 99586,
+            "search_index": "sqlite-fts5-trigram",
+            "live": false
+          },
+          "mapping_status": "synthetic_fixture",
+          "department_identifier": "DEMO-APP-d9c51dac6e274c75",
+          "synthetic": true
+        },
+        "text": "앱개발팀 문의 기준\n\n대상: GS타워 / 공공 충전기 ID 01\n주소: 서울특별시 강남구 논현로 508\n운영사: GS차지비\n\n부서 문의 ID: DEMO-APP-d9c51dac6e274c75\n조회 테이블: app_development_chargers\n조회 필드: app_charger_id\n공개 ID·주소·운영사로 같은 대상인지 대조합니다.\n\n전달할 정보\n앱 오류 화면, 발생 시각, 오류 코드\n공공 충전기 ID, 충전소 주소, 운영사, 원본 행 참조\n\n적용 조건\n체험용 연결표의 문의 절차입니다. 실제 대응 관계는 별도 확인이 필요합니다.\n\n[사람이 남긴 검토 기록]\n문서 버전: 2\n검토 결론: 일부 조건에서만 적용\n확인한 내용과 근거:\n  공개 원본의 충전기 ID·주소·운영사와 시연용 앱 부서 연결표를 대조했습니다.\n적용 조건·재확인 조건:\n  선택한 충전기의 앱 문의 준비에 사용합니다.\n미확인 사항:\n  실제 운영 시스템의 내부 ID 대응 관계와 현재 오류 여부는 확인되지 않았습니다.\n다음 확인 행동:\n  앱개발팀에 ID 대응 관계를 확인하고, 오류가 있다면 화면·발생 시각·오류 코드를 전달합니다.\n[검토 기록 끝]",
+        "state": "confirmed",
+        "department": "app",
+        "synthetic": true,
+        "reason": "이 버전 검토 완료: 일부 조건에서만 적용",
+        "rule": {
+          "valid_from": "2026-09-01",
+          "valid_to": "2026-12-31",
+          "scope": "department"
+        },
+        "citation_number": 1
+      }
+    ],
+    "synthetic": true,
+    "notice": "AI 문의 초안입니다. 원문 구간·인용번호·역할 값의 형식 검사만 수행했습니다. 수행자·행동·순서와 사실의 정확성은 검증되지 않았으며 담당자 검토가 필요합니다. 가상 샘플이며 실제 내부 매핑 검증이 아닙니다.",
+    "diagnostics": {
+      "response_status": "completed",
+      "usage": {
+        "input_tokens": 4920,
+        "output_tokens": 949,
+        "total_tokens": 5869,
+        "cached_input_tokens": 0,
+        "reasoning_tokens": 690
+      },
+      "cli_process_attempts": 1,
+      "provider_attempts": null,
+      "output_token_limit_enforced": false,
+      "usage_source": "codex_cli_turn_completed",
+      "cli_nonfatal_notice_count": 2,
+      "transport": "host_http",
+      "relay_http_attempts": 1,
+      "model_selection": "cli_default",
+      "requested_model": null,
+      "observed_model": null,
+      "mcp_observations": [
+        {
+          "configured_count": 0,
+          "enabled_count": 0
+        }
+      ],
+      "mcp_config_race_excluded": false
+    }
+  },
+  "conflict": false,
+  "comparison_needed": false,
+  "answer_kind": "ai_draft",
+  "answerable": false,
+  "org": "alpha",
+  "department": "app",
+  "include_company": false,
+  "demo": true,
+  "notice": "고정 가상 조직의 세션별 체험입니다. 역할 선택은 실제 인증이 아닙니다. 개인정보·비밀정보를 입력하지 마세요.",
+  "sample_pack": "company",
+  "scenario_version": 1
+}
