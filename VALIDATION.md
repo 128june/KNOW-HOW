@@ -124,3 +124,11 @@
 - Actual CUA file chooser: synthetic `/tmp/knowhow-synthetic-source-note.md` imported locally; filename, unchanged original text, unreviewed draft v1, and memory-only notice all verified. No AI request was made. Source records and these drafts intentionally disappear on refresh; scenario KB remains in its separate browser storage.
 - Source-module owner reports 18 unit tests and isolated browser checks; detailed evidence and scope are in `docs/source-records.md` and `tests/evidence/source-records/`.
 - Fixed conflict/department context: switching away from app while the app-specific conflict example is selected resets to the supported example for the selected department. Regression confirms conflicting app documents do not remain under the device department.
+
+
+## Organization KB interface
+
+- Added isolated public demo session controls, department-default search, explicit same-organization company inclusion, and conversation separation by session, organization, department, search scope, and applicability date.
+- Source-linked drafts support explicit server registration, review, promotion request, company approval, and revision. Public roles are simulations, not authentication.
+- Tab 5 includes an explicit “AI에 질문하기” action with `generate: true`; navigation does not trigger AI requests. Manual AI availability follows the build configuration after the key2-only server deployment was verified.
+- `tests/organization-kb.cjs` and `tests/demo-isolation.cjs` pass. Organization tests mock transport; they verify request boundaries and state handling, not semantic search or generation quality. Production static build succeeds. No paid generation or embedding calls were made for these checks.

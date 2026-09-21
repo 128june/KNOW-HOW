@@ -1,0 +1,22 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const context=vm.createContext({window:{KNOWHOW_CONFIG:{aiRequestsPaused:false}},AbortSignal,TextEncoder,fetch:null});
+vm.runInContext(fs.readFileSync('src/organization-kb.js','utf8'),context);
+const exec=code=>vm.runInContext(code,context);
+const calls=[];
+context.fetch=async(url,options)=>{const payload=JSON.parse(options.body);calls.push({url,options,payload});return {ok:true,json:async()=>url.endsWith('/session')?{session_id:'isolated-demo',organizations:['alpha','beta'],departments:['app','device']} : url.endsWith('/catalog')?{documents:[],vector:{backend:'mock',status:'mock',model:'test-only'}}:{conversation_id:'conversation-'+calls.length,ai_generated:false,evidence:[{id:'alpha-app-1',version:1,department:payload.department,text:'Synthetic reference'}]}}};
+(async()=>{
+ exec("var controller=window.KnowHowOrganizationUI.createController({apiBase:'https://example.test/knowhow'})");
+ const host={innerHTML:'',querySelectorAll:()=>[],querySelector:()=>null};context.host=host;exec("controller.mount(host,{mode:'chat'})");assert.equal(calls.length,0,'render must not automatically start session/search/AI');assert.ok(host.innerHTML.includes('API 아직 연결하지 않음'));
+ await exec('controller.connect()');assert.equal(calls[0].url,'https://example.test/knowhow/demo/kb/session');assert.equal(calls[0].payload.session_id,undefined);assert.equal(calls[1].payload.org,'alpha');
+ await exec("controller.submitChat({question:'alpha question',as_of:'2026-09-21',generate:false})");assert.equal(calls.at(-1).payload.include_company,false);assert.equal(calls.at(-1).payload.generate,false);assert.equal(calls.at(-1).options.headers.Authorization,undefined);assert.equal(calls.at(-1).options.credentials,'omit');
+ const previousConversation=exec("[...controller.getState().history.values()][0].id");
+ exec("controller.changeScope({org:'beta',department:'app',includeCompany:false})");await exec("controller.submitChat({question:'beta question',as_of:'2026-09-21'})");assert.equal(calls.at(-1).payload.conversation_id,undefined);assert.equal(calls.at(-1).payload.org,'beta');
+ exec("controller.changeScope({org:'alpha',includeCompany:true})");await exec("controller.submitChat({question:'company question',as_of:'2026-09-21'})");assert.equal(calls.at(-1).payload.conversation_id,undefined);assert.equal(calls.at(-1).payload.include_company,true);
+ exec("controller.changeScope({includeCompany:false})");await exec("controller.submitChat({question:'alpha follow-up',as_of:'2026-09-21'})");assert.equal(calls.at(-1).payload.conversation_id,previousConversation);
+ exec("controller.changeScope({org:'alpha',department:'app',includeCompany:false,asOf:'2026-10-01'})");await exec("controller.submitChat({question:'new date',as_of:'2026-10-01'})");assert.equal(calls.at(-1).payload.conversation_id,undefined);assert.equal(calls.at(-1).payload.as_of,'2026-10-01');
+ const beforeOversize=calls.length;await assert.rejects(exec("controller.submitChat({question:'한'.repeat(700),as_of:'2026-10-01'})"));assert.equal(calls.length,beforeOversize);
+ await exec("controller.submitChat({question:'explicit mock AI',as_of:'2026-10-01',generate:true})");assert.equal(calls.at(-1).payload.generate,true);
+ exec('window.KNOWHOW_CONFIG.aiRequestsPaused=true');const count=calls.length;await assert.rejects(exec("controller.submitChat({question:'blocked paid call',as_of:'2026-09-21',generate:true})"));assert.equal(calls.length,count);
+ let release;context.fetch=()=>new Promise(r=>release=r);const pending=exec("controller.submitChat({question:'late alpha',as_of:'2026-09-21'}).catch(e=>e.constructor.name)");exec("controller.changeScope({org:'beta',department:'device',includeCompany:false})");release({ok:true,json:async()=>({conversation_id:'must-not-apply',answer:'late confidential marker',evidence:[]})});assert.equal(await pending,'ObsoleteContext');assert.equal(exec("[...controller.getState().history.values()].flatMap(c=>c.turns).some(t=>t.result.answer==='late confidential marker')"),false);
+ console.log('PASS: no automatic calls, anonymous session transport, department-only default, organization/company conversation separation, stale response discarded');
+})().catch(e=>{console.error(e);process.exitCode=1});
