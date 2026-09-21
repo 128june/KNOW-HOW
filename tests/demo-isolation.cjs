@@ -3,7 +3,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const elements=new Map();
 const element=k=>{if(!elements.has(k))elements.set(k,{department:{},question:{},setAttribute(){},classList:{toggle(){}},querySelectorAll:()=>[]});return elements.get(k)};
 const storage=new Map([['organization-records','untouched']]);
-const context=vm.createContext({console,URL,AbortSignal,setTimeout,crypto:require('node:crypto').webcrypto,location:{hash:'#scenario-1'},history:{replaceState(){}},window:{KNOWHOW_CONFIG:{apiBase:'https://api.example/knowhow'}},document:{querySelector:element,querySelectorAll:()=>[]},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)},fetch:null});
+const context=vm.createContext({console,URL,AbortSignal,setTimeout,crypto:require('node:crypto').webcrypto,location:{hash:'#scenario-1'},history:{replaceState(){}},window:{KNOWHOW_CONFIG:{apiBase:'https://api.example/knowhow',aiRequestsPaused:false}},document:{querySelector:element,querySelectorAll:()=>[]},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)},fetch:null});
 vm.runInContext(fs.readFileSync('src/app.js','utf8'),context);
 vm.runInContext(fs.readFileSync('src/demo-example.js','utf8'),context);
 const source=fs.readFileSync('src/demo.js','utf8').replace('return {activate,deactivate,isActive:()=>active}','return {activate,deactivate,isActive:()=>active,request,read,seed,doc,persist,addComment,revise,reuseAnswer,isApplicable,getState:()=>state,getAI:()=>ai,requestAI,aiResultMarkup,aiEvidenceMarkup,invalidateAI,render,changeDepartment}').split('\nsampleDemo.activate();')[0];
