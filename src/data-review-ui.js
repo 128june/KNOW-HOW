@@ -10,7 +10,7 @@
    * - proposal: { review_id, dataset_id, fingerprint, row_count, profile,
    *   proposals: [{ column, column_id, action, reason, policy_refs: [{ id,
    *   version }], affected_count }], policies, status: 'review_required',
-   *   ai_generated, provider, model }. Legacy rules/summary are also supported.
+   *   ai_generated, provider, model, policy_redaction_notice }. Legacy rules/summary are also supported.
    *   Passing a proposal only fills editable choices; it never means applied.
    * - result: { state, before: preview, after: preview, input_rows,
    *   processed_rows, affected_rows, output_rows, error_rows, job, error }.
@@ -168,7 +168,7 @@
       <section class="card"><h2>2. 민감정보 처리</h2>${selectedDataset(dataset)}<p>검토 제안을 참고해 열별 처리 방법을 선택하세요.</p>
         <div class="data-review-ai"><div><h3>AI 검토 제안</h3><p>버튼을 누르면 익명화된 데이터 프로파일과 정책을 바탕으로 검토합니다. 개인정보 원문은 AI에 보내지 않습니다.</p></div><button type="button" data-data-action="privacy-propose" ${disabled || unavailable ? 'disabled' : ''}>AI로 처리 방법 검토</button></div>
         ${unavailable ? `<p class="muted">${esc(proposalUnavailableReason || unavailableReason || 'AI 검토 연결을 아직 사용할 수 없습니다. 아래에서 처리 방법을 직접 선택할 수 있습니다.')}</p>` : ''}
-        ${proposal ? `<div class="data-review-proposal"><span class="data-review-badge">${proposal.ai_generated === true ? 'AI 검토 제안' : proposal.ai_generated === false ? '규칙 기반 검토 제안' : '검토 제안'} · 적용 전</span>${proposal.summary ? `<p>${esc(valueText(proposal.summary))}</p>` : ''}${proposal.provider || proposal.model ? `<p class="muted">응답 제공: ${esc(valueText(proposal.provider || '미제공'))} · 모델 ${esc(valueText(proposal.model || '미제공'))}</p>` : ''}<p>사람 검토 필요${proposal.row_count != null ? ` · 검토 대상 ${count(proposal.row_count)}행` : ''}</p><p class="muted">아래 선택값을 확인하고 처리 실행을 눌러야 데이터에 적용됩니다.</p>${list(proposal.warnings).length ? `<ul>${list(proposal.warnings).map(warning => `<li>${esc(valueText(warning))}</li>`).join('')}</ul>` : ''}${notice(proposal.error)}</div>` : '<p class="muted">아직 AI 검토를 요청하지 않았습니다. 직접 규칙을 선택해도 됩니다.</p>'}
+        ${proposal ? `<div class="data-review-proposal"><span class="data-review-badge">${proposal.ai_generated === true ? 'AI 검토 제안' : proposal.ai_generated === false ? '규칙 기반 검토 제안' : '검토 제안'} · 적용 전</span>${proposal.summary ? `<p>${esc(valueText(proposal.summary))}</p>` : ''}${proposal.policy_redaction_notice ? `<p class="notice data-review-transmission">${esc(valueText(proposal.policy_redaction_notice))}</p>` : ''}${proposal.provider || proposal.model ? `<p class="muted">응답 제공: ${esc(valueText(proposal.provider || '미제공'))} · 모델 ${esc(valueText(proposal.model || '미제공'))}</p>` : ''}<p>사람 검토 필요${proposal.row_count != null ? ` · 검토 대상 ${count(proposal.row_count)}행` : ''}</p><p class="muted">아래 선택값을 확인하고 처리 실행을 눌러야 데이터에 적용됩니다.</p>${list(proposal.warnings).length ? `<ul>${list(proposal.warnings).map(warning => `<li>${esc(valueText(warning))}</li>`).join('')}</ul>` : ''}${notice(proposal.error)}</div>` : '<p class="muted">아직 AI 검토를 요청하지 않았습니다. 직접 규칙을 선택해도 됩니다.</p>'}
       </section>
       <section class="card"><h3>열별 처리 방법 선택</h3>${reviewRules(reviewColumns, proposal, disabled)}</section>
       ${transformResult(job, result, preview, busy)}
