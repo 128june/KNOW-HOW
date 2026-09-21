@@ -73,6 +73,8 @@ AI 실행 설정은 서버가 담당합니다. 현재 승인 방향은 명시적
 입수·정책·방문자 경계는 [UI/API 연결 문서](docs/DATA_PLATFORM_UI_INTAKE.md), 원문 모듈은 [원문 기록 문서](docs/source-records.md), 현재 검증 범위와 이전 실행은 [검증 기록](VALIDATION.md)을 참고하세요.
 
 ```sh
+node tests/company-selection.cjs
+node tests/company-provenance.cjs
 node tests/company-human-review.cjs
 node tests/company-navigation.cjs
 node tests/company-sharing.cjs
