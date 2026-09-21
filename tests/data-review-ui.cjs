@@ -39,7 +39,8 @@ test('Human changes remain visible with no policy reference or confirmation', ()
   const markup = ui.policyMarkup({ dataset, application: { ...completed, policies: [{ ...policy, applications: [] }], applications: [human] } });
   assert.match(markup, /열별 실제 처리 결정/);
   assert.match(markup, /사람이 제안 변경/);
-  assert.match(markup, /<td>가리기<\/td><td>2<\/td><td>1<\/td>/);
+  assert.match(markup, /<strong>가리기<\/strong><span>영향 2행<\/span>/);
+  assert.match(markup, /<dt>검출 셀<\/dt><dd>1<\/dd>/);
   assert.match(markup, /연결된 정책 없음/);
   assert.doesNotMatch(markup, /확정 적용/);
 });
@@ -150,6 +151,34 @@ test('Unavailable historical policy shows immutable identity without inventing c
 test('Policy effective dates remain business dates without a fabricated time', () => {
   const markup=ui.policyMarkup({dataset,policies:[{...policy,valid_from:'2026-09-22',valid_to:'2026-12-31',source:{reference:'담당자가 제공한 정책 제3조'}}]});
   assert.match(markup,/2026-09-22 ~ 2026-12-31/);assert.doesNotMatch(markup,/오전 9/);assert.match(markup,/담당자가 제공한 정책 제3조/);
+});
+
+test('Changed decisions precede all retained unchanged fields and a collapsed source checksum', () => {
+  const kept=Array.from({length:16},(_,i)=>({column:'유지 열 '+i,action:'keep',affected_count:0,matched_cells:0,policy_refs:[],reason:'',decision:'review_applied'}));
+  const changed={...decision,column:'비고',action:'mask',affected_count:2,reason:'원문 조건과 예외를 사람이 확인했습니다.'};
+  const markup=ui.policyMarkup({dataset,application:{...completed,source_sha256:'exact-original-sha',applications:[...kept,changed]}});
+  const priority=markup.match(/<div class="data-application-priority">([\s\S]*?)<details class="data-application-unchanged">/)[1];
+  assert.match(priority,/data-application-column="비고"/);assert.doesNotMatch(priority,/data-application-column="유지 열/);
+  assert.match(priority,/연락처 처리 정책 · v4/);assert.match(priority,/원문 조건과 예외를 사람이 확인했습니다/);
+  assert.match(markup,/<details class="data-application-unchanged"><summary>유지한 나머지 16개 열/);
+  for(const entry of kept)assert.match(markup,new RegExp('data-application-column="'+entry.column+'"'));
+  assert.match(markup,/<details class="data-application-source"><summary>입수 원문 출처·검증 정보/);
+  assert.ok(markup.indexOf('data-application-priority')<markup.indexOf('exact-original-sha'));
+});
+
+test('A policy-backed keep decision remains prominent with its exact zero count', () => {
+  const keep={...decision,action:'keep',affected_count:0,reason:'이 목적에는 원문 유지가 필요함을 확인'};
+  const markup=ui.policyMarkup({dataset,application:{...completed,applications:[keep]}});
+  assert.match(markup,/data-application-priority/);assert.match(markup,/<strong>유지<\/strong><span>영향 0행<\/span>/);
+  assert.doesNotMatch(markup,/data-application-unchanged/);
+});
+
+test('Missing affected counts are never inferred from total processed rows', () => {
+  const missing={...decision,action:'mask',affected_count:null};
+  const markup=ui.policyMarkup({dataset,application:{...completed,processed_rows:999,applications:[missing]}});
+  const priority=markup.match(/<article class="data-application-entry"[\s\S]*?<\/article>/)[0];
+  assert.match(priority,/영향 행 미제공/);assert.doesNotMatch(priority,/999행/);
+  assert.doesNotMatch(ui.policyMarkup({dataset,application:{...completed,state:'running',applications:[missing]}}),/data-application-priority/);
 });
 
 console.log(`PASS: ${cases.length} data review UI contract cases\n${cases.map(name => '- ' + name).join('\n')}`);

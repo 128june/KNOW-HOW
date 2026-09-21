@@ -70,6 +70,22 @@
 .data-workspace .data-policy-effect p,.data-workspace .data-policy-effect li{font-size:13px;line-height:1.8;overflow-wrap:anywhere}
 .data-workspace .data-policy-effect ul{padding-left:20px;margin:8px 0 0}
 .data-workspace .data-policy-effect p:last-child{margin-bottom:0}
+.data-workspace .data-application-priority{display:grid;gap:12px;margin:14px 0}
+.data-workspace .data-application-entry{padding:16px;border:1px solid #b7ccb2;border-radius:8px;background:#f6faf3}
+.data-workspace .data-application-entry>h4{margin:0 0 8px;font-size:17px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.data-workspace .data-application-action{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin:0 0 14px;font-size:15px;color:#284f35}
+.data-workspace .data-application-reason{margin:0;font-size:13px;line-height:1.75}
+.data-workspace .data-application-reason dt{margin:12px 0 3px;color:#61725b;font-size:12px}
+.data-workspace .data-application-reason dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.data-workspace :is(.data-application-decision,.data-application-unchanged,.data-application-source){margin:14px 0;font-size:13px}
+.data-workspace :is(.data-application-decision,.data-application-unchanged,.data-application-source)>summary{min-height:44px;padding:10px 0;line-height:1.75;cursor:pointer;color:#52694c}
+.data-workspace .data-application-decision{margin-bottom:0}
+.data-workspace .data-application-decision .data-policy-meta{grid-template-columns:1fr;margin:8px 0 0}
+.data-workspace .data-application-table{max-width:100%;overflow-x:auto}
+.data-workspace .data-application-table .readable-table{min-width:780px;table-layout:auto}
+.data-workspace .data-application-table :is(th,td){white-space:pre-wrap;word-break:normal;overflow-wrap:normal}
+.data-workspace .data-application-table thead th{white-space:nowrap}
+.data-workspace .data-application-table td:last-child{min-width:180px}
 .data-workspace .data-policy-document>.actions{margin-top:14px;gap:14px;flex-wrap:wrap}
 .data-workspace .data-policy-document a{font-size:13px;line-height:1.7;overflow-wrap:anywhere}
 .data-workspace .data-review :is(button,input,select,a,summary,.table-scroll):focus-visible{outline:3px solid #587c44;outline-offset:3px}
