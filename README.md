@@ -12,7 +12,7 @@ python3 tools/build.py
 python3 -m http.server 8080 --directory dist
 ```
 
-로그인 대화상자에 실제 API origin을 입력하거나 배포 전에 공개 환경변수 `KNOWHOW_API_BASE=https://실제API호스트`를 지정해 빌드합니다. 주소가 없으면 미연결 상태로 시작합니다. API 담당 문서에 따라 production 계정을 준비하고 `KNOWHOW_ALLOWED_ORIGINS`에 UI origin을 정확히 등록하세요. 개발 시 localhost HTTP만 허용합니다. API 토큰은 메모리에만 저장하며 새로고침하면 다시 로그인해야 합니다.
+로그인 대화상자에 실제 API 주소(origin 또는 /knowhow 경로)를 입력하거나 배포 전에 공개 환경변수 `KNOWHOW_API_BASE=https://실제API호스트`를 지정해 빌드합니다. 주소가 없으면 미연결 상태로 시작합니다. API 담당 문서에 따라 production 계정을 준비하고 `KNOWHOW_ALLOWED_ORIGINS`에 UI origin을 정확히 등록하세요. 개발 시 localhost HTTP만 허용합니다. API 토큰은 메모리에만 저장하며 새로고침하면 다시 로그인해야 합니다.
 
 ## GitHub Pages
 

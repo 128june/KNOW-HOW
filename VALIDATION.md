@@ -5,7 +5,7 @@
 - 전용 체크아웃: `/Users/hr/Desktop/jy.cheong/KNOW-HOW`.
 - 최초 구현 `b4376e3`; Excel 및 세션 경계 보완 `bea4410`.
 - 원격 저장소는 빈 상태로 clone 성공. `GIT_TERMINAL_PROMPT=0 git push -u origin main`은 `could not read Username for 'https://github.com': terminal prompts disabled`로 실패.
-- 실제 Pages 게시 URL 없음. workflow 실행·Pages 설정·HTTPS 공개 API 통합 검증 미완료.
+- 후속: GitHub CLI 인증 후 git push 성공. Pages Source=workflow 구성, run 35567580357 성공. 실제 공개 UI https://128june.github.io/KNOW-HOW/ 에서 새로고침 및 모바일390px(가로 넘침 없음) 확인. 공개 API 연결 검증은 여전히 미완료.
 - API 담당 확인: 사용자 제공 ctrl-j.xyz는 기존 포털이며 `/api/me`가 KNOW:HOW JSON 대신 기존 로그인 HTML로 이동함. 설정에 자동 반영하지 않음.
 
 ## 실제 브라우저 + 실제 로컬 production API
@@ -31,7 +31,7 @@
 
 ## 남은 인수 범위
 
-1. GitHub 쓰기 인증 확보 후 main push, Pages Source=GitHub Actions 및 워크플로 실행.
+1. GitHub push와 Pages 게시 완료. 브라우저 파일 업로드는 사용하지 않음.
 2. ctrl-j 기존 배포/인증/라우팅에 KNOW:HOW 계약을 통합한 실제 HTTPS API 확보.
 3. KNOWHOW_API_BASE와 정확 CORS origin 설정 후 실제 Pages↔클라우드 로그인·조회·정정·로그아웃 검증.
 4. 브라우저 파일 저장 완료까지 원본 다운로드 검증.
