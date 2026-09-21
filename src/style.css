@@ -8,3 +8,4 @@
 .grid>*{min-width:0}.inquiry li,.source-note,.station-option,.charger-option{overflow-wrap:anywhere}
 
 .sample-mapping{background:#fff8eb;border:1px solid #ebd4ac;border-radius:10px;padding:18px;margin:24px 0}.id-relation{border-top:1px solid #e4d7bc;padding:16px 0}.id-relation dl{display:grid;grid-template-columns:145px 1fr;font-size:13px;gap:10px}.id-relation dt{color:#6e6e58}.id-relation dd{margin:0;overflow-wrap:anywhere;font-weight:650}.kb-save{border:1px solid #cbd9c4;border-radius:10px;padding:20px;margin:25px 0;background:#f5f8f1}@media(max-width:760px){.id-relation dl{grid-template-columns:1fr;gap:6px}.id-relation dd{margin-bottom:12px}}
+[hidden]{display:none!important}

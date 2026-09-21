@@ -63,3 +63,11 @@
 - 운영의50행subset은 dataset_scope=sample_subset일 때 모든출처영역(문의/KB목록/상세)에서 일부자료·미수록후보를 경고. 로컬전체3후보와 운영샘플1후보를 같은 범위로 보고하지 않음.
 
 공개환경 실제승인계정으로 인증후 전체흐름은 별도 미검증이며 위 결과는 실제로컬API 인수임.
+
+## Public sample experience — 2026-09-21
+- Address-first UI deployed in `a329929`, Pages run `35571510008` succeeded.
+- Dedicated sample UI uses only anonymous `/demo/workflow/search`, `/chargers`, `/inquiry` with `credentials: omit` and no Authorization header. Entering sample mode clears in-memory organization session and workflow state; mode changes discard late responses.
+- Browser-only KB namespace `knowhow.public-sample-kb.v1`; no anonymous server write. Save, department filter, detail, correction history, and latest-body reuse are available without login. Corrections suppress old structured ID cards; subsequent questions are explicitly appended.
+- Real browser local test against actual sample API `127.0.0.1:18763`: address chip → GS타워 → 7 chargers → ID 01 → distinct app/device IDs → browser KB v1 → corrected v2 → reload → saved list → same-target inquiry reuses v2 corrected text. No organization login used.
+- Regression suites: session-race, evidence-scope, workflow-context, kb-save, demo-isolation passed. The last test checks no organization token/cookies, isolated storage, latest corrected body, and stale mode response rejection.
+- Public sample remains a 50-row subset, not nationwide search. Browser storage is specific to the browser/site; clearing browser data removes sample KB. Existing organization API still requires authentication.
