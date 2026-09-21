@@ -7,8 +7,8 @@
 Python 3.10+ 외 추가 빌드 의존성은 없습니다.
 
 ```sh
-python3 -m http.server 8080 --directory src
-python3 tools/build.py
+python3 -m http.server 8080 --directory .
+python3 build.py
 python3 -m http.server 8080 --directory dist
 ```
 

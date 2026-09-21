@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const elements = new Map();
 const element = key => {if(!elements.has(key))elements.set(key,{textContent:'',innerHTML:'',classList:{toggle(){}},querySelectorAll:()=>[]});return elements.get(key)};
 const context = vm.createContext({console,URL,AbortSignal,setTimeout,window:{KNOWHOW_CONFIG:{}},document:{querySelector:element,querySelectorAll:()=>[]},fetch:null});
-vm.runInContext(fs.readFileSync('src/app.js','utf8'),context);
+vm.runInContext(fs.readFileSync('app.js','utf8'),context);
 const exec = code=>vm.runInContext(code,context);
 (async()=>{
  let release;

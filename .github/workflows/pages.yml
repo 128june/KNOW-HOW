@@ -24,7 +24,7 @@ jobs:
       - name: Build public files
         env:
           KNOWHOW_API_BASE: ${{ vars.KNOWHOW_API_BASE }}
-        run: python tools/build.py
+        run: python build.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
