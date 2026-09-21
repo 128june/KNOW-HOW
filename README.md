@@ -47,3 +47,6 @@ Choose **샘플로 체험** to search the fixed public 50-row subset and generat
 
 ### Scenario-first public UI (current)
 The public site now opens directly into five example scenarios without login. Direct links use `#scenario-1` through `#scenario-5`. Each includes prepared GS타워/01 examples; fictional replies, roles and sample IDs are labeled. Saved replies, comments and versioned corrections live only in this browser under `knowhow.scenarios.v1`. Prepared examples never overwrite saved corrections. The KB has policy, department data structure and document/guide categories. Protected organizational APIs retain authentication.
+
+### Original records and citations
+KB source buttons open the original sample document at its cited lines. Original policy/schema/reply samples are collected only by an explicit action, with timestamp and SHA-256. Local TXT/MD notes can become unreviewed drafts without server or AI transmission; draft corrections do not modify original bytes. These original-record workspaces use tab memory and disappear on reload, independently of the scenario KB's persistent browser storage. See [source records](docs/source-records.md).

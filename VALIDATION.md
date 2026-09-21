@@ -116,3 +116,11 @@
 - Local actual-browser assertions passed for missing/no-answer, both conflict sources/no arbitrary choice, disabled AI, and free-question relevance disclosure. Existing latest corrected source reuse is retained.
 - AI evidence groups preserve server `citation_number`; sparse [1,4] is never renumbered, and multiple source rows with the same number remain one citation group. Older recorded responses without numbers are labeled as such. Offline regression covers both.
 - Recorded real AI response was replayed through a local mock HTTP server and actual browser: generated-label=true, cannot-establish-answer-warning=true, recorded refusal text shown=true. This did not call an AI provider.
+
+### Source-record integration
+- Source module `19bcd9c` is mounted once per current page in a collapsible panel across KB scenarios 2–5; its shared memory store survives tab changes. Remounts destroy old view/listener bindings.
+- KB source links resolve the appropriate department/category/version to exact source lines. v2+ links explicitly identify original v1 examples as historical sources, not automatically valid correction evidence. Conflict A/B links resolve their own original documents.
+- Actual CUA browser: v2 reply citation opened the panel and selected lines 7–8; initial-source warning displayed. Explicit collection produced a 64-character SHA-256 and collection timestamp. Editing its separate draft to v2 left the original text and SHA-256 unchanged.
+- Actual CUA file chooser: synthetic `/tmp/knowhow-synthetic-source-note.md` imported locally; filename, unchanged original text, unreviewed draft v1, and memory-only notice all verified. No AI request was made. Source records and these drafts intentionally disappear on refresh; scenario KB remains in its separate browser storage.
+- Source-module owner reports 18 unit tests and isolated browser checks; detailed evidence and scope are in `docs/source-records.md` and `tests/evidence/source-records/`.
+- Fixed conflict/department context: switching away from app while the app-specific conflict example is selected resets to the supported example for the selected department. Regression confirms conflicting app documents do not remain under the device department.

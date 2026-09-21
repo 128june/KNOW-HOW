@@ -11,11 +11,11 @@ if base:
 out = root / 'dist'
 if out.exists(): shutil.rmtree(out)
 out.mkdir()
-for name in ('index.html','style.css','app.js','demo-example.js','demo.js'): shutil.copyfile(root/'src'/name,out/name)
+for name in ('index.html','style.css','app.js','demo-example.js','source-records.js','demo.js'): shutil.copyfile(root/'src'/name,out/name)
 (out/'config.js').write_text('window.KNOWHOW_CONFIG = '+json.dumps({'apiBase':base})+';\n')
 # New HTML refers to the exact build assets, avoiding stale browser script caches.
 index = (out/'index.html').read_text()
-for asset in ('style.css', 'config.js', 'app.js', 'demo-example.js', 'demo.js'):
+for asset in ('style.css', 'config.js', 'app.js', 'demo-example.js', 'source-records.js', 'demo.js'):
     digest = hashlib.sha256((out/asset).read_bytes()).hexdigest()[:12]
     index = index.replace('./'+asset+'"', './'+asset+'?v='+digest+'"')
 (out/'index.html').write_text(index)
