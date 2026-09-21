@@ -19,7 +19,7 @@ context.fetch=async(url,options)=>{calls.push(JSON.parse(options.body));throw ne
  assert.ok(exec("sourceMarkup({dataset_scope: 'sample_subset',row_count:50})").includes("sample_subset") === false);
  assert.ok(exec("sourceMarkup({dataset_scope: 'sample_subset',row_count:50})").includes("50"));
  const markup=exec("mappingMarkup([{public_charger_id:'01',app_charger_id:'APP-01',device_charger_id:'DEV-01'}])");
- for(const text of ['샘플 DB 기준','앱개발팀 ID','충전기개발팀 ID','APP-01','DEV-01'])assert.ok(markup.includes(text));
+ for(const text of ['샘플 DB 기준','앱개발팀이 사용하는 충전기 ID','충전기개발팀이 사용하는 충전기 ID','APP-01','DEV-01'])assert.ok(markup.includes(text));
  exec("workflow.savedId=null;workflow.saveRequest=null");let release;context.fetch=()=>new Promise(r=>release=r);
  const pending=exec('saveWorkflowKB()');exec('workflow.inquirySelection=null');release({ok:true,json:async()=>({id:73,state:'초안'})});await pending;assert.equal(exec('workflow.savedId'),null);
  console.log('PASS: retry uses identical idempotent body; saved guide cannot double-save; department IDs distinct; changed selection ignores late save');

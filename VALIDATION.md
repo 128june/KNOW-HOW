@@ -102,3 +102,9 @@
 - Scenario 4 keeps full browser KB reuse separate from AI output. AI is requested only by an explicit submit; tab entry, navigation and refresh never call the endpoint.
 - Modes distinguish server fixture v1, server-approved fictional correction v2, and unreviewed browser input. Server v2 is explicitly not the user's arbitrary local correction. Long local text is never silently truncated.
 - Mock checks cover true-generation labels, not-configured messaging, HTML escaping, no auth headers, pending-request duplicate suppression, and discarding a late response after context changes. No paid calls were made by UI verification; API task owns the agreed two live verification calls.
+
+### Live AI outcome and honest rendering
+- API task performed exactly two paid calls (v1/v2) against API commit `c0385a6`; both returned `ai_generated: true` from `gpt-5.4-nano`. UI verification made zero additional paid calls.
+- Both answers used their corresponding sample ID and v2 excluded the old app ID, but semantic task quality FAILED: the model confused the charger ID used by a department with an ID identifying the department, and declined to compose an inquiry. Connection/generation success must not be reported as successful task completion.
+- Minimal recorded real responses are in `tests/fixtures/ai-live-responses.json`. Offline renderer regression verifies actual-generation labels plus an explicit cannot-establish-answer warning for `model_answerable: false`. Human-readable evidence summaries are preferred over raw JSON.
+- UI identifier labels clarify “충전기 ID used by the department.” Server prompt/evidence wording is being refined independently; no paid retest is claimed.
