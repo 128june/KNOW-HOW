@@ -6,7 +6,7 @@ let base=window.KNOWHOW_CONFIG?.apiBase||'', token='',user=null,page='ask',docs=
 const example='가상 예시 — 실제 내부 자료나 정책이 아닙니다.\n고객 안내에는 CNUM을 사용합니다. 개발·통신 식별자는 modem_id입니다.\n대외 BID/SID/CID는 외부 시스템 식별자이며 내부 CNUM과 동일하다고 가정하지 않습니다.\n충전기 대조: 가상 CNUM EX-001 / modem_id MODEM-DEMO-01. 대외 ID와의 연결 관계 및 적용 기간은 미확인입니다.';
 function badge(s){return `<span class="badge ${/상충|거절/.test(s)?'bad':/확인된|^확인$|^정정$/.test(s)?'good':'warn'}">${esc(s)}</span>`}
 function notify(s){$('#message').textContent=s}
-function connection(){ $('#connection').textContent=user?`${user.org} · ${user.name} · ${user.role==='admin'?'담당자':'구성원'} | API 연결: ${base}`:'API 미연결 · 서버 주소와 계정으로 로그인하면 기록을 조회하고 저장할 수 있습니다.';$('#session').textContent=user?'로그아웃':'API 연결'; }
+function connection(){ $('#connection').textContent=user?`${user.org} · ${user.name} · ${user.role==='admin'?'담당자':'구성원'} | API 연결: ${base}`:(base?`로그인 필요 · API 연결 대상: ${base}`:'API 미연결 · 서버 주소와 계정으로 로그인하면 기록을 조회하고 저장할 수 있습니다.');$('#session').textContent=user?'로그아웃':'API 연결'; }
 function requireLogin(){if(!user){openLogin();return false}return true}
 function openLogin(){$('#login-form').elements.base.value=base;$('#login-error').textContent='';$('#login').showModal()}
 function validBase(value){const u=new URL(value);if(u.username||u.password||u.search||u.hash||!['/','/knowhow','/knowhow/'].includes(u.pathname)||!(u.protocol==='https:'||(u.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(u.hostname))))throw Error('HTTPS API 주소를 입력하세요. 경로는 /knowhow만 허용합니다. 로컬 호스트만 HTTP를 허용합니다.');return u.origin+(u.pathname.startsWith('/knowhow')?'/knowhow':'')}

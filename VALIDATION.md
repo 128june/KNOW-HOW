@@ -38,3 +38,7 @@
 5. 실제 모델 품질, 자유로운 바꿔 말하기 일반화, 실제 업무 시간/추가 문의 절감은 미검증.
 
 현재 로컬 미리보기: `http://127.0.0.1:18752/KNOW-HOW/`. 임시 서버가 실행 중일 때만 이용 가능하며 공개 게시 주소가 아님.
+
+## 공개 API 연결 설정 후속
+
+2026-09-21 15:25 KST. 허브에서 https://api.ctrl-j.xyz/knowhow/health 정상, Pages origin OPTIONS204 및 /api/me401 JSON+CORS 확인. repository variable KNOWHOW_API_BASE를 해당 base로 설정. UI는 로그인 전 API 연결 대상을 표시한다. 승인된 실제 CTRL-J 계정 로그인 이후 공개 환경 전체 E2E는 아직 미검증이다.
