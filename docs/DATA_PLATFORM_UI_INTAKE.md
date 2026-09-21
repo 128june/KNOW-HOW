@@ -1,6 +1,6 @@
 # Data platform intake and policy UI handoff
 
-This branch owns `src/data-platform.js`, `src/data-explorer.js` (optional request/export adapters only), `src/data-review-ui.js`, `src/data-handoff-ui.js`, `src/data-platform.css`, and dedicated verification files. Company, general knowledge, organization KB, shared shell, index and build configuration are not changed here.
+The data workspace is implemented in `src/data-platform.js`, `src/data-explorer.js`, `src/data-review-ui.js`, `src/data-handoff-ui.js`, `src/data-lineage-ui.js`, and `src/data-platform.css`. The shared shell owns its routes and navigation; index and build configuration explicitly include each data module.
 
 ## Shell integration
 
@@ -13,8 +13,19 @@ Routes call the existing `KnowHowDataPlatform.createController().mount(target, {
 | `#data` | `intake` or `jobs` | unchanged |
 | `#data-privacy` | `privacy` | `#data-datasets` / `datasets` |
 | `#data-policies` | `policies` | `#data-mart` / `mart` |
+| `#data-lineage` | `lineage` | new read-only graph |
 
 The shell owns the left navigation. The data page does not duplicate it with a second step navigation. Advanced aggregation remains available within the policy/result screen.
+
+## Recorded data lineage
+
+`data-lineage-ui.js` is loaded before the data controller and included in the build allowlist. The new left-navigation route reads `GET /{scope}/lineage?department=data&dataset_id=...` using the existing in-memory session. Opening a fresh tab creates no session or records. With an existing session, the selected dataset's connected family is loaded; selecting the empty filter shows the current scoped records. Department changes re-fetch the graph without opting into company-wide documents.
+
+The graph displays actual dataset, run, KB binding and retained conversation-evidence records. It does not infer an applied policy from search results, or usage from a KB link. Run states remain separate from published dataset results. Policy identities and versions are shown only when the server permits access; hidden policy references are described as unavailable in the selected department. General preview/export history, usage timestamps and historical evidence versions are not recorded and are not reconstructed. Truncated results limit every absence statement to the displayed range.
+
+Cards are native keyboard buttons with arrow/Home/End navigation and accessible selected state. Actual directed edges are accompanied by a textual connection list. Desktop uses four columns and mobile uses a vertical flow. Details open the existing source/result explorer or resolve the current KB document through the same visitor API. Lineage uses stored source metadata; the normal KB document endpoint keeps its stronger current-original validation. The graph introduces no model or embedding requests.
+
+Run `node tests/data-lineage-ui.cjs` for rendering contracts. For actual local HTTP/Worker/SQLite/browser verification, run `python tests/data-lineage-local-api.py --api-repo ../ctrl-j-data-lineage` and then `node tests/data-lineage-live-browser.cjs` with Playwright available. The loopback harness uses disposable stores, rejects provider calls, and uploads explicitly synthetic CSV values through the real API. Reports and screenshots default to `/tmp/knowhow-data-lineage-live`; API response bodies are not stubbed and credentials are never saved to evidence. Production deployment remains coordinated by the hub.
 
 ## Real intake
 

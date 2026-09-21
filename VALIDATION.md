@@ -1,5 +1,15 @@
 # UI 검증 기록 — 2026-09-22
 
+
+## 최신 후보 · 실제 기록 기반 데이터 리니지
+
+- `#data-lineage`에서 입수 작업·원본 → 가공 실행 → 가공 결과·마트 → KB 연결·기록된 근거 사용을 실제 관계로 표시합니다. 빈 단계·실패·대기·취소·현재 조회 불가 결과와 조회 한도 생략을 구분합니다.
+- 실제 로컬 HTTP API/Worker/SQLite를 사용해 브라우저 CSV 업로드 3행 → 확인된 정책 v1에 따른 이메일 mask 3행 → 지역별 마트 2행 → KB 초안·검토 → `generate:false` 근거 조회를 검증했습니다. 실제 index의 production script 14개를 모두 로드했고, API 요청 61회·10개 노드·9개 연결을 확인했습니다. 입력값은 명시적인 가상 테스트 자료이며 API 응답을 대체하지 않았습니다.
+- 다른 방문자의 lineage dataset 필터·결과 preview·KB document는 404였고, 다른 부서 필터에서 해당 KB가 제외됐습니다. 일반 데이터 조회·다운로드를 가상의 사용 기록으로 만들지 않습니다.
+- 실제 오류가 발생한 마트 실행에는 실패 노드만 있고 결과가 없습니다. 키보드 Enter/Home/End, 원본·결과 보기, 실제 KB 문서 열기를 확인했습니다. 1280px/390px의 빈 상태·입수만·마트/사용 전·전체 연결·실패·KB 문서 6상태에서 가로 넘침 0px, 헤더 높이 48px/56px였습니다.
+- `tests/data-lineage-ui.cjs` 7건, `tests/data-intake-state.cjs` 11건, `tests/data-review-ui.cjs` 16건, `tests/company-navigation.cjs` 통과. `python3 tools/build.py`와 `git diff --check` 통과. 실제 브라우저 검증은 `tests/data-lineage-live-browser.cjs`, 격리된 로컬 서버는 `tests/data-lineage-local-api.py`입니다.
+- 생성·문의·임베딩·벡터 클라이언트 호출은 모두 0입니다. 공개 모델·설정·예산·main을 변경하지 않았으며 배포는 허브가 조율합니다. 사용 시각과 당시 근거 버전, 실제 직원의 효용은 이 검증에서 입증하지 않습니다.
+
 ## 최신 후보 · 모바일 홈 단계 설명 겹침 수정
 
 기준은 `6d14278` 위의 CSS 두 규칙 수정이다. 모바일 홈의 단계 라벨을 정상 문서 흐름으로 배치하고 제목 위에 6px 간격을 두었다. 데스크톱·다른 화면의 레이아웃은 유지했다.

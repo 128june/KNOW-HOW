@@ -52,9 +52,9 @@
    $('.workspace').innerHTML='업무 흐름';$('.aside-note').textContent='근거 확인 → 예외 보완 → 다음 업무에 재사용';
    nav.innerHTML=titles.map((t,i)=>`<a class="scenario-link ${tab===i+1?'active':''}" href="#general-${i+1}" ${tab===i+1?'aria-current="page"':''}><span>0${i+1}</span>${t}</a>`).join('');general?.mount($('#page'),tab);focusPage();return;
   }
-  const section=['#data-privacy','#data-datasets'].includes(hash)?'privacy':['#data-policies','#data-mart'].includes(hash)?'policies':'jobs';
+  const section=hash==='#data-lineage'?'lineage':['#data-privacy','#data-datasets'].includes(hash)?'privacy':['#data-policies','#data-mart'].includes(hash)?'policies':'jobs';
   $('.workspace').innerHTML='작업 흐름';$('.aside-note').textContent='가져온 자료와 적용한 정책을 함께 확인합니다.';
-  nav.innerHTML=[['#data','자료 가져오기','jobs'],['#data-privacy','민감정보 처리','privacy'],['#data-policies','적용 정책과 결과','policies']].map(([href,label,key],i)=>`<a class="scenario-link ${section===key?'active':''}" href="${href}" ${section===key?'aria-current="page"':''}><span>0${i+1}</span>${label}</a>`).join('');
+  nav.innerHTML=[['#data','자료 가져오기','jobs'],['#data-privacy','민감정보 처리','privacy'],['#data-policies','적용 정책과 결과','policies'],['#data-lineage','데이터 리니지','lineage']].map(([href,label,key],i)=>`<a class="scenario-link ${section===key?'active':''}" href="${href}" ${section===key?'aria-current="page"':''}><span>0${i+1}</span>${label}</a>`).join('');
   if(!data)data=root.KnowHowDataPlatform?.createController();
   if(data)data.mount($('#page'),{section});else $('#page').innerHTML='<h1>자료 가져오기</h1><p role="alert">데이터 화면을 불러오지 못했습니다. 새로고침해 주세요.</p>';
   focusPage();
