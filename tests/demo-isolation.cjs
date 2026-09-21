@@ -1,12 +1,12 @@
 // Public scenarios: session boundary, storage, correction and applicability regressions.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const elements=new Map();
-const element=k=>{if(!elements.has(k))elements.set(k,{department:{},setAttribute(){},classList:{toggle(){}},querySelectorAll:()=>[]});return elements.get(k)};
+const element=k=>{if(!elements.has(k))elements.set(k,{department:{},question:{},setAttribute(){},classList:{toggle(){}},querySelectorAll:()=>[]});return elements.get(k)};
 const storage=new Map([['organization-records','untouched']]);
 const context=vm.createContext({console,URL,AbortSignal,setTimeout,crypto:require('node:crypto').webcrypto,location:{hash:'#scenario-1'},history:{replaceState(){}},window:{KNOWHOW_CONFIG:{apiBase:'https://api.example/knowhow'}},document:{querySelector:element,querySelectorAll:()=>[]},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)},fetch:null});
 vm.runInContext(fs.readFileSync('src/app.js','utf8'),context);
 vm.runInContext(fs.readFileSync('src/demo-example.js','utf8'),context);
-const source=fs.readFileSync('src/demo.js','utf8').replace('return {activate,deactivate,isActive:()=>active}','return {activate,deactivate,isActive:()=>active,request,read,seed,doc,persist,addComment,revise,reuseAnswer,isApplicable,getState:()=>state,getAI:()=>ai,requestAI,aiResultMarkup,invalidateAI}').split('\nsampleDemo.activate();')[0];
+const source=fs.readFileSync('src/demo.js','utf8').replace('return {activate,deactivate,isActive:()=>active}','return {activate,deactivate,isActive:()=>active,request,read,seed,doc,persist,addComment,revise,reuseAnswer,isApplicable,getState:()=>state,getAI:()=>ai,requestAI,aiResultMarkup,aiEvidenceMarkup,invalidateAI,render}').split('\nsampleDemo.activate();')[0];
 vm.runInContext(source,context);const exec=s=>vm.runInContext(s,context);
 (async()=>{
  exec("token='organization-secret';user={org:'private'};sampleDemo.activate()");assert.equal(exec('token'),'');assert.equal(exec('user'),null);assert.equal(exec('sampleDemo.read().length'),0,'prepared examples must not silently save');
@@ -24,6 +24,10 @@ vm.runInContext(source,context);const exec=s=>vm.runInContext(s,context);
  assert.ok(exec("sampleDemo.aiResultMarkup({ai_generated:false,error_code:'not_configured'})").includes('아직 완료되지'));
  let aiRelease;context.fetch=()=>{aiCalls++;return new Promise(r=>aiRelease=r)};const aiPending=exec('sampleDemo.requestAI()');await exec('sampleDemo.requestAI()');assert.equal(aiCalls,2,'pending request must prevent duplicate paid calls');exec("sampleDemo.invalidateAI();sampleDemo.getState().department='device'");aiRelease({ok:true,json:async()=>({ai_generated:true,answer:'wrong old department'})});await aiPending;assert.equal(exec('sampleDemo.getAI().result'),null,'late AI answer must not cross department/question context');
  let release;context.fetch=()=>new Promise(r=>release=r);const pending=exec("sampleDemo.request('search',{q:'GS타워'}).catch(e=>e.constructor.name)");exec('sampleDemo.deactivate()');release({ok:true,json:async()=>({stations:['late']})});assert.equal(await pending,'StaleSessionError');
+ exec("sampleDemo.activate();sampleDemo.getState().tab=4;sampleDemo.getState().questionMode='missing';sampleDemo.reuseAnswer();sampleDemo.render()");assert.ok(elements.get('#page').innerHTML.includes('자료에 없어 확인이 필요합니다'));assert.ok(!elements.get('#page').innerHTML.includes('id="reused-answer"'));
+ exec("sampleDemo.getState().questionMode='conflict';sampleDemo.reuseAnswer();sampleDemo.render()");assert.ok(elements.get('#page').innerHTML.includes('가상 문서 A'));assert.ok(elements.get('#page').innerHTML.includes('가상 문서 B'));assert.ok(elements.get('#page').innerHTML.includes('임의로 최신 정답으로 선택하지'));
+ exec("sampleDemo.getState().questionMode='custom';sampleDemo.reuseAnswer();sampleDemo.render()");assert.ok(elements.get('#page').innerHTML.includes('관련성·답변 가능성을 자동 판정하지 않았습니다'));
+ const grouped=exec("sampleDemo.aiEvidenceMarkup([{citation_number:1,name:'row A'},{citation_number:1,name:'row B'},{citation_number:4,name:'guide'}])");assert.equal((grouped.match(/\[1\] 인용 근거/g)||[]).length,1);assert.ok(grouped.includes('[4] 인용 근거'));assert.ok(!grouped.includes('[2]'));assert.ok(exec("sampleDemo.aiEvidenceMarkup([{name:'old recorded response'}])").includes('인용 번호 미제공'));
  for(const response of JSON.parse(fs.readFileSync('tests/fixtures/ai-live-responses.json','utf8'))){context.recordedResponse=response;const html=exec('sampleDemo.aiResultMarkup(recordedResponse)');assert.ok(html.includes('실제 AI 생성'));assert.ok(html.includes('AI가 근거만으로 답을 확정하지 못했습니다'));assert.ok(!html.includes('&quot;station_key&quot;'));}
  console.log('PASS: anonymous transport, unsaved seeds, comment/revision linkage, current body and follow-up reuse, expired applicability, persistent corrections, stale mode response');
 })().catch(e=>{console.error(e);process.exitCode=1});

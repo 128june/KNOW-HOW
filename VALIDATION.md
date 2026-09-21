@@ -108,3 +108,11 @@
 - Both answers used their corresponding sample ID and v2 excluded the old app ID, but semantic task quality FAILED: the model confused the charger ID used by a department with an ID identifying the department, and declined to compose an inquiry. Connection/generation success must not be reported as successful task completion.
 - Minimal recorded real responses are in `tests/fixtures/ai-live-responses.json`. Offline renderer regression verifies actual-generation labels plus an explicit cannot-establish-answer warning for `model_answerable: false`. Human-readable evidence summaries are preferred over raw JSON.
 - UI identifier labels clarify “충전기 ID used by the department.” Server prompt/evidence wording is being refined independently; no paid retest is claimed.
+
+### Evidence limits and explicit conflict scenarios
+- Scenario 4 now offers explicit supported, missing-information and conflicting-guidance examples. These are selected scenarios, not claimed semantic inference from keywords.
+- Missing live fault causes / real JOIN conditions show cannot-determine guidance and required department checks, without presenting the KB body as an answer. Conflict shows both same-target/same-period fictional documents and refuses to choose one as authoritative.
+- Edited free questions show a reference-source heading and explicitly state that relevance/answerability were not automatically determined. Missing/conflict scenarios disable AI requests; this requires zero paid calls.
+- Local actual-browser assertions passed for missing/no-answer, both conflict sources/no arbitrary choice, disabled AI, and free-question relevance disclosure. Existing latest corrected source reuse is retained.
+- AI evidence groups preserve server `citation_number`; sparse [1,4] is never renumbered, and multiple source rows with the same number remain one citation group. Older recorded responses without numbers are labeled as such. Offline regression covers both.
+- Recorded real AI response was replayed through a local mock HTTP server and actual browser: generated-label=true, cannot-establish-answer-warning=true, recorded refusal text shown=true. This did not call an AI provider.
