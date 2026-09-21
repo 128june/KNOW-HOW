@@ -1,6 +1,6 @@
 # KNOW:HOW UI
 
-업무 질문 → 원문·버전 확인 → 댓글 확인 요청 → 담당자 확인·정정 → 다른 구성원 재사용을 위한 정적 UI입니다. 화면에 제공하는 CNUM/modem_id/BID/SID/CID 사례는 가상 예시이며 실제 회사 정책이 아닙니다. mock API나 자동 로그인은 없습니다.
+장소 질문 → 주소·운영사로 충전소 후보 선택 → 공개 충전기 ID 확인 → 개발팀 문의 초안으로 이어지는 정적 UI입니다. 선택한 충전소·충전기 맥락은 후속 질문과 업무 기록 검색에 유지합니다. 문의 초안은 자동 전송하지 않습니다. 충전소 조회는 실제 공개 데이터 보관본이며 실시간 상태나 내부 장비 매핑을 보장하지 않습니다. 기록 입수의 예시는 가상 자료입니다. mock API나 자동 로그인은 없습니다.
 
 ## 실행 및 빌드
 
@@ -33,3 +33,7 @@ main push 또는 workflow_dispatch로 `.github/workflows/pages.yml` 실행. 저�
 - production의 비활성 환경부 탐색·자동 충전기 비교 메뉴는 제공하지 않습니다. 충전기 대조는 등록한 가상 원문에서 확인합니다.
 
 실제 게시/검증 상태는 VALIDATION.md를 참조하세요.
+
+## 장소 기반 업무 API
+
+인증 후 POST `/api/workflow/search {q,limit,offset}` → 후보/실제 검색어, `/api/workflow/chargers {station_key,limit,offset}` → 공개 충전기 원문, `/api/workflow/inquiry {station_key,record_keys,question}` → 문의 초안/원문 확인 정보/미확인 정보. station_key와 record_key는 조회 맥락 키이며 내부 장비 ID가 아닙니다. 스냅샷 미설정 503은 오류로 표시하고 후보를 만들어내지 않습니다.
