@@ -1,0 +1,3288 @@
+{
+  "passed": true,
+  "checkedAt": "2026-09-21T12:06:08.286Z",
+  "apiBase": "http://127.0.0.1:18771/data-platform",
+  "harnessOrigin": "http://127.0.0.1:18902",
+  "scope": "Real local API and DB integration; public HTML was actually downloaded. Uploaded CSV/XLSX values and explicitly seeded KB policies are synthetic test data. Static harness served by a real local HTTP server at an allowed Origin; API requests go directly to real API with CORS and Authorization. No API response stubs or generate:true requests.",
+  "cases": [
+    "Fresh mount performs no API work",
+    "Public W3Schools HTML downloaded by live API, tables discovered, explicit table selection persisted RAW rows with source time/hash",
+    "Actual 2-row XLSX workbook uploaded via browser file input; authenticated format=xlsx request parsed 4 columns into RAW DB, original server SHA and downloaded workbook bytes match exactly",
+    "Exact CSV bytes uploaded into actual RAW DB; 3 parsed rows and server SHA match original; original download byte-for-byte identical",
+    "Explicit sample-policy action seeds real visitor KB documents, generate:false durable review returns synthetic evidence, human masks execute through privacy-apply and durable privacy-result; unlinked policy documents stay search evidence, never confirmed application",
+    "Authenticated processed CSV export contains masked values while original RAW DB remains unchanged",
+    "Second visitor cannot list, preview, download original, or retrieve privacy result belonging to first visitor (404)",
+    "Non-public source is rejected by actual API and mobile UI shows failure without RAW result"
+  ],
+  "screenshots": [
+    "html-desktop.png",
+    "html-mobile.png",
+    "xlsx-upload-desktop.png",
+    "xlsx-upload-mobile.png",
+    "policy-before-apply.png",
+    "privacy-applied.png",
+    "policy-processing-result.png",
+    "policy-mobile.png",
+    "error-mobile.png"
+  ],
+  "observations": {
+    "htmlDiscovery": {
+      "source_id": "b717ed5a5dfa4b6e84a6e57d0982f689",
+      "source": {
+        "original_url": "https://www.w3schools.com/html/html_tables.asp",
+        "resolved_url": "https://www.w3schools.com/html/html_tables.asp",
+        "fetched_at": "2026-09-21T12:05:52.754505+00:00",
+        "source_bytes": 233047,
+        "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+        "suggested_format": "html",
+        "content_type": "text/html"
+      },
+      "tables": [
+        {
+          "index": 0,
+          "caption": "",
+          "columns": [
+            "Company",
+            "Contact",
+            "Country"
+          ],
+          "estimated_rows": 6
+        },
+        {
+          "index": 1,
+          "caption": "",
+          "columns": [
+            "Tag",
+            "Description"
+          ],
+          "estimated_rows": 10
+        }
+      ],
+      "selectedTable": 0
+    },
+    "htmlDataset": {
+      "dataset": {
+        "id": "33b395d502984ca5bec7317fded78951",
+        "job_id": "33b395d502984ca5bec7317fded78951",
+        "parent_id": null,
+        "kind": "source_ingest",
+        "name": "html_tables.asp",
+        "created_at": 1789992354.887844,
+        "expires_at": 1790078752.414788,
+        "schema": [
+          {
+            "name": "Company",
+            "type": "string"
+          },
+          {
+            "name": "Contact",
+            "type": "string"
+          },
+          {
+            "name": "Country",
+            "type": "string"
+          }
+        ],
+        "row_count": 6,
+        "quality_count": 0,
+        "quality_sample_limit": 10000,
+        "privacy_summary": [
+          {
+            "column": "Company",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "Contact",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "Country",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          }
+        ],
+        "source_bytes": 233047,
+        "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+        "original_file": "original.html",
+        "stats": {
+          "processed_rows": 6,
+          "rejected_rows": 0,
+          "duplicates_removed": 0,
+          "elapsed_seconds": 0.007771
+        },
+        "derived_original_file": "original.jsonl",
+        "derived_bytes": 490,
+        "derived_sha256": "154dc147e4da0b9b3fa9cf972d6b6e6ba394259559505107d1862db125b6bf90",
+        "table_index": 0,
+        "source": {
+          "original_url": "https://www.w3schools.com/html/html_tables.asp",
+          "resolved_url": "https://www.w3schools.com/html/html_tables.asp",
+          "fetched_at": "2026-09-21T12:05:52.754505+00:00",
+          "source_bytes": 233047,
+          "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+          "suggested_format": "html",
+          "content_type": "text/html",
+          "source_id": "b717ed5a5dfa4b6e84a6e57d0982f689"
+        },
+        "acquisition": "download_snapshot",
+        "storage_format": "sqlite-partitions-v1",
+        "partition_count": 1,
+        "partition_rows": 100000,
+        "storage_bytes": 262526,
+        "logical_key": "33b395d502984ca5bec7317fded78951",
+        "layer": "raw",
+        "version": 1,
+        "rules": {
+          "name": "html_tables.asp",
+          "table_index": 0,
+          "source_id": "b717ed5a5dfa4b6e84a6e57d0982f689",
+          "format": "jsonl",
+          "options": {},
+          "logical_key": "33b395d502984ca5bec7317fded78951",
+          "layer": "raw",
+          "partition_rows": 100000,
+          "settings_version": 0
+        }
+      },
+      "preview": {
+        "dataset": {
+          "id": "33b395d502984ca5bec7317fded78951",
+          "job_id": "33b395d502984ca5bec7317fded78951",
+          "parent_id": null,
+          "kind": "source_ingest",
+          "name": "html_tables.asp",
+          "created_at": 1789992354.887844,
+          "expires_at": 1790078752.414788,
+          "schema": [
+            {
+              "name": "Company",
+              "type": "string"
+            },
+            {
+              "name": "Contact",
+              "type": "string"
+            },
+            {
+              "name": "Country",
+              "type": "string"
+            }
+          ],
+          "row_count": 6,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "Company",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "Contact",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "Country",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 233047,
+          "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+          "original_file": "original.html",
+          "stats": {
+            "processed_rows": 6,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.007771
+          },
+          "derived_original_file": "original.jsonl",
+          "derived_bytes": 490,
+          "derived_sha256": "154dc147e4da0b9b3fa9cf972d6b6e6ba394259559505107d1862db125b6bf90",
+          "table_index": 0,
+          "source": {
+            "original_url": "https://www.w3schools.com/html/html_tables.asp",
+            "resolved_url": "https://www.w3schools.com/html/html_tables.asp",
+            "fetched_at": "2026-09-21T12:05:52.754505+00:00",
+            "source_bytes": 233047,
+            "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+            "suggested_format": "html",
+            "content_type": "text/html",
+            "source_id": "b717ed5a5dfa4b6e84a6e57d0982f689"
+          },
+          "acquisition": "download_snapshot",
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 262526,
+          "logical_key": "33b395d502984ca5bec7317fded78951",
+          "layer": "raw",
+          "version": 1,
+          "rules": {
+            "name": "html_tables.asp",
+            "table_index": 0,
+            "source_id": "b717ed5a5dfa4b6e84a6e57d0982f689",
+            "format": "jsonl",
+            "options": {},
+            "logical_key": "33b395d502984ca5bec7317fded78951",
+            "layer": "raw",
+            "partition_rows": 100000,
+            "settings_version": 0
+          }
+        },
+        "schema": [
+          {
+            "name": "Company",
+            "type": "string"
+          },
+          {
+            "name": "Contact",
+            "type": "string"
+          },
+          {
+            "name": "Country",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          {
+            "Company": "Alfreds Futterkiste",
+            "Contact": "Maria Anders",
+            "Country": "Germany"
+          },
+          {
+            "Company": "Centro comercial Moctezuma",
+            "Contact": "Francisco Chang",
+            "Country": "Mexico"
+          },
+          {
+            "Company": "Ernst Handel",
+            "Contact": "Roland Mendel",
+            "Country": "Austria"
+          },
+          {
+            "Company": "Island Trading",
+            "Contact": "Helen Bennett",
+            "Country": "UK"
+          },
+          {
+            "Company": "Laughing Bacchus Winecellars",
+            "Contact": "Yoshi Tannamuri",
+            "Country": "Canada"
+          },
+          {
+            "Company": "Magazzini Alimentari Riuniti",
+            "Contact": "Giovanni Rovelli",
+            "Country": "Italy"
+          }
+        ],
+        "total": 6,
+        "offset": 0,
+        "limit": 50
+      },
+      "job": {
+        "id": "33b395d502984ca5bec7317fded78951",
+        "kind": "source_ingest",
+        "state": "succeeded",
+        "parent_id": null,
+        "created_at": 1789992354.051855,
+        "updated_at": 1789992354.887903,
+        "started_at": 1789992354.2033951,
+        "finished_at": 1789992354.887903,
+        "processed_rows": 6,
+        "total_rows": 6,
+        "processed_bytes": 490,
+        "total_bytes": 490,
+        "stage": "completed",
+        "attempts": 1,
+        "error": null,
+        "dataset_id": "33b395d502984ca5bec7317fded78951",
+        "elapsed_seconds": 0.6819955840037437,
+        "progress": 100,
+        "cancel_requested": false,
+        "result": {
+          "schema": [
+            {
+              "name": "Company",
+              "type": "string"
+            },
+            {
+              "name": "Contact",
+              "type": "string"
+            },
+            {
+              "name": "Country",
+              "type": "string"
+            }
+          ],
+          "row_count": 6,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "Company",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "Contact",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "Country",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 233047,
+          "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+          "original_file": "original.html",
+          "stats": {
+            "processed_rows": 6,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.007771
+          },
+          "derived_original_file": "original.jsonl",
+          "derived_bytes": 490,
+          "derived_sha256": "154dc147e4da0b9b3fa9cf972d6b6e6ba394259559505107d1862db125b6bf90",
+          "table_index": 0,
+          "source": {
+            "original_url": "https://www.w3schools.com/html/html_tables.asp",
+            "resolved_url": "https://www.w3schools.com/html/html_tables.asp",
+            "fetched_at": "2026-09-21T12:05:52.754505+00:00",
+            "source_bytes": 233047,
+            "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+            "suggested_format": "html",
+            "content_type": "text/html",
+            "source_id": "b717ed5a5dfa4b6e84a6e57d0982f689"
+          },
+          "acquisition": "download_snapshot",
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 262526,
+          "logical_key": "33b395d502984ca5bec7317fded78951",
+          "layer": "raw",
+          "version": 1
+        }
+      },
+      "source": {
+        "source_id": "b717ed5a5dfa4b6e84a6e57d0982f689",
+        "format": "html",
+        "source": {
+          "original_url": "https://www.w3schools.com/html/html_tables.asp",
+          "resolved_url": "https://www.w3schools.com/html/html_tables.asp",
+          "fetched_at": "2026-09-21T12:05:52.754505+00:00",
+          "source_bytes": 233047,
+          "source_sha256": "e90323fdf096a095071b64c8443f665412ae7b9e7cee14b69702a55dfab9d76f",
+          "suggested_format": "html",
+          "content_type": "text/html"
+        },
+        "tables": [
+          {
+            "index": 0,
+            "caption": "",
+            "columns": [
+              "Company",
+              "Contact",
+              "Country"
+            ],
+            "preview": [
+              {
+                "Company": "Alfreds Futterkiste",
+                "Contact": "Maria Anders",
+                "Country": "Germany"
+              },
+              {
+                "Company": "Centro comercial Moctezuma",
+                "Contact": "Francisco Chang",
+                "Country": "Mexico"
+              },
+              {
+                "Company": "Ernst Handel",
+                "Contact": "Roland Mendel",
+                "Country": "Austria"
+              },
+              {
+                "Company": "Island Trading",
+                "Contact": "Helen Bennett",
+                "Country": "UK"
+              },
+              {
+                "Company": "Laughing Bacchus Winecellars",
+                "Contact": "Yoshi Tannamuri",
+                "Country": "Canada"
+              }
+            ],
+            "estimated_rows": 6
+          },
+          {
+            "index": 1,
+            "caption": "",
+            "columns": [
+              "Tag",
+              "Description"
+            ],
+            "preview": [
+              {
+                "Tag": "<table>",
+                "Description": "Defines a table"
+              },
+              {
+                "Tag": "<th>",
+                "Description": "Defines a header cell in a table"
+              },
+              {
+                "Tag": "<tr>",
+                "Description": "Defines a row in a table"
+              },
+              {
+                "Tag": "<td>",
+                "Description": "Defines a cell in a table"
+              },
+              {
+                "Tag": "<caption>",
+                "Description": "Defines a table caption"
+              }
+            ],
+            "estimated_rows": 10
+          }
+        ],
+        "acquisition": "fresh_download",
+        "table_count": 2,
+        "tables_truncated": false,
+        "preview_limit": 5,
+        "preview_cell_chars": 256,
+        "expires_at": 1790078752.414788,
+        "ingest_key": "1c0e43fb-8a01-413c-a8cb-08bae3f25562"
+      },
+      "proposal": null,
+      "application": null,
+      "reviewResult": null,
+      "error": "",
+      "notice": "실제 원본의 RAW 저장이 완료되었습니다. 아래에서 바로 검색할 수 있습니다."
+    },
+    "xlsxUpload": {
+      "dataset": {
+        "id": "be71cb342ddf4c5eaabe537357f2aaab",
+        "job_id": "be71cb342ddf4c5eaabe537357f2aaab",
+        "parent_id": null,
+        "kind": "ingest",
+        "name": "live-excel-test.xlsx",
+        "created_at": 1789992357.1454542,
+        "expires_at": 1790078752.414788,
+        "schema": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "station_name",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "name": "ports",
+            "type": "string"
+          }
+        ],
+        "row_count": 2,
+        "quality_count": 0,
+        "quality_sample_limit": 10000,
+        "privacy_summary": [
+          {
+            "column": "id",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "station_name",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "region",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "ports",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          }
+        ],
+        "source_bytes": 5228,
+        "source_sha256": "d97ac2d937e8af85fc9e9a4256a928dcfb562c1fd478d05e82518f5ab7727b3f",
+        "original_file": "original.xlsx",
+        "stats": {
+          "processed_rows": 2,
+          "rejected_rows": 0,
+          "duplicates_removed": 0,
+          "elapsed_seconds": 0.151425
+        },
+        "storage_format": "sqlite-partitions-v1",
+        "partition_count": 1,
+        "partition_rows": 100000,
+        "storage_bytes": 34253,
+        "logical_key": "be71cb342ddf4c5eaabe537357f2aaab",
+        "layer": "raw",
+        "version": 1,
+        "rules": {
+          "upload_id": "d4d7d1de7552476a83e74f6449b20e48",
+          "format": "xlsx",
+          "source_bytes": 5228,
+          "source_sha256": "d97ac2d937e8af85fc9e9a4256a928dcfb562c1fd478d05e82518f5ab7727b3f",
+          "name": "live-excel-test.xlsx",
+          "max_rows": 1000000,
+          "logical_key": "be71cb342ddf4c5eaabe537357f2aaab",
+          "layer": "raw",
+          "partition_rows": 100000,
+          "settings_version": 0
+        }
+      },
+      "preview": {
+        "dataset": {
+          "id": "be71cb342ddf4c5eaabe537357f2aaab",
+          "job_id": "be71cb342ddf4c5eaabe537357f2aaab",
+          "parent_id": null,
+          "kind": "ingest",
+          "name": "live-excel-test.xlsx",
+          "created_at": 1789992357.1454542,
+          "expires_at": 1790078752.414788,
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "station_name",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "name": "ports",
+              "type": "string"
+            }
+          ],
+          "row_count": 2,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "station_name",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "ports",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 5228,
+          "source_sha256": "d97ac2d937e8af85fc9e9a4256a928dcfb562c1fd478d05e82518f5ab7727b3f",
+          "original_file": "original.xlsx",
+          "stats": {
+            "processed_rows": 2,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.151425
+          },
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 34253,
+          "logical_key": "be71cb342ddf4c5eaabe537357f2aaab",
+          "layer": "raw",
+          "version": 1,
+          "rules": {
+            "upload_id": "d4d7d1de7552476a83e74f6449b20e48",
+            "format": "xlsx",
+            "source_bytes": 5228,
+            "source_sha256": "d97ac2d937e8af85fc9e9a4256a928dcfb562c1fd478d05e82518f5ab7727b3f",
+            "name": "live-excel-test.xlsx",
+            "max_rows": 1000000,
+            "logical_key": "be71cb342ddf4c5eaabe537357f2aaab",
+            "layer": "raw",
+            "partition_rows": 100000,
+            "settings_version": 0
+          }
+        },
+        "schema": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "station_name",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "name": "ports",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          {
+            "id": "1",
+            "station_name": "검증용 가상 충전소 A",
+            "region": "서울",
+            "ports": "2"
+          },
+          {
+            "id": "2",
+            "station_name": "검증용 가상 충전소 B",
+            "region": "부산",
+            "ports": "4"
+          }
+        ],
+        "total": 2,
+        "offset": 0,
+        "limit": 50
+      },
+      "job": {
+        "id": "be71cb342ddf4c5eaabe537357f2aaab",
+        "kind": "ingest",
+        "state": "succeeded",
+        "parent_id": null,
+        "created_at": 1789992356.9156091,
+        "updated_at": 1789992357.1455061,
+        "started_at": 1789992356.97313,
+        "finished_at": 1789992357.1455061,
+        "processed_rows": 2,
+        "total_rows": 2,
+        "processed_bytes": null,
+        "total_bytes": null,
+        "stage": "completed",
+        "attempts": 1,
+        "error": null,
+        "dataset_id": "be71cb342ddf4c5eaabe537357f2aaab",
+        "elapsed_seconds": 0.17023479199997382,
+        "progress": 100,
+        "cancel_requested": false,
+        "result": {
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "station_name",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "name": "ports",
+              "type": "string"
+            }
+          ],
+          "row_count": 2,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "station_name",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "ports",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 5228,
+          "source_sha256": "d97ac2d937e8af85fc9e9a4256a928dcfb562c1fd478d05e82518f5ab7727b3f",
+          "original_file": "original.xlsx",
+          "stats": {
+            "processed_rows": 2,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.151425
+          },
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 34253,
+          "logical_key": "be71cb342ddf4c5eaabe537357f2aaab",
+          "layer": "raw",
+          "version": 1
+        }
+      },
+      "source": null,
+      "proposal": null,
+      "application": null,
+      "reviewResult": null,
+      "error": "",
+      "notice": "실제 원본의 RAW 저장이 완료되었습니다. 아래에서 바로 검색할 수 있습니다.",
+      "input_bytes": 5228,
+      "input_sha256": "d97ac2d937e8af85fc9e9a4256a928dcfb562c1fd478d05e82518f5ab7727b3f",
+      "downloaded_original_sha256": "d97ac2d937e8af85fc9e9a4256a928dcfb562c1fd478d05e82518f5ab7727b3f",
+      "synthetic_test_values": true
+    },
+    "uploadDataset": {
+      "dataset": {
+        "id": "4a452c70ea1a480da824722ab85af82e",
+        "job_id": "4a452c70ea1a480da824722ab85af82e",
+        "parent_id": null,
+        "kind": "ingest",
+        "name": "live-privacy-test.csv",
+        "created_at": 1789992360.0556412,
+        "expires_at": 1790078752.414788,
+        "schema": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "type": "string"
+          }
+        ],
+        "row_count": 3,
+        "quality_count": 0,
+        "quality_sample_limit": 10000,
+        "privacy_summary": [
+          {
+            "column": "id",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "email",
+            "types": [
+              "이메일"
+            ],
+            "matches": 3,
+            "action": "mask"
+          },
+          {
+            "column": "phone",
+            "types": [
+              "전화번호"
+            ],
+            "matches": 3,
+            "action": "mask"
+          },
+          {
+            "column": "region",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          }
+        ],
+        "source_bytes": 152,
+        "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+        "original_file": "original.csv",
+        "stats": {
+          "processed_rows": 3,
+          "rejected_rows": 0,
+          "duplicates_removed": 0,
+          "elapsed_seconds": 0.00696
+        },
+        "storage_format": "sqlite-partitions-v1",
+        "partition_count": 1,
+        "partition_rows": 100000,
+        "storage_bytes": 29170,
+        "logical_key": "4a452c70ea1a480da824722ab85af82e",
+        "layer": "raw",
+        "version": 1,
+        "rules": {
+          "upload_id": "1623b7e3b0e548f382c39b1d015778fe",
+          "format": "csv",
+          "source_bytes": 152,
+          "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+          "name": "live-privacy-test.csv",
+          "max_rows": 1000000,
+          "logical_key": "4a452c70ea1a480da824722ab85af82e",
+          "layer": "raw",
+          "partition_rows": 100000,
+          "settings_version": 0
+        }
+      },
+      "preview": {
+        "dataset": {
+          "id": "4a452c70ea1a480da824722ab85af82e",
+          "job_id": "4a452c70ea1a480da824722ab85af82e",
+          "parent_id": null,
+          "kind": "ingest",
+          "name": "live-privacy-test.csv",
+          "created_at": 1789992360.0556412,
+          "expires_at": 1790078752.414788,
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "row_count": 3,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "types": [
+                "이메일"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "types": [
+                "전화번호"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 152,
+          "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+          "original_file": "original.csv",
+          "stats": {
+            "processed_rows": 3,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.00696
+          },
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 29170,
+          "logical_key": "4a452c70ea1a480da824722ab85af82e",
+          "layer": "raw",
+          "version": 1,
+          "rules": {
+            "upload_id": "1623b7e3b0e548f382c39b1d015778fe",
+            "format": "csv",
+            "source_bytes": 152,
+            "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+            "name": "live-privacy-test.csv",
+            "max_rows": 1000000,
+            "logical_key": "4a452c70ea1a480da824722ab85af82e",
+            "layer": "raw",
+            "partition_rows": 100000,
+            "settings_version": 0
+          }
+        },
+        "schema": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          {
+            "id": "1",
+            "email": "demo1@example.test",
+            "phone": "010-0000-0001",
+            "region": "서울"
+          },
+          {
+            "id": "2",
+            "email": "demo2@example.test",
+            "phone": "010-0000-0002",
+            "region": "부산"
+          },
+          {
+            "id": "3",
+            "email": "demo3@example.test",
+            "phone": "010-0000-0003",
+            "region": "제주"
+          }
+        ],
+        "total": 3,
+        "offset": 0,
+        "limit": 50
+      },
+      "job": {
+        "id": "4a452c70ea1a480da824722ab85af82e",
+        "kind": "ingest",
+        "state": "succeeded",
+        "parent_id": null,
+        "created_at": 1789992360.0144708,
+        "updated_at": 1789992360.0556958,
+        "started_at": 1789992360.029908,
+        "finished_at": 1789992360.0556958,
+        "processed_rows": 3,
+        "total_rows": 3,
+        "processed_bytes": null,
+        "total_bytes": null,
+        "stage": "completed",
+        "attempts": 1,
+        "error": null,
+        "dataset_id": "4a452c70ea1a480da824722ab85af82e",
+        "elapsed_seconds": 0.02390150000428548,
+        "progress": 100,
+        "cancel_requested": false,
+        "result": {
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "row_count": 3,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "types": [
+                "이메일"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "types": [
+                "전화번호"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 152,
+          "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+          "original_file": "original.csv",
+          "stats": {
+            "processed_rows": 3,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.00696
+          },
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 29170,
+          "logical_key": "4a452c70ea1a480da824722ab85af82e",
+          "layer": "raw",
+          "version": 1
+        }
+      },
+      "source": null,
+      "proposal": null,
+      "application": null,
+      "reviewResult": null,
+      "error": "",
+      "notice": "실제 원본의 RAW 저장이 완료되었습니다. 아래에서 바로 검색할 수 있습니다."
+    },
+    "review": {
+      "ai_generated": false,
+      "ai_status": "not_requested",
+      "created_at": 1789992362.70589,
+      "dataset_binding": {
+        "catalog": {
+          "id": "4a452c70ea1a480da824722ab85af82e",
+          "job_id": "4a452c70ea1a480da824722ab85af82e",
+          "layer": "raw",
+          "logical_key": "4a452c70ea1a480da824722ab85af82e",
+          "row_count": 3,
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+          "version": 1
+        },
+        "latest": {
+          "dataset_id": "4a452c70ea1a480da824722ab85af82e",
+          "version": 1
+        }
+      },
+      "dataset_id": "4a452c70ea1a480da824722ab85af82e",
+      "expires_at": 1790021162.70589,
+      "fingerprint": "8b87815d824015c0cc9969f00355234d5d9dbfabf38375e1f8dfa36768c663ef",
+      "include_company": false,
+      "notice": "AI는 처리 제안을 설명합니다. 적용하면 가공 엔진이 전체행을 처리합니다. 결과는 검토가 필요하며 법규 준수나 익명화 완료를 보장하지 않습니다.",
+      "policies": [
+        {
+          "content": "이 문서는 KNOW:HOW 공개 체험 워크스페이스의 합성 운영정책입니다. 실제 회사의 승인이나 법규 준수를 뜻하지 않습니다.\n주민등록번호, 여권번호, 계좌번호, 카드번호와 같은 식별번호 열은 분석 목적에 필요하지 않으면 drop 처리를 검토합니다. 비밀번호와 API 키 등 비밀정보도 결과에서 제외하도록 검토하며 모델에 전송하지 않습니다. 탐지되지 않은 정보가 없거나 익명화가 완료되었다고 보장하지 않습니다.",
+          "current": 1,
+          "department": "data",
+          "id": "3a8d070a41d19974b4f9bb4686bf0519",
+          "is_current": true,
+          "policy_kind": "workspace_operating_policy",
+          "scope": "department",
+          "sha256": "0bbb497950549cb557e8825504827e65b387d76e5c7640dd9d8a657e4d4c9ebf",
+          "source": {
+            "department": "data",
+            "fixture_id": "privacy-sensitive-v1",
+            "kind": "data-platform-privacy-policy",
+            "synthetic": true,
+            "workspace": "KNOW:HOW 공개 체험"
+          },
+          "source_department": "data",
+          "state": "confirmed",
+          "synthetic": true,
+          "title": "공개 체험 개인정보 운영정책 · 민감한 식별정보 최소화",
+          "valid_from": "2026-09-21",
+          "valid_to": "",
+          "version": 1
+        },
+        {
+          "content": "이 문서는 KNOW:HOW 공개 체험 워크스페이스의 합성 운영정책입니다. 실제 회사의 승인이나 법규 준수를 뜻하지 않습니다.\n반복 분석에 필요한 고객 식별자 등 연결키는 원문 노출을 줄이는 hash 처리를 담당자가 검토합니다. hash 처리는 익명화 완료를 보장하지 않습니다. 개인정보나 비밀정보로 탐지되지 않은 일반 열은 목적과 원문을 사람이 확인한 후 keep 처리를 검토합니다. AI는 제안과 설명을 제공하며 실제 가공은 사람이 적용한 규칙에 따라 처리 엔진이 전체행에 수행합니다.",
+          "current": 1,
+          "department": "data",
+          "id": "ac9375d19db027b2da679385db2c8290",
+          "is_current": true,
+          "policy_kind": "workspace_operating_policy",
+          "scope": "department",
+          "sha256": "8515b68792d45f1d65c7aa9839ed9c12b9db14aafc8f616a851705e58fdc0ad4",
+          "source": {
+            "department": "data",
+            "fixture_id": "privacy-linkage-v1",
+            "kind": "data-platform-privacy-policy",
+            "synthetic": true,
+            "workspace": "KNOW:HOW 공개 체험"
+          },
+          "source_department": "data",
+          "state": "confirmed",
+          "synthetic": true,
+          "title": "공개 체험 개인정보 운영정책 · 연결키와 일반 열 검토",
+          "valid_from": "2026-09-21",
+          "valid_to": "",
+          "version": 1
+        },
+        {
+          "content": "이 문서는 KNOW:HOW 공개 체험 워크스페이스의 합성 운영정책입니다. 실제 회사의 승인이나 법규 준수를 뜻하지 않습니다.\n분석 목적상 원문이 필요하지 않은 이메일, 전화번호, 이름, 주소 열은 mask 처리를 검토합니다. 담당자가 전체행 탐지 건수와 사용 목적을 확인한 뒤 적용합니다. 열 이름만으로 개인정보 여부를 확정하지 않습니다.",
+          "current": 1,
+          "department": "data",
+          "id": "2f726e53527db7ee1e79a867ae08e696",
+          "is_current": true,
+          "policy_kind": "workspace_operating_policy",
+          "scope": "department",
+          "sha256": "2fecae1bcaf2dd87e1a63d9870658087fc633fd09e110fe44939fb6c1139e930",
+          "source": {
+            "department": "data",
+            "fixture_id": "privacy-contact-v1",
+            "kind": "data-platform-privacy-policy",
+            "synthetic": true,
+            "workspace": "KNOW:HOW 공개 체험"
+          },
+          "source_department": "data",
+          "state": "confirmed",
+          "synthetic": true,
+          "title": "공개 체험 개인정보 운영정책 · 연락처와 직접 식별정보",
+          "valid_from": "2026-09-21",
+          "valid_to": "",
+          "version": 1
+        }
+      ],
+      "profile": [
+        {
+          "column": "id",
+          "column_id": "c1",
+          "data_type": "string",
+          "detection_basis": "pattern_or_header",
+          "matches": 0,
+          "nonempty_count": 3,
+          "row_count": 3,
+          "types": []
+        },
+        {
+          "column": "email",
+          "column_id": "c2",
+          "data_type": "string",
+          "detection_basis": "pattern_or_header",
+          "matches": 3,
+          "nonempty_count": 3,
+          "row_count": 3,
+          "types": [
+            "이메일"
+          ]
+        },
+        {
+          "column": "phone",
+          "column_id": "c3",
+          "data_type": "string",
+          "detection_basis": "pattern_or_header",
+          "matches": 3,
+          "nonempty_count": 3,
+          "row_count": 3,
+          "types": [
+            "전화번호"
+          ]
+        },
+        {
+          "column": "region",
+          "column_id": "c4",
+          "data_type": "string",
+          "detection_basis": "pattern_or_header",
+          "matches": 0,
+          "nonempty_count": 3,
+          "row_count": 3,
+          "types": []
+        }
+      ],
+      "proposals": [
+        {
+          "action": "keep",
+          "affected_count": 0,
+          "column": "id",
+          "column_id": "c1",
+          "grounding": "review_suggestion",
+          "policy_refs": [],
+          "reason": "전체행 탐지와 열 형식에 따른 검토할 제안입니다. 정책 원문과 사용 목적을 확인하세요."
+        },
+        {
+          "action": "mask",
+          "affected_count": 3,
+          "column": "email",
+          "column_id": "c2",
+          "grounding": "review_suggestion",
+          "policy_refs": [],
+          "reason": "전체행 탐지와 열 형식에 따른 검토할 제안입니다. 정책 원문과 사용 목적을 확인하세요."
+        },
+        {
+          "action": "mask",
+          "affected_count": 3,
+          "column": "phone",
+          "column_id": "c3",
+          "grounding": "review_suggestion",
+          "policy_refs": [],
+          "reason": "전체행 탐지와 열 형식에 따른 검토할 제안입니다. 정책 원문과 사용 목적을 확인하세요."
+        },
+        {
+          "action": "keep",
+          "affected_count": 0,
+          "column": "region",
+          "column_id": "c4",
+          "grounding": "review_suggestion",
+          "policy_refs": [],
+          "reason": "전체행 탐지와 열 형식에 따른 검토할 제안입니다. 정책 원문과 사용 목적을 확인하세요."
+        }
+      ],
+      "review_id": "51233b31c0a0b565d416405644acdf20",
+      "row_count": 3,
+      "status": "review_required"
+    },
+    "transformed": {
+      "dataset": {
+        "id": "9aa2a0b8d991463fafc6d06b3541993c",
+        "job_id": "9aa2a0b8d991463fafc6d06b3541993c",
+        "parent_id": "4a452c70ea1a480da824722ab85af82e",
+        "kind": "transform",
+        "name": "live-privacy-test.csv · 민감정보 처리 결과",
+        "created_at": 1789992364.589272,
+        "expires_at": 1790078752.414788,
+        "schema": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "type": "string"
+          }
+        ],
+        "row_count": 3,
+        "quality_count": 0,
+        "quality_sample_limit": 10000,
+        "privacy_summary": [
+          {
+            "column": "id",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "email",
+            "types": [
+              "이메일"
+            ],
+            "matches": 0,
+            "action": "mask"
+          },
+          {
+            "column": "phone",
+            "types": [
+              "전화번호"
+            ],
+            "matches": 0,
+            "action": "mask"
+          },
+          {
+            "column": "region",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          }
+        ],
+        "source_bytes": 152,
+        "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+        "rules": {
+          "rules": [
+            {
+              "column": "id",
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "action": "keep"
+            }
+          ],
+          "privacy_mode": "explicit",
+          "on_error": "reject",
+          "name": "live-privacy-test.csv · 민감정보 처리 결과",
+          "logical_key": "4a452c70ea1a480da824722ab85af82e",
+          "layer": "conformed",
+          "partition_rows": 100000,
+          "settings_version": 0
+        },
+        "deduplicate": [],
+        "on_error": "reject",
+        "preset": null,
+        "effective_rules": [
+          {
+            "column": "id",
+            "action": "keep",
+            "type": "string",
+            "trim": false,
+            "required": false
+          },
+          {
+            "column": "email",
+            "action": "mask",
+            "type": "string",
+            "trim": false,
+            "required": false
+          },
+          {
+            "column": "phone",
+            "action": "mask",
+            "type": "string",
+            "trim": false,
+            "required": false
+          },
+          {
+            "column": "region",
+            "action": "keep",
+            "type": "string",
+            "trim": false,
+            "required": false
+          }
+        ],
+        "privacy_mode": "explicit",
+        "source_privacy_summary": [
+          {
+            "column": "id",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          },
+          {
+            "column": "email",
+            "types": [
+              "이메일"
+            ],
+            "matches": 3,
+            "action": "mask"
+          },
+          {
+            "column": "phone",
+            "types": [
+              "전화번호"
+            ],
+            "matches": 3,
+            "action": "mask"
+          },
+          {
+            "column": "region",
+            "types": [],
+            "matches": 0,
+            "action": "keep"
+          }
+        ],
+        "stats": {
+          "processed_rows": 3,
+          "rejected_rows": 0,
+          "duplicates_removed": 0,
+          "elapsed_seconds": 0.003854
+        },
+        "storage_format": "sqlite-partitions-v1",
+        "partition_count": 1,
+        "partition_rows": 100000,
+        "storage_bytes": 29018,
+        "privacy_review_id": "51233b31c0a0b565d416405644acdf20",
+        "logical_key": "4a452c70ea1a480da824722ab85af82e",
+        "layer": "conformed",
+        "version": 1
+      },
+      "preview": {
+        "dataset": {
+          "id": "9aa2a0b8d991463fafc6d06b3541993c",
+          "job_id": "9aa2a0b8d991463fafc6d06b3541993c",
+          "parent_id": "4a452c70ea1a480da824722ab85af82e",
+          "kind": "transform",
+          "name": "live-privacy-test.csv · 민감정보 처리 결과",
+          "created_at": 1789992364.589272,
+          "expires_at": 1790078752.414788,
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "row_count": 3,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "types": [
+                "이메일"
+              ],
+              "matches": 0,
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "types": [
+                "전화번호"
+              ],
+              "matches": 0,
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 152,
+          "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+          "rules": {
+            "rules": [
+              {
+                "column": "id",
+                "action": "keep"
+              },
+              {
+                "column": "email",
+                "action": "mask"
+              },
+              {
+                "column": "phone",
+                "action": "mask"
+              },
+              {
+                "column": "region",
+                "action": "keep"
+              }
+            ],
+            "privacy_mode": "explicit",
+            "on_error": "reject",
+            "name": "live-privacy-test.csv · 민감정보 처리 결과",
+            "logical_key": "4a452c70ea1a480da824722ab85af82e",
+            "layer": "conformed",
+            "partition_rows": 100000,
+            "settings_version": 0
+          },
+          "deduplicate": [],
+          "on_error": "reject",
+          "preset": null,
+          "effective_rules": [
+            {
+              "column": "id",
+              "action": "keep",
+              "type": "string",
+              "trim": false,
+              "required": false
+            },
+            {
+              "column": "email",
+              "action": "mask",
+              "type": "string",
+              "trim": false,
+              "required": false
+            },
+            {
+              "column": "phone",
+              "action": "mask",
+              "type": "string",
+              "trim": false,
+              "required": false
+            },
+            {
+              "column": "region",
+              "action": "keep",
+              "type": "string",
+              "trim": false,
+              "required": false
+            }
+          ],
+          "privacy_mode": "explicit",
+          "source_privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "types": [
+                "이메일"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "types": [
+                "전화번호"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "stats": {
+            "processed_rows": 3,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.003854
+          },
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 29018,
+          "privacy_review_id": "51233b31c0a0b565d416405644acdf20",
+          "logical_key": "4a452c70ea1a480da824722ab85af82e",
+          "layer": "conformed",
+          "version": 1
+        },
+        "schema": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "type": "string"
+          }
+        ],
+        "rows": [
+          {
+            "id": "1",
+            "email": "***",
+            "phone": "***",
+            "region": "서울"
+          },
+          {
+            "id": "2",
+            "email": "***",
+            "phone": "***",
+            "region": "부산"
+          },
+          {
+            "id": "3",
+            "email": "***",
+            "phone": "***",
+            "region": "제주"
+          }
+        ],
+        "total": 3,
+        "offset": 0,
+        "limit": 50
+      },
+      "job": {
+        "id": "9aa2a0b8d991463fafc6d06b3541993c",
+        "kind": "transform",
+        "state": "succeeded",
+        "parent_id": "4a452c70ea1a480da824722ab85af82e",
+        "created_at": 1789992364.42849,
+        "updated_at": 1789992364.589345,
+        "started_at": 1789992364.5520582,
+        "finished_at": 1789992364.589345,
+        "processed_rows": 3,
+        "total_rows": 3,
+        "processed_bytes": null,
+        "total_bytes": null,
+        "stage": "completed",
+        "attempts": 1,
+        "error": null,
+        "dataset_id": "9aa2a0b8d991463fafc6d06b3541993c",
+        "elapsed_seconds": 0.03557354199438123,
+        "progress": 100,
+        "cancel_requested": false,
+        "result": {
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "row_count": 3,
+          "quality_count": 0,
+          "quality_sample_limit": 10000,
+          "privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "types": [
+                "이메일"
+              ],
+              "matches": 0,
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "types": [
+                "전화번호"
+              ],
+              "matches": 0,
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "source_bytes": 152,
+          "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+          "rules": [
+            {
+              "column": "id",
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "action": "keep"
+            }
+          ],
+          "deduplicate": [],
+          "on_error": "reject",
+          "preset": null,
+          "effective_rules": [
+            {
+              "column": "id",
+              "action": "keep",
+              "type": "string",
+              "trim": false,
+              "required": false
+            },
+            {
+              "column": "email",
+              "action": "mask",
+              "type": "string",
+              "trim": false,
+              "required": false
+            },
+            {
+              "column": "phone",
+              "action": "mask",
+              "type": "string",
+              "trim": false,
+              "required": false
+            },
+            {
+              "column": "region",
+              "action": "keep",
+              "type": "string",
+              "trim": false,
+              "required": false
+            }
+          ],
+          "privacy_mode": "explicit",
+          "source_privacy_summary": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "types": [
+                "이메일"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "types": [
+                "전화번호"
+              ],
+              "matches": 3,
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ],
+          "stats": {
+            "processed_rows": 3,
+            "rejected_rows": 0,
+            "duplicates_removed": 0,
+            "elapsed_seconds": 0.003854
+          },
+          "storage_format": "sqlite-partitions-v1",
+          "partition_count": 1,
+          "partition_rows": 100000,
+          "storage_bytes": 29018,
+          "privacy_review_id": "51233b31c0a0b565d416405644acdf20",
+          "logical_key": "4a452c70ea1a480da824722ab85af82e",
+          "layer": "conformed",
+          "version": 1
+        }
+      },
+      "source": null,
+      "proposal": null,
+      "application": {
+        "review_id": "51233b31c0a0b565d416405644acdf20",
+        "source_dataset_id": "4a452c70ea1a480da824722ab85af82e",
+        "result_dataset_id": "9aa2a0b8d991463fafc6d06b3541993c",
+        "applied_at": 1789992364.589272,
+        "before": {
+          "row_count": 3,
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "profile": [
+            {
+              "column": "id",
+              "column_id": "c1",
+              "data_type": "string",
+              "detection_basis": "pattern_or_header",
+              "matches": 0,
+              "nonempty_count": 3,
+              "row_count": 3,
+              "types": []
+            },
+            {
+              "column": "email",
+              "column_id": "c2",
+              "data_type": "string",
+              "detection_basis": "pattern_or_header",
+              "matches": 3,
+              "nonempty_count": 3,
+              "row_count": 3,
+              "types": [
+                "이메일"
+              ]
+            },
+            {
+              "column": "phone",
+              "column_id": "c3",
+              "data_type": "string",
+              "detection_basis": "pattern_or_header",
+              "matches": 3,
+              "nonempty_count": 3,
+              "row_count": 3,
+              "types": [
+                "전화번호"
+              ]
+            },
+            {
+              "column": "region",
+              "column_id": "c4",
+              "data_type": "string",
+              "detection_basis": "pattern_or_header",
+              "matches": 0,
+              "nonempty_count": 3,
+              "row_count": 3,
+              "types": []
+            }
+          ]
+        },
+        "after": {
+          "row_count": 3,
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "profile": [
+            {
+              "column": "id",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            },
+            {
+              "column": "email",
+              "types": [
+                "이메일"
+              ],
+              "matches": 0,
+              "action": "mask"
+            },
+            {
+              "column": "phone",
+              "types": [
+                "전화번호"
+              ],
+              "matches": 0,
+              "action": "mask"
+            },
+            {
+              "column": "region",
+              "types": [],
+              "matches": 0,
+              "action": "keep"
+            }
+          ]
+        },
+        "applications": [
+          {
+            "column": "id",
+            "action": "keep",
+            "affected_count": 0,
+            "matched_cells": 0,
+            "policy_refs": [],
+            "decision": "review_applied"
+          },
+          {
+            "column": "email",
+            "action": "mask",
+            "affected_count": 3,
+            "matched_cells": 3,
+            "policy_refs": [],
+            "decision": "review_applied"
+          },
+          {
+            "column": "phone",
+            "action": "mask",
+            "affected_count": 3,
+            "matched_cells": 3,
+            "policy_refs": [],
+            "decision": "review_applied"
+          },
+          {
+            "column": "region",
+            "action": "keep",
+            "affected_count": 0,
+            "matched_cells": 0,
+            "policy_refs": [],
+            "decision": "review_applied"
+          }
+        ],
+        "policies": [
+          {
+            "content": "이 문서는 KNOW:HOW 공개 체험 워크스페이스의 합성 운영정책입니다. 실제 회사의 승인이나 법규 준수를 뜻하지 않습니다.\n주민등록번호, 여권번호, 계좌번호, 카드번호와 같은 식별번호 열은 분석 목적에 필요하지 않으면 drop 처리를 검토합니다. 비밀번호와 API 키 등 비밀정보도 결과에서 제외하도록 검토하며 모델에 전송하지 않습니다. 탐지되지 않은 정보가 없거나 익명화가 완료되었다고 보장하지 않습니다.",
+            "current": 1,
+            "department": "data",
+            "id": "3a8d070a41d19974b4f9bb4686bf0519",
+            "is_current": true,
+            "policy_kind": "workspace_operating_policy",
+            "scope": "department",
+            "sha256": "0bbb497950549cb557e8825504827e65b387d76e5c7640dd9d8a657e4d4c9ebf",
+            "source": {
+              "department": "data",
+              "fixture_id": "privacy-sensitive-v1",
+              "kind": "data-platform-privacy-policy",
+              "synthetic": true,
+              "workspace": "KNOW:HOW 공개 체험"
+            },
+            "source_department": "data",
+            "state": "confirmed",
+            "synthetic": true,
+            "title": "공개 체험 개인정보 운영정책 · 민감한 식별정보 최소화",
+            "valid_from": "2026-09-21",
+            "valid_to": "",
+            "version": 1,
+            "applied_at": null,
+            "applications": [],
+            "applied_effect": ""
+          },
+          {
+            "content": "이 문서는 KNOW:HOW 공개 체험 워크스페이스의 합성 운영정책입니다. 실제 회사의 승인이나 법규 준수를 뜻하지 않습니다.\n반복 분석에 필요한 고객 식별자 등 연결키는 원문 노출을 줄이는 hash 처리를 담당자가 검토합니다. hash 처리는 익명화 완료를 보장하지 않습니다. 개인정보나 비밀정보로 탐지되지 않은 일반 열은 목적과 원문을 사람이 확인한 후 keep 처리를 검토합니다. AI는 제안과 설명을 제공하며 실제 가공은 사람이 적용한 규칙에 따라 처리 엔진이 전체행에 수행합니다.",
+            "current": 1,
+            "department": "data",
+            "id": "ac9375d19db027b2da679385db2c8290",
+            "is_current": true,
+            "policy_kind": "workspace_operating_policy",
+            "scope": "department",
+            "sha256": "8515b68792d45f1d65c7aa9839ed9c12b9db14aafc8f616a851705e58fdc0ad4",
+            "source": {
+              "department": "data",
+              "fixture_id": "privacy-linkage-v1",
+              "kind": "data-platform-privacy-policy",
+              "synthetic": true,
+              "workspace": "KNOW:HOW 공개 체험"
+            },
+            "source_department": "data",
+            "state": "confirmed",
+            "synthetic": true,
+            "title": "공개 체험 개인정보 운영정책 · 연결키와 일반 열 검토",
+            "valid_from": "2026-09-21",
+            "valid_to": "",
+            "version": 1,
+            "applied_at": null,
+            "applications": [],
+            "applied_effect": ""
+          },
+          {
+            "content": "이 문서는 KNOW:HOW 공개 체험 워크스페이스의 합성 운영정책입니다. 실제 회사의 승인이나 법규 준수를 뜻하지 않습니다.\n분석 목적상 원문이 필요하지 않은 이메일, 전화번호, 이름, 주소 열은 mask 처리를 검토합니다. 담당자가 전체행 탐지 건수와 사용 목적을 확인한 뒤 적용합니다. 열 이름만으로 개인정보 여부를 확정하지 않습니다.",
+            "current": 1,
+            "department": "data",
+            "id": "2f726e53527db7ee1e79a867ae08e696",
+            "is_current": true,
+            "policy_kind": "workspace_operating_policy",
+            "scope": "department",
+            "sha256": "2fecae1bcaf2dd87e1a63d9870658087fc633fd09e110fe44939fb6c1139e930",
+            "source": {
+              "department": "data",
+              "fixture_id": "privacy-contact-v1",
+              "kind": "data-platform-privacy-policy",
+              "synthetic": true,
+              "workspace": "KNOW:HOW 공개 체험"
+            },
+            "source_department": "data",
+            "state": "confirmed",
+            "synthetic": true,
+            "title": "공개 체험 개인정보 운영정책 · 연락처와 직접 식별정보",
+            "valid_from": "2026-09-21",
+            "valid_to": "",
+            "version": 1,
+            "applied_at": null,
+            "applications": [],
+            "applied_effect": ""
+          }
+        ],
+        "notice": "AI는 처리 제안을 설명합니다. 적용하면 가공 엔진이 전체행을 처리합니다. 결과는 검토가 필요하며 법규 준수나 익명화 완료를 보장하지 않습니다.",
+        "state": "succeeded",
+        "processed_rows": 3,
+        "dataset_id": "9aa2a0b8d991463fafc6d06b3541993c"
+      },
+      "reviewResult": {
+        "before": {
+          "dataset": {
+            "id": "4a452c70ea1a480da824722ab85af82e",
+            "job_id": "4a452c70ea1a480da824722ab85af82e",
+            "parent_id": null,
+            "kind": "ingest",
+            "name": "live-privacy-test.csv",
+            "created_at": 1789992360.0556412,
+            "expires_at": 1790078752.414788,
+            "schema": [
+              {
+                "name": "id",
+                "type": "string"
+              },
+              {
+                "name": "email",
+                "type": "string"
+              },
+              {
+                "name": "phone",
+                "type": "string"
+              },
+              {
+                "name": "region",
+                "type": "string"
+              }
+            ],
+            "row_count": 3,
+            "quality_count": 0,
+            "quality_sample_limit": 10000,
+            "privacy_summary": [
+              {
+                "column": "id",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              },
+              {
+                "column": "email",
+                "types": [
+                  "이메일"
+                ],
+                "matches": 3,
+                "action": "mask"
+              },
+              {
+                "column": "phone",
+                "types": [
+                  "전화번호"
+                ],
+                "matches": 3,
+                "action": "mask"
+              },
+              {
+                "column": "region",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              }
+            ],
+            "source_bytes": 152,
+            "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+            "original_file": "original.csv",
+            "stats": {
+              "processed_rows": 3,
+              "rejected_rows": 0,
+              "duplicates_removed": 0,
+              "elapsed_seconds": 0.00696
+            },
+            "storage_format": "sqlite-partitions-v1",
+            "partition_count": 1,
+            "partition_rows": 100000,
+            "storage_bytes": 29170,
+            "logical_key": "4a452c70ea1a480da824722ab85af82e",
+            "layer": "raw",
+            "version": 1,
+            "rules": {
+              "upload_id": "1623b7e3b0e548f382c39b1d015778fe",
+              "format": "csv",
+              "source_bytes": 152,
+              "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+              "name": "live-privacy-test.csv",
+              "max_rows": 1000000,
+              "logical_key": "4a452c70ea1a480da824722ab85af82e",
+              "layer": "raw",
+              "partition_rows": 100000,
+              "settings_version": 0
+            }
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "email": "demo1@example.test",
+              "phone": "010-0000-0001",
+              "region": "서울"
+            },
+            {
+              "id": "2",
+              "email": "demo2@example.test",
+              "phone": "010-0000-0002",
+              "region": "부산"
+            },
+            {
+              "id": "3",
+              "email": "demo3@example.test",
+              "phone": "010-0000-0003",
+              "region": "제주"
+            }
+          ],
+          "total": 3,
+          "offset": 0,
+          "limit": 50
+        },
+        "after": {
+          "dataset": {
+            "id": "9aa2a0b8d991463fafc6d06b3541993c",
+            "job_id": "9aa2a0b8d991463fafc6d06b3541993c",
+            "parent_id": "4a452c70ea1a480da824722ab85af82e",
+            "kind": "transform",
+            "name": "live-privacy-test.csv · 민감정보 처리 결과",
+            "created_at": 1789992364.589272,
+            "expires_at": 1790078752.414788,
+            "schema": [
+              {
+                "name": "id",
+                "type": "string"
+              },
+              {
+                "name": "email",
+                "type": "string"
+              },
+              {
+                "name": "phone",
+                "type": "string"
+              },
+              {
+                "name": "region",
+                "type": "string"
+              }
+            ],
+            "row_count": 3,
+            "quality_count": 0,
+            "quality_sample_limit": 10000,
+            "privacy_summary": [
+              {
+                "column": "id",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              },
+              {
+                "column": "email",
+                "types": [
+                  "이메일"
+                ],
+                "matches": 0,
+                "action": "mask"
+              },
+              {
+                "column": "phone",
+                "types": [
+                  "전화번호"
+                ],
+                "matches": 0,
+                "action": "mask"
+              },
+              {
+                "column": "region",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              }
+            ],
+            "source_bytes": 152,
+            "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+            "rules": {
+              "rules": [
+                {
+                  "column": "id",
+                  "action": "keep"
+                },
+                {
+                  "column": "email",
+                  "action": "mask"
+                },
+                {
+                  "column": "phone",
+                  "action": "mask"
+                },
+                {
+                  "column": "region",
+                  "action": "keep"
+                }
+              ],
+              "privacy_mode": "explicit",
+              "on_error": "reject",
+              "name": "live-privacy-test.csv · 민감정보 처리 결과",
+              "logical_key": "4a452c70ea1a480da824722ab85af82e",
+              "layer": "conformed",
+              "partition_rows": 100000,
+              "settings_version": 0
+            },
+            "deduplicate": [],
+            "on_error": "reject",
+            "preset": null,
+            "effective_rules": [
+              {
+                "column": "id",
+                "action": "keep",
+                "type": "string",
+                "trim": false,
+                "required": false
+              },
+              {
+                "column": "email",
+                "action": "mask",
+                "type": "string",
+                "trim": false,
+                "required": false
+              },
+              {
+                "column": "phone",
+                "action": "mask",
+                "type": "string",
+                "trim": false,
+                "required": false
+              },
+              {
+                "column": "region",
+                "action": "keep",
+                "type": "string",
+                "trim": false,
+                "required": false
+              }
+            ],
+            "privacy_mode": "explicit",
+            "source_privacy_summary": [
+              {
+                "column": "id",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              },
+              {
+                "column": "email",
+                "types": [
+                  "이메일"
+                ],
+                "matches": 3,
+                "action": "mask"
+              },
+              {
+                "column": "phone",
+                "types": [
+                  "전화번호"
+                ],
+                "matches": 3,
+                "action": "mask"
+              },
+              {
+                "column": "region",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              }
+            ],
+            "stats": {
+              "processed_rows": 3,
+              "rejected_rows": 0,
+              "duplicates_removed": 0,
+              "elapsed_seconds": 0.003854
+            },
+            "storage_format": "sqlite-partitions-v1",
+            "partition_count": 1,
+            "partition_rows": 100000,
+            "storage_bytes": 29018,
+            "privacy_review_id": "51233b31c0a0b565d416405644acdf20",
+            "logical_key": "4a452c70ea1a480da824722ab85af82e",
+            "layer": "conformed",
+            "version": 1
+          },
+          "schema": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "email": "***",
+              "phone": "***",
+              "region": "서울"
+            },
+            {
+              "id": "2",
+              "email": "***",
+              "phone": "***",
+              "region": "부산"
+            },
+            {
+              "id": "3",
+              "email": "***",
+              "phone": "***",
+              "region": "제주"
+            }
+          ],
+          "total": 3,
+          "offset": 0,
+          "limit": 50
+        },
+        "input_rows": 3,
+        "processed_rows": 3,
+        "output_rows": 3,
+        "job": {
+          "id": "9aa2a0b8d991463fafc6d06b3541993c",
+          "kind": "transform",
+          "state": "succeeded",
+          "parent_id": "4a452c70ea1a480da824722ab85af82e",
+          "created_at": 1789992364.42849,
+          "updated_at": 1789992364.589345,
+          "started_at": 1789992364.5520582,
+          "finished_at": 1789992364.589345,
+          "processed_rows": 3,
+          "total_rows": 3,
+          "processed_bytes": null,
+          "total_bytes": null,
+          "stage": "completed",
+          "attempts": 1,
+          "error": null,
+          "dataset_id": "9aa2a0b8d991463fafc6d06b3541993c",
+          "elapsed_seconds": 0.03557354199438123,
+          "progress": 100,
+          "cancel_requested": false,
+          "result": {
+            "schema": [
+              {
+                "name": "id",
+                "type": "string"
+              },
+              {
+                "name": "email",
+                "type": "string"
+              },
+              {
+                "name": "phone",
+                "type": "string"
+              },
+              {
+                "name": "region",
+                "type": "string"
+              }
+            ],
+            "row_count": 3,
+            "quality_count": 0,
+            "quality_sample_limit": 10000,
+            "privacy_summary": [
+              {
+                "column": "id",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              },
+              {
+                "column": "email",
+                "types": [
+                  "이메일"
+                ],
+                "matches": 0,
+                "action": "mask"
+              },
+              {
+                "column": "phone",
+                "types": [
+                  "전화번호"
+                ],
+                "matches": 0,
+                "action": "mask"
+              },
+              {
+                "column": "region",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              }
+            ],
+            "source_bytes": 152,
+            "source_sha256": "a4fa2fe5abed4e824478034033443572c3caa7119244612579f94d92f6388681",
+            "rules": [
+              {
+                "column": "id",
+                "action": "keep"
+              },
+              {
+                "column": "email",
+                "action": "mask"
+              },
+              {
+                "column": "phone",
+                "action": "mask"
+              },
+              {
+                "column": "region",
+                "action": "keep"
+              }
+            ],
+            "deduplicate": [],
+            "on_error": "reject",
+            "preset": null,
+            "effective_rules": [
+              {
+                "column": "id",
+                "action": "keep",
+                "type": "string",
+                "trim": false,
+                "required": false
+              },
+              {
+                "column": "email",
+                "action": "mask",
+                "type": "string",
+                "trim": false,
+                "required": false
+              },
+              {
+                "column": "phone",
+                "action": "mask",
+                "type": "string",
+                "trim": false,
+                "required": false
+              },
+              {
+                "column": "region",
+                "action": "keep",
+                "type": "string",
+                "trim": false,
+                "required": false
+              }
+            ],
+            "privacy_mode": "explicit",
+            "source_privacy_summary": [
+              {
+                "column": "id",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              },
+              {
+                "column": "email",
+                "types": [
+                  "이메일"
+                ],
+                "matches": 3,
+                "action": "mask"
+              },
+              {
+                "column": "phone",
+                "types": [
+                  "전화번호"
+                ],
+                "matches": 3,
+                "action": "mask"
+              },
+              {
+                "column": "region",
+                "types": [],
+                "matches": 0,
+                "action": "keep"
+              }
+            ],
+            "stats": {
+              "processed_rows": 3,
+              "rejected_rows": 0,
+              "duplicates_removed": 0,
+              "elapsed_seconds": 0.003854
+            },
+            "storage_format": "sqlite-partitions-v1",
+            "partition_count": 1,
+            "partition_rows": 100000,
+            "storage_bytes": 29018,
+            "privacy_review_id": "51233b31c0a0b565d416405644acdf20",
+            "logical_key": "4a452c70ea1a480da824722ab85af82e",
+            "layer": "conformed",
+            "version": 1
+          }
+        },
+        "state": "succeeded"
+      },
+      "error": "",
+      "notice": "선택한 처리 방법으로 전체 행 처리가 완료되었습니다."
+    },
+    "isolation": [
+      {
+        "route": "datasets/4a452c70ea1a480da824722ab85af82e/preview",
+        "status": 404
+      },
+      {
+        "route": "datasets/4a452c70ea1a480da824722ab85af82e/original",
+        "status": 404
+      },
+      {
+        "route": "datasets/9aa2a0b8d991463fafc6d06b3541993c/privacy-result?review_id=51233b31c0a0b565d416405644acdf20",
+        "status": 404
+      }
+    ],
+    "rejectedSource": {
+      "url": "http://127.0.0.1/unavailable.csv",
+      "error": "",
+      "job": {
+        "id": "0a5310012e3e496cb5ac9dfdd8e2eead",
+        "kind": "source_discovery",
+        "state": "failed",
+        "parent_id": null,
+        "created_at": 1789992366.6804621,
+        "updated_at": 1789992366.704837,
+        "started_at": 1789992366.697485,
+        "finished_at": 1789992366.704837,
+        "processed_rows": 0,
+        "total_rows": null,
+        "processed_bytes": null,
+        "total_bytes": null,
+        "stage": "failed",
+        "attempts": 1,
+        "error": "사설망·내부망 주소에는 연결할 수 없습니다.",
+        "dataset_id": null,
+        "elapsed_seconds": 0.006643166998401284,
+        "progress": null,
+        "cancel_requested": false,
+        "result": null
+      }
+    }
+  },
+  "traffic": [
+    {
+      "method": "GET",
+      "path": "/data-platform/capabilities",
+      "query": {},
+      "authorizationPresent": false,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/sessions",
+      "query": {},
+      "authorizationPresent": false,
+      "requestBytes": 2,
+      "body": {},
+      "status": 201,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/sources",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": 127,
+      "body": {
+        "url": "https://www.w3schools.com/html/html_tables.asp",
+        "kind": "html",
+        "idempotency_key": "53f57f2e-be8a-421b-a7b4-c9208d13eda0"
+      },
+      "status": 202,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs/b717ed5a5dfa4b6e84a6e57d0982f689",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/sources/b717ed5a5dfa4b6e84a6e57d0982f689/ingest",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": 99,
+      "body": {
+        "name": "html_tables.asp",
+        "idempotency_key": "1c0e43fb-8a01-413c-a8cb-08bae3f25562",
+        "table_index": 0
+      },
+      "status": 202,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs/33b395d502984ca5bec7317fded78951",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/33b395d502984ca5bec7317fded78951/preview",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/uploads",
+      "query": {
+        "format": "xlsx",
+        "name": "live-excel-test.xlsx",
+        "idempotency_key": "c7699a73-0feb-43b4-ac2a-b91e88af071f"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 202,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs/be71cb342ddf4c5eaabe537357f2aaab",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/be71cb342ddf4c5eaabe537357f2aaab/preview",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/be71cb342ddf4c5eaabe537357f2aaab/original",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/uploads",
+      "query": {
+        "format": "csv",
+        "name": "live-privacy-test.csv",
+        "idempotency_key": "12eb978b-896f-488c-9942-ac295b5332e9"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 202,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs/4a452c70ea1a480da824722ab85af82e",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/4a452c70ea1a480da824722ab85af82e/preview",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/4a452c70ea1a480da824722ab85af82e/original",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/datasets/4a452c70ea1a480da824722ab85af82e/privacy-review",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": 35,
+      "body": {
+        "generate": false,
+        "seed_demo": true
+      },
+      "status": 202,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs/41c74425edc4462383cfed12e137e148",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/privacy-reviews/51233b31c0a0b565d416405644acdf20",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/datasets/4a452c70ea1a480da824722ab85af82e/privacy-apply",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": 318,
+      "body": {
+        "review_id": "51233b31c0a0b565d416405644acdf20",
+        "decisions": [
+          {
+            "column": "id",
+            "action": "keep"
+          },
+          {
+            "column": "email",
+            "action": "mask"
+          },
+          {
+            "column": "phone",
+            "action": "mask"
+          },
+          {
+            "column": "region",
+            "action": "keep"
+          }
+        ],
+        "name": "live-privacy-test.csv · 민감정보 처리 결과",
+        "idempotency_key": "ebc82d5e-26b9-494f-a16e-757f76d4ba3e"
+      },
+      "status": 202,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs/9aa2a0b8d991463fafc6d06b3541993c",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/9aa2a0b8d991463fafc6d06b3541993c/preview",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/9aa2a0b8d991463fafc6d06b3541993c/privacy-result",
+      "query": {
+        "review_id": "51233b31c0a0b565d416405644acdf20"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/9aa2a0b8d991463fafc6d06b3541993c/privacy-result",
+      "query": {
+        "review_id": "51233b31c0a0b565d416405644acdf20"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/datasets/9aa2a0b8d991463fafc6d06b3541993c/export",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": 36,
+      "body": {
+        "search": "",
+        "filters": [],
+        "sort": []
+      },
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/4a452c70ea1a480da824722ab85af82e/preview",
+      "query": {},
+      "authorizationPresent": true,
+      "origin": "http://127.0.0.1:18902",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/sessions",
+      "query": {},
+      "authorizationPresent": false,
+      "origin": "http://127.0.0.1:18902",
+      "status": 201,
+      "body": {}
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/4a452c70ea1a480da824722ab85af82e/preview",
+      "query": {},
+      "authorizationPresent": true,
+      "origin": "http://127.0.0.1:18902",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/4a452c70ea1a480da824722ab85af82e/original",
+      "query": {},
+      "authorizationPresent": true,
+      "origin": "http://127.0.0.1:18902",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets/9aa2a0b8d991463fafc6d06b3541993c/privacy-result",
+      "query": {
+        "review_id": "51233b31c0a0b565d416405644acdf20"
+      },
+      "authorizationPresent": true,
+      "origin": "http://127.0.0.1:18902",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {},
+      "authorizationPresent": true,
+      "origin": "http://127.0.0.1:18902",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "POST",
+      "path": "/data-platform/visitor/sources",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": 113,
+      "body": {
+        "url": "http://127.0.0.1/unavailable.csv",
+        "kind": "file",
+        "idempotency_key": "881c6e22-8063-422d-bfbb-f238ade3a09a"
+      },
+      "status": 202,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs/0a5310012e3e496cb5ac9dfdd8e2eead",
+      "query": {},
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/jobs",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    },
+    {
+      "method": "GET",
+      "path": "/data-platform/visitor/datasets",
+      "query": {
+        "offset": "0",
+        "limit": "50"
+      },
+      "authorizationPresent": true,
+      "requestBytes": null,
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:18902"
+    }
+  ],
+  "browserErrors": [],
+  "consoleErrors": [],
+  "blockedGeneration": []
+}

@@ -1,0 +1,456 @@
+{
+  "passed": true,
+  "startedAt": "2026-09-21T11:56:00.517Z",
+  "finishedAt": "2026-09-21T12:01:10.859Z",
+  "source": "https://ev.or.kr/nportal/monitor/evMapExcel.do",
+  "freshDownload": true,
+  "staticHarnessViaRoute": false,
+  "apiResponsesIntercepted": false,
+  "api": "http://127.0.0.1:18771/data-platform",
+  "dataset": {
+    "id": "55f0493108c2423486e6c039250cbb96",
+    "row_count": 520973,
+    "schema": [
+      {
+        "name": "운영기관",
+        "type": "string"
+      },
+      {
+        "name": "충전소",
+        "type": "string"
+      },
+      {
+        "name": "충전기ID",
+        "type": "string"
+      },
+      {
+        "name": "충전기타입",
+        "type": "string"
+      },
+      {
+        "name": "충전기상태",
+        "type": "string"
+      },
+      {
+        "name": "시설구분(대)",
+        "type": "string"
+      },
+      {
+        "name": "시설구분(소)",
+        "type": "string"
+      },
+      {
+        "name": "지역",
+        "type": "string"
+      },
+      {
+        "name": "시군구",
+        "type": "string"
+      },
+      {
+        "name": "주소",
+        "type": "string"
+      },
+      {
+        "name": "지번 주소",
+        "type": "string"
+      },
+      {
+        "name": "상세위치",
+        "type": "string"
+      },
+      {
+        "name": "이용가능시간",
+        "type": "string"
+      },
+      {
+        "name": "이용자 제한",
+        "type": "string"
+      },
+      {
+        "name": "충전용량",
+        "type": "string"
+      },
+      {
+        "name": "편의제공",
+        "type": "string"
+      },
+      {
+        "name": "비고",
+        "type": "string"
+      }
+    ],
+    "source": {
+      "original_url": "https://ev.or.kr/nportal/monitor/evMapExcel.do",
+      "resolved_url": "https://ev.or.kr/nportal/monitor/evMapExcel.do",
+      "fetched_at": "2026-09-21T11:56:57.192120+00:00",
+      "source_bytes": 46014290,
+      "source_sha256": "de0384ba3bfc4aa909fe1848d421097d6bf160a83957b44d89609257ff9c397b",
+      "suggested_format": "xlsx",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "source_id": "75dc284127fd428ba7836030e7e911a4"
+    },
+    "original_file": "original.xlsx",
+    "source_sha256": "de0384ba3bfc4aa909fe1848d421097d6bf160a83957b44d89609257ff9c397b",
+    "source_bytes": 46014290,
+    "created_at": 1789992067.2858298
+  },
+  "searches": {
+    "서울": "조건에 맞는 전체 80,964행 중 1–50행 표시 · 미리보기 50행",
+    "강남": "조건에 맞는 전체 6,880행 중 1–50행 표시 · 미리보기 50행",
+    "GS타워": "조건에 맞는 전체 10행 중 1–10행 표시 · 미리보기 10행"
+  },
+  "observations": [
+    {
+      "at": "2026-09-21T11:56:00.644Z",
+      "job": null,
+      "flow": null,
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:56:15.830Z",
+      "job": {
+        "id": "75dc284127fd428ba7836030e7e911a4",
+        "kind": "source_discovery",
+        "state": "running",
+        "stage": "download",
+        "processed_bytes": 16350683,
+        "total_bytes": 46014290,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "discover",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:56:30.868Z",
+      "job": {
+        "id": "75dc284127fd428ba7836030e7e911a4",
+        "kind": "source_discovery",
+        "state": "running",
+        "stage": "download",
+        "processed_bytes": 20905435,
+        "total_bytes": 46014290,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "discover",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:56:45.904Z",
+      "job": {
+        "id": "75dc284127fd428ba7836030e7e911a4",
+        "kind": "source_discovery",
+        "state": "running",
+        "stage": "download",
+        "processed_bytes": 27459035,
+        "total_bytes": 46014290,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "discover",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:57:00.937Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:57:15.965Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:57:30.998Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:57:46.030Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:58:01.097Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:58:16.131Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:58:31.160Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:58:46.193Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "validate_source",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 0,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:59:01.253Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 43000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:59:16.283Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 101000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:59:31.317Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 160000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T11:59:46.345Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 215000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T12:00:01.378Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 277000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T12:00:16.408Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 332000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T12:00:31.437Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 392000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T12:00:46.468Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 452000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    },
+    {
+      "at": "2026-09-21T12:01:01.497Z",
+      "job": {
+        "id": "55f0493108c2423486e6c039250cbb96",
+        "kind": "source_ingest",
+        "state": "running",
+        "stage": "ingest",
+        "processed_bytes": null,
+        "total_bytes": null,
+        "processed_rows": 513000,
+        "total_rows": null
+      },
+      "flow": "ingest",
+      "error": "",
+      "hasRaw": false,
+      "dataset": null
+    }
+  ],
+  "browserErrors": [],
+  "paidCalls": 0,
+  "aiRequests": 0
+}

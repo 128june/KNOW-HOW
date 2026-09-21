@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "checkedAt": "2026-09-21T12:06:29.096Z",
+  "scope": "Local fixture browser integration; not evidence of external downloading or production API behavior.",
+  "cases": [
+    "Mount performs no fetch, session creation, source collection, or AI call",
+    "EV CTA discovery → charger preset ingest → success-only RAW preview with actual fixture bytes, rows and source metadata",
+    "Unknown total shows indeterminate progress without invented percentage",
+    "50-row pagination, full-text query, original download and query export preserve visitor Authorization",
+    "Manual privacy choices submit explicit rules only on apply, transform completion displays real fixture before/after",
+    "Policy screen does not claim an application before confirmed result; real datasets are isolated from shared synthetic scope",
+    "HTML discovery lists tables and waits for explicit table selection before ingestion",
+    "Upload sends exact file bytes to authenticated visitor endpoint",
+    "Public Sheets uses sheets source kind; cancellation is server-confirmed",
+    "Empty HTML discovery does not ingest or claim RAW completion",
+    "Failed jobs show error and explicit retry; no saved dataset appears",
+    "HTTP source failure is visible and never presented as completed intake"
+  ],
+  "screenshots": [
+    "download-indeterminate.png",
+    "desktop.png",
+    "mobile.png",
+    "privacy-mobile.png",
+    "error.png"
+  ],
+  "externalRequests": [],
+  "browserErrors": []
+}
