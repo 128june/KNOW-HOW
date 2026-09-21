@@ -7,7 +7,7 @@ const sampleDemo=(()=>{
  let active=false,epoch=0;
  const sources=window.KnowHowSourceRecords,sourceStore=sources?.createStore();
  let sourceView=null,sourceUnbind=[],organizationUnmount=null;
- const organizationUI=window.KnowHowOrganizationUI?.createController({apiBase:window.KNOWHOW_CONFIG?.apiBase,getSourceDrafts:organizationSourceDrafts});
+ const organizationUI=window.KnowHowOrganizationUI?.createController({apiBase:window.KNOWHOW_CONFIG?.apiBase,getSourceDrafts:organizationSourceDrafts,allowInquiry:true});
  const ai={mode:'v1',question:'',note:'',result:null,busy:false};
  const state={tab:1,department:'app',station:fixture.station,chargers:fixture.chargers,keys:[fixture.selected_record_key],inquiry:fixture.inquiries.app,q:'GS타워',chargerId:'01',stations:[fixture.station],total:1,source:fixture.source,notice:'GS타워의 공개 예시를 미리 불러왔습니다.',filter:'',category:'policy',detail:null,role:'member',question:'GS타워 충전기 01에서 앱 오류가 나면 누구에게 어떤 정보를 전달해야 하나요?',asOf:'2026-09-21',questionMode:'supported',answer:null};
  const copy=x=>JSON.parse(JSON.stringify(x));

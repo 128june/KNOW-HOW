@@ -85,7 +85,7 @@
 
  function createController(){
   const storage='knowhow.general.v2',legacyStorage='knowhow.general.v1';let host=null,tab=1,selected=seeds[0].id,notice='',unmount=null;
-  const organization=root.KnowHowOrganizationUI?.createController({apiBase:root.KNOWHOW_CONFIG?.apiBase,samplePack:'general'});
+  const organization=root.KnowHowOrganizationUI?.createController({apiBase:root.KNOWHOW_CONFIG?.apiBase,samplePack:'general',allowInquiry:true});
   function read(key){let saved;try{saved=JSON.parse(localStorage.getItem(key)||'[]')}catch{throw Error('이 기기에 저장한 기록을 읽지 못했습니다. 기존 내용을 덮어쓰지 않습니다.')}if(!Array.isArray(saved))throw Error('저장된 기록 형식을 확인하세요.');return saved}
   function docs(){const saved=read(storage);return seeds.map(s=>{const d=saved.find(x=>x.id===s.id);if(d&&(!Array.isArray(d.versions)||!d.versions.length||typeof d.versions[0].content!=='string'))throw Error('문서 버전 형식을 확인하세요.');return d||{...s,prepared:true,comments:[],versions:[{version:1,content:s.content,reason:'담당 부서의 기준과 근거를 확인한 가상 예시',validFrom:'2026-09-01',validTo:'2026-12-31'}]}})}
   const current=()=>docs().find(d=>d.id===selected)||docs()[0];
