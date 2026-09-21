@@ -1,5 +1,7 @@
 # KNOW:HOW OpenAI 서버 설정
 
+> **과거 키 전달 구성 기록입니다. 현재 실행·배포 절차로 사용하지 마세요.** 2026-09-21 새 로컬 서버는 `APP_RUNTIME` / `LLM_PROVIDER`를 명시하는 계약으로 바뀌었고, 승인된 전환 방향은 `codex_cli`입니다. 승인 모델과 프로젝트 전용 서버 로그인이 준비되기 전에는 배포하지 않으며 기존 `_1`/`_2` 키로 자동 전환하지 않습니다. 현재 절차는 ctrl-j 저장소의 `docs/knowhow-codex-cli.md`를 따릅니다. 아래의 provider 기본값·배포 큐·키 동기화·미검증 상태는 작성 당시 이력입니다. 최신 공개/로컬 범위는 [검증 기록](../VALIDATION.md)을 확인하세요.
+
 OpenAI 키는 이 공개 Pages 사이트에서 사용하지 않습니다. 인증된 요청은 `https://api.ctrl-j.xyz/knowhow`의 private `128june/ctrl-j` 서버에서 처리합니다. [OpenAI 공식 문서](https://developers.openai.com/api/docs/quickstart)는 서버 환경변수로 API 키를 제공하는 방법을 안내합니다.
 
 ## 확인한 배포 구조

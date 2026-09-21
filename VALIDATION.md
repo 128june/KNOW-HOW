@@ -1,5 +1,20 @@
 # UI 검증 기록 — 2026-09-21
 
+## 현재 통합 상태 · 아래 과거 실행 기록보다 우선
+
+제품 UI `2ee1b3b` + API `58bd1d6`의 **로컬** 통합 결과다. 두 저장소의 새 개편은 아직 push·배포하지 않았다. 마지막 확인된 공개 Pages 성공은 `984f9c7` / run `35590759427`; API 배포 성공 기록은 `420a244` / run `35592881124`다. 기존 공개 health 응답만으로 실행 중 API SHA를 독립 확정하지는 못했다.
+
+- 실제 로컬 브라우저/API에서 합성 17열·2행 CSV 입수 → 새 가이드 v1 → 사람의 사용 보류 검토 v2 → 별도 완료 → 별도 전사 승인 → 앱 부서의 같은 v2 조회를 확인했다. 이어 댓글 반영 v3는 검토만으로 공유되지 않고, 재승인 후 다른 부서에서 v3 원문을 조회했다. 원본 source는 동일하고 검토 기록은 한 번만 존재했다.
+- 현재 버전의 사람 검토가 없는 과거 confirmed 문서는 '검토 기록 미등록'으로 표시한다. 사용 보류·적용 조건·미확인 사항을 공유 후에도 보존한다. 이 UI 절차는 실제 회사 승인이나 직접 API 권한 강화의 증거가 아니다.
+- 해시/뒤로 이동에서 모음의 이전 빈 목록이 남던 오류를 수정했다. 부서·전사 모음의 원문 조회 결과는 사람의 결론·근거·조건·다음 행동을 먼저 표시하며 전체 원문은 하나의 펼침에서 확인한다.
+- 320px 가로 넘침 0, 단계2의 다음 행동이 첫 900px 안에 노출됐다. 새로고침 뒤 방문자 토큰·원문 복원 0, local/session storage는 비어 있었다. 이 영속성 검사는 방문자 입수 경로에 한한다.
+- 20개 UI 회귀 스크립트가 통과했다: company-navigation, company-human-review, company-sharing, company-sharing-transport, company-live, demo-isolation, organization-kb, inquiry-mode, general-examples, general-readable, data-knowledge-bridge, platform-workflows, workflow-context, evidence-scope, source-records, session-race, kb-save, data-explorer, data-intake-state, data-review-ui.
+- 별도 독립 QA는 UI `6bb06bb`와 기존 로컬 API에서 검토 작성·완료·공유 분리와 미확인 유지의 대표 경로를 확인했다. 허브의 이후 탐색/원문 표시 수정과 동일한 실행으로 합산하지 않는다.
+- 실제 환경부 새 다운로드의 520,973행 검증은 [별도 입수 보고](tests/evidence/data-ev-live/report.json)다. 위 2행 파일의 동일 문서 검증과 서로 대체하지 않는다.
+- 이 통합 회차의 실제 생성·임베딩 호출은 0이다. 이전 실제 AI 문의 평가의 **5 PASS / 3 FAIL**은 여전히 남아 있다. 승인 모델·프로젝트 전용 OAuth 준비와 공개 전체 검증, 새 임베딩 지원, 실제 사용자 이해도·효과 검증은 미완료다.
+
+허브의 상세 증거는 프로젝트 작업공간 `01_현재_아이디에이션/evidence/root-human-review/`와 `company-human-review-6bb06bb-independent.md`에 보존되어 있다. 공개 저장소에 이 허브 경로가 있다고 가정하지 않는다. 아래 기록은 각 당시의 코드·환경·표본에 한정된 이력이며 현재 기능이나 공개 배포 상태를 덮어쓰지 않는다.
+
 ## 산출물과 게시 상태
 
 - 전용 체크아웃: `/Users/hr/Desktop/jy.cheong/KNOW-HOW`.

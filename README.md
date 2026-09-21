@@ -1,60 +1,83 @@
-# KNOW:HOW UI
+# KNOW:HOW
 
-장소 질문 → 주소·운영사로 충전소 후보 선택 → 공개 충전기 ID 확인 → 개발팀 문의 초안으로 이어지는 정적 UI입니다. 선택한 충전소·충전기 맥락은 후속 질문과 업무 기록 검색에 유지합니다. 문의 초안은 자동 전송하지 않습니다. 충전소 조회는 실제 공개 데이터 보관본이며 실시간 상태나 내부 장비 매핑을 보장하지 않습니다. 기록 입수의 예시는 가상 자료입니다. mock API나 자동 로그인은 없습니다.
+한 사람이 확인한 업무 지식과 판단 근거를 다음 사람이 다시 찾아 묻지 않고 활용하도록 돕는 플랫폼입니다. 이 저장소는 GitHub Pages용 UI이며, 입수·저장·권한·버전·AI 처리는 별도 [ctrl-j API 저장소](https://github.com/128june/ctrl-j)가 담당합니다.
 
-## 실행 및 빌드
+## 사용 흐름
 
-Python 3.10+ 외 추가 빌드 의존성은 없습니다.
+1. **연결**: 지역·주소로 충전소를 찾거나 실제 Excel·CSV·웹 표를 가져옵니다. 원본 파일, 선택한 행, 출처, 담당 부서를 같은 KB 문서와 연결합니다.
+2. **활용과 검토**: 선택한 문서의 근거를 조회하고, 명시적으로 요청할 때 AI 설명이나 문의 초안을 받습니다. 담당자는 확인 근거·적용 조건·미확인 사항·다음 행동을 기록합니다.
+3. **현재 기준 확인**: 문서 버전과 검토 결론을 먼저 읽고 필요하면 전체 원문을 펼칩니다. '사용 보류'라는 검토 결론도 그대로 전달합니다.
+4. **관리와 재사용**: 댓글 → 같은 문서의 새 초안 → 별도 검토 완료 → 별도 전사 공유 승인으로 진행합니다. 다른 부서는 승인된 버전만 명시적으로 포함하여 조회합니다. 정정 후에는 재승인이 필요합니다.
+
+공개 충전기 ID만으로 내부 시스템 ID를 추정하지 않습니다. 실제 공개 원문, 준비한 부서 사례, 사용자가 남긴 판단의 출처와 확인 범위를 구분합니다. 공개 역할 선택은 격리된 체험 절차이며 실제 조직 계정의 권한을 부여하지 않습니다.
+
+## 화면 구성
+
+| 화면 | 경로 | 하는 일 |
+| --- | --- | --- |
+| 시작하기 | `#home` | 문제, 해결 흐름, 시작할 업무 선택 |
+| 충전 업무 | `#scenario-1` ~ `#scenario-5` | 대상 찾기 → 부서 문서 → 댓글·검토 → 다음 사람 조회 → 부서·전사 KB |
+| 범용 업무 | `#general-1` ~ `#general-5` | 매출 집계 기준, 고객 식별 기준, 환불 수수료 예외의 확인·정정·재사용 |
+| 자료 가져오기 | `#data` | Excel/CSV 파일, 다운로드 URL, HTML 표, 공개 Google Sheets 입수 |
+| 민감정보 처리 | `#data-privacy` | 정책 근거·AI 제안 또는 직접 선택한 처리 방법 검토·실행 |
+| 적용 정책과 결과 | `#data-policies` | 정책 문서·버전과 실제 처리 결과, 처리 이력 확인 |
+
+기존 `#data-datasets`와 `#data-mart`는 각각 민감정보 처리와 정책 화면으로 연결됩니다. `#scenario-*-live`는 입수 화면에서 넘긴 메모리 문맥이 필요하므로 주소만 복사하거나 새로고침하면 원본 선택부터 다시 진행합니다.
+
+## 로컬 실행
+
+Python 3.10+로 정적 파일을 빌드합니다. API는 별도로 실행해야 합니다.
 
 ```sh
-python3 -m http.server 8080 --directory src
 python3 tools/build.py
+```
+
+로컬 API를 실행한 후 생성된 `dist/config.js`에 **공개 연결 주소만** 지정합니다. 예를 들어 API origin이 `http://127.0.0.1:8081`이면 다음과 같습니다.
+
+```js
+window.KNOWHOW_CONFIG = {
+  apiBase: 'http://127.0.0.1:8081/knowhow',
+  aiRequestsPaused: true
+};
+```
+
+```sh
 python3 -m http.server 8080 --directory dist
 ```
 
-로그인 대화상자에 실제 API 주소(origin 또는 /knowhow 경로)를 입력하거나 배포 전에 공개 환경변수 `KNOWHOW_API_BASE=https://실제API호스트`를 지정해 빌드합니다. 주소가 없으면 미연결 상태로 시작합니다. API 담당 문서에 따라 production 계정을 준비하고 `KNOWHOW_ALLOWED_ORIGINS`에 UI origin을 정확히 등록하세요. 개발 시 localhost HTTP만 허용합니다. API 토큰은 메모리에만 저장하며 새로고침하면 다시 로그인해야 합니다.
+API에서 UI origin `http://127.0.0.1:8080`을 CORS에 허용하고 방문자 데이터 기능을 활성화해야 합니다. `/data-platform` 주소는 같은 API origin에서 계산됩니다. `dist/config.js` 변경은 다음 빌드에서 교체됩니다. 인증 정보와 API 키를 UI 설정이나 Git에 넣지 않습니다.
 
-## GitHub Pages
+공개 데모에 조직 로그인은 필요하지 않습니다. 파일 입수는 명시적인 사용자 동작으로 방문자 공간을 만들며 토큰은 탭 메모리에만 둡니다. 새로고침하면 이 연결이 사라집니다. 준비된 회사·범용 사례의 기기 저장 및 서버 세션은 방문자 파일 입수와 별도 경로이며, 이를 동일한 영속성으로 설명하지 않습니다. 실제 조직 API의 인증·접근 제어는 유지합니다.
 
-main push 또는 workflow_dispatch로 `.github/workflows/pages.yml` 실행. 저장소 Settings → Pages → Source를 GitHub Actions로 설정합니다. 실제 API 주소 확보 후 repository variable `KNOWHOW_API_BASE`를 등록하고 workflow를 다시 실행합니다. API CORS에는 Pages origin을 경로 없이 지정합니다.
+## GitHub Pages 배포
 
-빌드 결과는 HTML/CSS/JS/config.js/.nojekyll 5개만 허용합니다. 비밀·DB·로그를 복사하지 않습니다. 모든 자산은 상대 경로를 쓰며 페이지 이동은 서버 경로를 변경하지 않아 `/KNOW-HOW/` 하위 경로 새로고침에 대응합니다.
+`main` push 또는 `workflow_dispatch`로 [Pages workflow](.github/workflows/pages.yml)를 실행합니다. Settings → Pages의 Source는 GitHub Actions를 사용합니다. Repository variable `KNOWHOW_API_BASE`는 HTTPS API origin 또는 `/knowhow` 주소입니다. 서버 CORS에는 Pages origin `https://128june.github.io`를 등록합니다.
 
-## 연결 계약과 범위
+빌드는 [명시적 허용 목록](tools/build.py)의 정적 파일만 복사하고 자산 내용 해시를 URL에 붙입니다. DB·로그·인증 파일은 포함하지 않습니다. 상대 경로와 hash 탐색을 사용하므로 `/KNOW-HOW/` 하위 배포를 지원합니다.
 
-- 로그인 `/api/login {name,password,auth:'bearer'}` → 메모리 토큰. `credentials:omit` + Authorization 헤더.
-- `/api/me`, `/api/logout`, `/api/docs`, `/api/docs/{id}`.
-- `/api/upload {name,content,scope}`: MD/TXT/CSV, UTF-8 256KiB.
-- `/api/upload/xlsx {name,content_base64,scope}`: XLSX 2MiB. 원본 보존, 시트·셀 출처 표시 및 인증 다운로드. 서버 Excel 의존성이 필요합니다.
-- `/api/ask {question,context,as_of,generate}`: 정확 질문·맥락·기간에 맞는 담당자 답변 또는 관련 근거. 자유 질문 일반화는 보장하지 않습니다.
-- `/comments {body,version}` / `/revise {version,content,state,reason,resolve_comments,rule?}`.
-- 401 세션 초기화, 403/409/413 서버 메시지, 연결 실패 재시도 안내. 정정 409 시 입력은 유지됩니다.
-- 모델 미설정·AI 초안·상충·미확인을 확인된 담당자 답변과 구분합니다.
-- production의 비활성 환경부 탐색·자동 충전기 비교 메뉴는 제공하지 않습니다. 충전기 대조는 등록한 가상 원문에서 확인합니다.
+**2026-09-21 마지막 확인 기준, 최신 로컬 개편은 미배포입니다.** [현재 공개 UI](https://128june.github.io/KNOW-HOW/)의 마지막 확인된 성공은 `984f9c7` / Actions run `35590759427`입니다. 로컬 기능을 공개 완료로 간주하지 않습니다. 새 UI는 조율된 API 릴리스와 함께 검증해야 합니다.
 
-실제 게시/검증 상태는 VALIDATION.md를 참조하세요.
+AI 실행 설정은 서버가 담당합니다. 현재 승인 방향은 명시적인 `LLM_PROVIDER=codex_cli`이며, 승인 모델과 프로젝트 전용 서버 로그인이 준비되기 전 배포하지 않습니다. 기존 번호 키로 자동 전환하지 않습니다. 서버의 `docs/knowhow-codex-cli.md`를 기준으로 하고, 이 저장소의 과거 [키 전달 기록](docs/OPENAI_SETUP.md)은 현재 실행 절차로 사용하지 않습니다. CLI만으로 새 임베딩을 만들 수 없으므로 새 벡터 검색 지원은 아직 완료되지 않았습니다.
 
-## 장소 기반 업무 API
+## 코드와 검증
 
-인증 후 POST `/api/workflow/search {q,limit,offset}` → 후보/실제 검색어, `/api/workflow/chargers {station_key,limit,offset}` → 공개 충전기 원문, `/api/workflow/inquiry {station_key,record_keys,question}` → 문의 초안/원문 확인 정보/미확인 정보. station_key와 record_key는 조회 맥락 키이며 내부 장비 ID가 아닙니다. 스냅샷 미설정 503은 오류로 표시하고 후보를 만들어내지 않습니다.
+| 파일 | 책임 |
+| --- | --- |
+| `src/platform-shell.js`, `src/shell.css` | 공통 탐색·첫 화면·레이아웃 |
+| `src/demo.js` | 충전 대상과 같은 문서의 검토·정정·재사용 |
+| `src/organization-kb.js` | 부서·전사 모음과 명시적 문서 질의 |
+| `src/data-platform.js`, `src/data-review-ui.js` | 실제 입수와 처리·정책 검토 |
+| `src/data-explorer.js`, `src/data-handoff-ui.js` | 서버 조건 조회와 선택 행의 KB 연결 |
+| `src/general-knowledge.js`, `src/source-records.js` | 범용 사례와 원문 기록 |
 
-## 부서별 KB
+입수·정책·방문자 경계는 [UI/API 연결 문서](docs/DATA_PLATFORM_UI_INTAKE.md), 원문 모듈은 [원문 기록 문서](docs/source-records.md), 현재 검증 범위와 이전 실행은 [검증 기록](VALIDATION.md)을 참고하세요.
 
-환경부 충전기 ID는 문자열 그대로 검색하며 장소조건과 AND로 결합합니다. 문의부서는 앱개발팀을 기본으로 하고 충전기개발팀 ID와 구분합니다. 모든 가상매핑은 샘플 표시를 유지합니다. 명시적인 KB 저장은 기본private/초안이며 서버 request_id로 재시도 중복을 방지합니다. 부서별KB모음은 서버의 부서/검색어/상태/페이지 필터를 사용합니다. 저장된KB 재사용 시 최신버전·상태를 표시하고, 본문 정정으로 무효화된 구조화ID는 현재관계로 제시하지 않습니다.
+```sh
+node tests/company-human-review.cjs
+node tests/company-navigation.cjs
+node tests/company-sharing.cjs
+node tests/data-intake-state.cjs
+node tests/data-review-ui.cjs
+```
 
-### Guided public experience (current)
-The first visit opens a service introduction: the problem, four steps to solve it, and four actions. Top navigation separates knowledge and data work. Existing `#scenario-1` through `#scenario-5` links remain valid for charging workflows; `#general-1` through `#general-5` use separate revenue-basis, customer-identity and refund-exception documents. Each explains why teams ask again, what the source data cannot tell them, the confirmed definition and its later reuse.
-
-Company examples persist under `knowhow.scenarios.v1`; new general examples use `knowhow.general.v2`; earlier `knowhow.general.v1` records remain unchanged in a read-only archive. Prepared examples do not overwrite corrections. Organization demo sessions use separate `company`/`general` sample packs. Reading browser examples does not transmit them. Explicit registration sends the selected latest body to an unreviewed server draft; matching general fixtures create a new version of the existing server document, preventing obsolete seed duplicates.
-
-Shared knowledge is organized by reading, asking, or writing. GPT generation only runs when the user explicitly requests it. Navigation does not generate answers. Public role selection simulates a workflow and is not proof of real-account authorization.
-
-### Data platform
-`#data` opens sample ingestion; `#data-datasets` opens preparation and previews; `#data-mart` opens server aggregation. The API base is derived as `/data-platform` from the configured API origin. Public samples are shared fictional datasets with server-defined retention and limits. Preview and quality pages request 50 rows at a time. Processing, deduplication, masking and aggregation execute on the server. UI polling updates progress without replacing editing forms.
-
-The deployed data API is an adaptation, not all features of the earlier local platform: external API/web/database connectors and physical partition browsing are currently unavailable. Public file uploads are not offered. Local million-row benchmark results are explicitly distinguished from public-server performance.
-
-### Original records and citations
-KB source buttons open the original sample document at its cited lines. Original policy/schema/reply samples are collected only by an explicit action, with timestamp and SHA-256. Local TXT/MD notes can become unreviewed drafts without server or AI transmission; draft corrections do not modify original bytes. These original-record workspaces use tab memory and disappear on reload, independently of the scenario KB's persistent browser storage. See [source records](docs/source-records.md).
-
-데이터 보기에서는 전체 검색·열 조건·자료형별 정렬·저장 묶음을 선택할 수 있습니다. 미리보기는 50행씩 가져오며 **CSV는 마지막으로 적용한 조건에 맞는 전체 행**입니다. 완료 버전 조회와 다음 실행 분할 설정은 결과 화면의 접힌 상세 영역에서 확인합니다. 외부 파일/API/DB 입수는 조직 관리자 설정이 필요한 기능이며 공개 합성 체험에서는 실행하지 않습니다.
+이 회귀 스크립트의 모의 전송 검사와 실제 브라우저/API 검사는 별도입니다. 실제 모델의 판단 품질, 실제 직원의 이해도, 시간 절감 효과는 로컬 회귀 통과만으로 입증되지 않습니다.
