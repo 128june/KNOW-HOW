@@ -11,11 +11,11 @@ const dataset = id => ({ id, name: id, schema, layer: 'raw', row_count: 1 });
 const preview = (id, value) => ({ dataset: dataset(id), schema, rows: [{ phone: value }], total: 1 });
 const ok = value => ({ ok: true, status: 200, json: async () => value });
 
-function fixture() {
+function fixture(aiRequestsPaused) {
   const calls = [];
   let reply = async url => ok(preview(url.split('/datasets/')[1]?.split('/')[0] || 'raw-B', 'B_RAW'));
   const context = vm.createContext({
-    window: { KNOWHOW_CONFIG: { dataApiBase: 'https://fixture.invalid/data-platform' } },
+    window: { KNOWHOW_CONFIG: { dataApiBase: 'https://fixture.invalid/data-platform', aiRequestsPaused } },
     AbortSignal, URLSearchParams,
     crypto: { randomUUID: () => 'fixture-key' },
     setTimeout: () => 1, clearTimeout: () => {},
@@ -30,7 +30,7 @@ function fixture() {
   const controller = context.window.KnowHowDataPlatform.createController();
   controller.getState().session = { access_token: 'private-visitor-token' };
   const host = { innerHTML: '', querySelectorAll: () => [], querySelector: () => null };
-  return { controller, state: controller.getState(), host, calls, setReply: value => { reply = value; } };
+  return { controller, state: controller.getState(), host, calls, config: context.window.KNOWHOW_CONFIG, setReply: value => { reply = value; } };
 }
 
 function completedTransform(state) {
@@ -107,7 +107,7 @@ test('a terminal discovery can recover after its result refresh temporarily fail
 });
 
 test('AI review sends only the explicit command, never source rows or original column contents', async () => {
-  const f = fixture();
+  const f = fixture(false);
   f.state.dataset = dataset('raw-A');
   f.state.preview = preview('raw-A', 'PRIVATE_RAW_VALUE');
   f.setReply(async () => ok({ id: 'review-A', kind: 'privacy_review', state: 'queued' }));
@@ -118,6 +118,38 @@ test('AI review sends only the explicit command, never source rows or original c
   assert.equal(call.options.headers.Authorization, 'Bearer private-visitor-token');
   assert.deepEqual(JSON.parse(call.options.body), { generate: true });
   assert.doesNotMatch(call.options.body, /PRIVATE_RAW_VALUE|phone/);
+});
+
+test('paused or unspecified AI blocks privacy generation before clearing existing review and sending HTTP', async () => {
+  for (const paused of [undefined, true, 'false']) {
+    const f = fixture(paused);
+    const existing = { review_id: 'existing-review', summary: 'Keep the reviewed policy' };
+    f.state.dataset = dataset('raw-A');
+    f.state.preview = preview('raw-A', 'PRIVATE_RAW_VALUE');
+    f.state.proposal = existing;
+    f.controller.mount(f.host, { section: 'privacy' });
+    assert.match(f.host.innerHTML, /data-data-action="privacy-propose" disabled/);
+    await assert.rejects(f.controller.review(true), /AI.*중지/);
+    assert.equal(f.calls.length, 0);
+    assert.equal(f.state.proposal, existing);
+    f.controller.destroy();
+  }
+});
+
+test('AI pause keeps policy lookup available and is checked again after an enabled render', async () => {
+  const f = fixture(false);
+  f.state.dataset = dataset('raw-A');
+  f.state.preview = preview('raw-A', 'PRIVATE_RAW_VALUE');
+  f.setReply(async () => ok({ id: 'policy-A', kind: 'privacy_review', state: 'queued' }));
+  f.controller.mount(f.host, { section: 'privacy' });
+  assert.doesNotMatch(f.host.innerHTML, /data-data-action="privacy-propose" disabled/);
+  f.config.aiRequestsPaused = true;
+  await assert.rejects(f.controller.review(true), /AI.*중지/);
+  assert.equal(f.calls.length, 0);
+  await f.controller.review(false);
+  assert.equal(f.calls.length, 1);
+  assert.deepEqual(JSON.parse(f.calls[0].options.body), { generate: false });
+  f.controller.destroy();
 });
 
 test('switching to shared samples clears private display state and never sends the visitor token there', async () => {
