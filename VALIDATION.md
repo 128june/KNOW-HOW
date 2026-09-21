@@ -151,3 +151,14 @@
 - Company CUA: the displayed GS app v1 was explicitly registered and reviewed, then selected with “이 문서에 질문하기”. “근거만 먼저 확인” submitted `document_id` and `generate:false` and returned exactly that document. No arbitrary evaluation identifier or QA seed was used. The submitted clean-browser body is derived directly from the product helper in `tests/fixtures/company-transfer-v1.json`.
 - Public read-only CUA confirmed general hr catalog alignment and the already-created 4-row data mart with 1,000 → 990 → 4 lineage. This UI verification created no production data jobs and made no generation requests.
 - The bridge and selected-document contract require the coordinated API release; local proof must not be described as public end-to-end proof before that release. Observations are recorded in `tests/evidence/frontend-workflows/observations.json`.
+
+## 2026-09-21 C/D 조회 UI 연결 (Git 배포)
+
+- `data-explorer.js`: 서버 검색, AND 열 조건(최대 16), 자료형에 맞춘 값, 정렬(최대 3), 50행 페이지, 선택 파티션. 입력 중 조건과 마지막 성공한 조건을 분리하여 페이지 이동/CSV가 같은 결과를 사용한다. 숫자 모양 RAW 문자열은 문자순임을 표와 정렬 안내에 표시한다.
+- CSV는 서버 스트림 링크로 조건 전체를 내려받으며 offset/limit을 전달하지 않는다. 현재 표시 행 수와 전체 일치 행 수를 구분한다. 브라우저에서 전체 자료를 모아 처리하지 않는다.
+- 저장 묶음, 단계별 완료 버전/latest, 다음 실행 분할 설정을 API에 연결했다. 설정 저장은 낙관적 version을 포함하며 기존 자료를 재분할하거나 작업을 생성하지 않는다. 공개 공유 설정임을 표시한다.
+- 외부 파일/API/DB 연결은 관리자 허용 목록 기능으로 설명하며 공개 로그인/실행 기능을 추가하지 않았다. 실제 DB 접속 검증은 미완료다. download/extract는 바이트로 표시하며 total_bytes가 없으면 진행률을 만들지 않는다.
+- 로컬 실제 API `127.0.0.1:18768`, fixture `543d261313294ef09b6454cbe0406ca1` 재사용. CUA에서 서울 조건+RAW id 내림차순 전체301/표50, 다음51–100행, 두 번째 묶음51행, manifest1000+203, 완료이력v1/latest, 다음 실행2000저장→기존분할불변→1000복원 확인. 전체 검색 서울301행, 완료 버전 없는 단계의 한국어 오류와 기존 결과 유지 확인. 320px에서 가로 넘침0 및 조건 입력 배치 확인.
+- `tests/data-explorer.cjs`: 숫자/문자 비교값, null조건, 정렬중복거절, CSV에 페이지제한없음, 적용조건 유지, dataset 전환 늦은응답 배제, 바이트 진행률 검사 PASS.
+- `tests/data-explorer-http.cjs`: 실제 서버301행 CSV의 ID 전체목록 및 합180901, 페이지50행/offset50, 파티션1000+203, latest/versions/settings 검증 PASS. 환경변수로 배포 API와 기존 fixture를 지정할 수 있다. 임시 공개 fixture는 24시간 후 만료될 수 있다.
+- 기존 `platform-workflows.cjs`, `data-knowledge-bridge.cjs` PASS. 이 UI 작업은 새 처리 job0 / 유료 AI 호출0. 실제 외부 커넥터 접속, GPT 생성 품질, 100만행 성능을 이 결과로 보증하지 않는다.

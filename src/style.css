@@ -19,3 +19,6 @@
 .intro-hero h1{word-break:keep-all}progress{width:100%;height:12px;accent-color:#456b42}
 
 .muted{color:#586552}.workflow-steps{color:#53634e}:focus-visible{outline:3px solid #294d38;outline-offset:3px}
+
+/* Server query controls stack on narrow screens. */
+.data-explorer{min-width:0;border:0;padding:0;margin:1rem 0}.data-explorer legend{font-weight:700}.data-query-row{display:flex;flex-wrap:wrap;align-items:end;gap:.6rem;margin:1rem 0}.data-query-row label{flex:1 1 160px;min-width:0}.data-query-row input,.data-query-row select{width:100%;min-width:0}.data-csv-link{display:inline-block;margin:.3rem 0 .6rem;text-decoration:underline;font-weight:700}.data-explorer[disabled] .data-csv-link{pointer-events:none;opacity:.6}

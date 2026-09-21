@@ -56,3 +56,5 @@ The deployed data API is an adaptation, not all features of the earlier local pl
 
 ### Original records and citations
 KB source buttons open the original sample document at its cited lines. Original policy/schema/reply samples are collected only by an explicit action, with timestamp and SHA-256. Local TXT/MD notes can become unreviewed drafts without server or AI transmission; draft corrections do not modify original bytes. These original-record workspaces use tab memory and disappear on reload, independently of the scenario KB's persistent browser storage. See [source records](docs/source-records.md).
+
+데이터 보기에서는 전체 검색·열 조건·자료형별 정렬·저장 묶음을 선택할 수 있습니다. 미리보기는 50행씩 가져오며 **CSV는 마지막으로 적용한 조건에 맞는 전체 행**입니다. 완료 버전 조회와 다음 실행 분할 설정은 결과 화면의 접힌 상세 영역에서 확인합니다. 외부 파일/API/DB 입수는 조직 관리자 설정이 필요한 기능이며 공개 합성 체험에서는 실행하지 않습니다.
