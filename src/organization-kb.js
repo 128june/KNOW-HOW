@@ -28,8 +28,9 @@
    return {fields,technical,note,additional,text,valid};
   }
   function inquiryHandoffMarkup(result){
-   const h=inquiryHandoff(result),list=fields=>`<dl class="source-record-meta">${fields.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
-   return `<section class="inquiry-handoff" style="min-width:0;overflow-wrap:anywhere"><h4>함께 전달할 대상 정보</h4><p class="muted">AI 초안은 그대로 두고, 이 응답에 연결된 문서 버전의 출처 값을 함께 제공합니다.</p>${list(h.fields)}<p class="notice">${esc(h.note)}</p><p>${esc(h.additional)}</p>${h.technical.length?`<details><summary>조회 테이블·필드와 문서 참조</summary>${list(h.technical)}</details>`:''}<button type="button" data-copy-inquiry>문의 초안 + 대상 정보 복사</button><p role="status" data-copy-status></p><details data-copy-fallback><summary>복사할 전체 내용 보기</summary><textarea readonly rows="8" aria-label="문의 초안과 대상 정보 전체 내용">${esc(h.text)}</textarea></details></section>`;
+   const h=inquiryHandoff(result),list=fields=>`<dl class="source-record-meta">${fields.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${['공공 충전기 ID','부서 문의 ID'].includes(k)?`<strong>${esc(v)}</strong>`:esc(v)}</dd>`).join('')}</dl>`;
+   const primary=h.fields.filter(([k])=>k!=='원본 행 참조'),details=[...h.fields.filter(([k])=>k==='원본 행 참조'),...h.technical];
+   return `<section class="inquiry-handoff" style="min-width:0;overflow-wrap:anywhere"><h4>함께 전달할 대상 정보</h4><p class="muted">문의할 대상과 확인 근거를 함께 확인하세요.</p>${list(primary)}<p class="notice">${esc(h.note)}</p><p>${esc(h.additional)}</p>${details.length?`<details><summary>출처 상세 · 원본 행·조회 테이블·문서 참조</summary>${list(details)}</details>`:''}<button type="button" data-copy-inquiry>문의 초안 + 대상 정보 복사</button><p role="status" data-copy-status></p><details data-copy-fallback><summary>복사할 전체 내용 보기</summary><textarea readonly rows="8" aria-label="문의 초안과 대상 정보 전체 내용">${esc(h.text)}</textarea></details></section>`;
   }
  function bindInquiryCopy(container){
    container.querySelectorAll('[data-copy-inquiry]').forEach(button=>button.onclick=async()=>{
