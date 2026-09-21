@@ -38,7 +38,7 @@ const sampleDemo=(()=>{
  function invalidateAI(){epoch++;ai.result=null}
  function go(tab){epoch++;state.tab=tab;state.detail=null;notify('');if(location.hash!=='#scenario-'+tab)history.replaceState(null,'','#scenario-'+tab);render()}
  function activate(){sessionGeneration++;token='';user=null;docs=[];selected=null;clearWorkflow();active=true;epoch++;state.tab=Math.max(1,Math.min(5,Number(location.hash.match(/^#scenario-([1-5])$/)?.[1]||1)));$('#session').hidden=true;$('#connection').textContent='로그인 없는 예시 체험 · 가상 역할과 샘플 데이터 · 기본 기록은 이 브라우저에 저장됩니다. 조직 KB 등록 버튼을 누르면 해당 초안이 샘플 서버로 전송됩니다.';document.querySelector('.workspace').innerHTML='KNOW:HOW EXPERIENCE<strong>상황별로 체험하기</strong>';document.querySelector('.aside-note').innerHTML='찾고, 확인하고, 다시 쓰기<br><small>실제 조직 계정이나 공유가 아닙니다.</small>';const nav=document.querySelector('nav');nav.hidden=false;nav.setAttribute('aria-label','체험 시나리오');nav.innerHTML=tabs.map((t,i)=>`<button data-scenario="${i+1}"><span class="scenario-number">0${i+1}</span><span>${t}</span></button>`).join('');nav.onclick=e=>{const b=e.target.closest('[data-scenario]');if(b)go(Number(b.dataset.scenario))};document.querySelector('.brand').href='#scenario-1';render()}
- function deactivate(){active=false;epoch++}
+ function deactivate(){active=false;epoch++;organizationUnmount?.();organizationUnmount=null;sourceView?.destroy();sourceView=null;sourceUnbind.forEach(fn=>fn());sourceUnbind=[];invalidateAI()}
  function render(){if(!active)return;try{if(state.tab===1)searchView();if(state.tab===2)captureView();if(state.tab===3)correctView();if(state.tab===4)reuseView();if(state.tab===5)collectionView()}catch(error){mount('브라우저에 보관한 기록을 확인해주세요.',`<section class="card"><p role="alert">${esc(error.message)}</p><p>기존 저장 내용은 변경하지 않았습니다.</p></section>`)}}
  async function request(action,body){const generation=epoch;const response=await fetch((window.KNOWHOW_CONFIG?.apiBase||'https://api.ctrl-j.xyz/knowhow')+'/demo/workflow/'+action,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(60000)});const result=await response.json();if(!active||epoch!==generation)throw new StaleSessionError();if(!response.ok)throw Error(result.error||'샘플 API 연결에 실패했습니다. 준비된 GS타워 예시로 계속 체험할 수 있습니다.');return result}
  function selectedFixture(){return state.station?.station_key===fixture.station.station_key&&state.keys.length===1&&state.keys[0]===fixture.selected_record_key}
@@ -88,4 +88,4 @@ const sampleDemo=(()=>{
  return {activate,deactivate,isActive:()=>active};
 })();
 sampleDemo.activate();
-window.addEventListener('hashchange',()=>sampleDemo.activate());
+window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#scenario-'))sampleDemo.activate()});

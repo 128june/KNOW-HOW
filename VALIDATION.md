@@ -132,3 +132,15 @@
 - Source-linked drafts support explicit server registration, review, promotion request, company approval, and revision. Public roles are simulations, not authentication.
 - Tab 5 includes an explicit “AI에 질문하기” action with `generate: true`; navigation does not trigger AI requests. Manual AI availability follows the build configuration after the key2-only server deployment was verified.
 - `tests/organization-kb.cjs` and `tests/demo-isolation.cjs` pass. Organization tests mock transport; they verify request boundaries and state handling, not semantic search or generation quality. Production static build succeeds. No paid generation or embedding calls were made for these checks.
+
+
+## Guided entry, general knowledge and data workflow (local, 2026-09-21)
+
+- Service introduction renders problem → four-step solution → four actions; existing five company scenario links and the tab 5 AI entry remain. Mobile CUA at 390px confirmed visible entry CTAs and document width 390px.
+- General CUA: leave policy v1 → comment → v2 (5 business days) → next-member latest-text reference → explicit transfer into the hr server draft. The matching fixture became one server document at v2, not an additional conflicting v1 document. General preview uses real SQLite/Qdrant with mocked embedding transport and blocked generation.
+- General and company sample packs have separate controllers, sessions, documents and browser storage. General policy/data/onboarding examples have distinct questions, department names, definitions and guides.
+- CUA verified that changing the applicability date to 2026-09-22 preserves an unsent question. Cross-organization/department changes clear it. Purpose tabs limit shared-knowledge screen density.
+- Data CUA against the actual local API on port 18768: synthetic energy 1,000 rows → server preview 50 rows → numeric conversion + HMAC → 999 rows and 1 error → group/count/sum mart 4 rows → lineage 1,000/999/4. A further 4-row transform verified editing text survives progress polling to completion. No large UI benchmark was run.
+- Backend owner reports a separate local engine benchmark of 1,000,000 CSV rows (85,854,381 bytes); the UI labels it as macOS development-environment evidence, not public-server capacity or latency.
+- New platform workflow tests cover distinct general storage/latest versions/immutable originals, zero automatic data jobs, bounded server pagination and stale-request rejection. Existing session, evidence, workflow, save, scenario, organization and 19 source-record tests passed.
+- No paid generation or embedding calls were made for this UI validation. GPT semantic quality remains outside these checks. Public deployment verification follows the local checks.

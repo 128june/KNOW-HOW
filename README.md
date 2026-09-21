@@ -42,11 +42,17 @@ main push 또는 workflow_dispatch로 `.github/workflows/pages.yml` 실행. 저�
 
 환경부 충전기 ID는 문자열 그대로 검색하며 장소조건과 AND로 결합합니다. 문의부서는 앱개발팀을 기본으로 하고 충전기개발팀 ID와 구분합니다. 모든 가상매핑은 샘플 표시를 유지합니다. 명시적인 KB 저장은 기본private/초안이며 서버 request_id로 재시도 중복을 방지합니다. 부서별KB모음은 서버의 부서/검색어/상태/페이지 필터를 사용합니다. 저장된KB 재사용 시 최신버전·상태를 표시하고, 본문 정정으로 무효화된 구조화ID는 현재관계로 제시하지 않습니다.
 
-### Login-free sample experience
-Choose **샘플로 체험** to search the fixed public 50-row subset and generate department inquiry guides. The sample API is read-only and receives no organization token. Sample KB is saved only to this browser (`knowhow.public-sample-kb.v1`), with department filtering, versioned corrections and latest-body reuse. It does not write to organizational KB. Clearing browser data removes these samples.
+### Guided public experience (current)
+The first visit opens a service introduction: the problem, four steps to solve it, and four actions. Top navigation separates knowledge and data work. Existing `#scenario-1` through `#scenario-5` links remain valid for charging workflows; `#general-1` through `#general-5` use separate leave-policy, customer-metric and onboarding documents.
 
-### Scenario-first public UI (current)
-The public site now opens directly into five example scenarios without login. Direct links use `#scenario-1` through `#scenario-5`. Each includes prepared GS타워/01 examples; fictional replies, roles and sample IDs are labeled. Saved replies, comments and versioned corrections live only in this browser under `knowhow.scenarios.v1`. Prepared examples never overwrite saved corrections. The KB has policy, department data structure and document/guide categories. Protected organizational APIs retain authentication.
+Company examples persist under `knowhow.scenarios.v1`; general examples use `knowhow.general.v1`. Prepared examples do not overwrite corrections. Organization demo sessions use separate `company`/`general` sample packs. Reading browser examples does not transmit them. Explicit registration sends the selected latest body to an unreviewed server draft; matching general fixtures create a new version of the existing server document, preventing obsolete seed duplicates.
+
+Shared knowledge is organized by reading, asking, or writing. GPT generation only runs when the user explicitly requests it. Navigation does not generate answers. Public role selection simulates a workflow and is not proof of real-account authorization.
+
+### Data platform
+`#data` opens sample ingestion; `#data-datasets` opens preparation and previews; `#data-mart` opens server aggregation. The API base is derived as `/data-platform` from the configured API origin. Public samples are shared fictional datasets with server-defined retention and limits. Preview and quality pages request 50 rows at a time. Processing, deduplication, masking and aggregation execute on the server. UI polling updates progress without replacing editing forms.
+
+The deployed data API is an adaptation, not all features of the earlier local platform: external API/web/database connectors and physical partition browsing are currently unavailable. Public file uploads are not offered. Local million-row benchmark results are explicitly distinguished from public-server performance.
 
 ### Original records and citations
 KB source buttons open the original sample document at its cited lines. Original policy/schema/reply samples are collected only by an explicit action, with timestamp and SHA-256. Local TXT/MD notes can become unreviewed drafts without server or AI transmission; draft corrections do not modify original bytes. These original-record workspaces use tab memory and disappear on reload, independently of the scenario KB's persistent browser storage. See [source records](docs/source-records.md).
