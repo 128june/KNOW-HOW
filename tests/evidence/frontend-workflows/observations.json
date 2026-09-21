@@ -1,0 +1,55 @@
+{
+  "date": "2026-09-21",
+  "method": "Actual CUA interaction with rendered UI; observations recorded from tool results. Not a provider-quality test.",
+  "local_bridge": {
+    "api": "http://127.0.0.1:18868",
+    "source_rows": 100,
+    "dataset_id": "81a8fb73d19246dd88a541e73a82bbb0",
+    "department": "data",
+    "draft_state": "draft",
+    "before_review_evidence": 0,
+    "after_review_evidence": 1,
+    "schema_columns": 9,
+    "stale_open_detail_closed_after_review": true,
+    "query": "exact_id DATASET-81a8fb73d19246dd88a541e73a82bbb0; generate=false",
+    "provider_transport": "Blocked by preview server; no paid calls"
+  },
+  "local_selected_company_document": {
+    "api": "http://127.0.0.1:58096/knowhow",
+    "flow": [
+      "Fresh GS app v1 shown in scenario 5",
+      "Explicit draft registration",
+      "Reviewer confirmation",
+      "Ask this document",
+      "Evidence only"
+    ],
+    "evidence_count": 1,
+    "evidence_title": "GS타워 · 충전기 01 문의 기준",
+    "evidence_department": "app",
+    "evidence_version": 1,
+    "evidence_state": "confirmed",
+    "body_sha256": "b7f9dedb80e682a656306557ded098c6afeb4d13296d08fb2e5019b00f056ab0",
+    "request_scope": "document_id; no exact_id; generate=false",
+    "scope_banner": true,
+    "fixed_QA_seed_in_evidence": false
+  },
+  "public_read_only": {
+    "general_department": "hr",
+    "general_document": "ALPHA 휴가 신청과 인수인계",
+    "data_mart": "67f1814add304d78aa60ad66c3539bde",
+    "preview_rows": 4,
+    "record_counts": [
+      250,
+      240,
+      250,
+      250
+    ],
+    "lineage_rows": [
+      1000,
+      990,
+      4
+    ],
+    "new_public_jobs": 0,
+    "generation_clicks": 0
+  }
+}

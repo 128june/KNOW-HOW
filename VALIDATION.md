@@ -144,3 +144,10 @@
 - Backend owner reports a separate local engine benchmark of 1,000,000 CSV rows (85,854,381 bytes); the UI labels it as macOS development-environment evidence, not public-server capacity or latency.
 - New platform workflow tests cover distinct general storage/latest versions/immutable originals, zero automatic data jobs, bounded server pagination and stale-request rejection. Existing session, evidence, workflow, save, scenario, organization and 19 source-record tests passed.
 - No paid generation or embedding calls were made for this UI validation. GPT semantic quality remains outside these checks. Public deployment verification follows the local checks.
+
+
+### Data-to-knowledge and selected-document query
+- Combined local API CUA: 100-row dataset → metadata guide draft → exact-ID query excludes it before review → review → one guide evidence result. No raw personal rows were copied into the guide. The opened stale draft detail closed after review, and current status appeared in the catalog.
+- Company CUA: the displayed GS app v1 was explicitly registered and reviewed, then selected with “이 문서에 질문하기”. “근거만 먼저 확인” submitted `document_id` and `generate:false` and returned exactly that document. No arbitrary evaluation identifier or QA seed was used. The submitted clean-browser body is derived directly from the product helper in `tests/fixtures/company-transfer-v1.json`.
+- Public read-only CUA confirmed general hr catalog alignment and the already-created 4-row data mart with 1,000 → 990 → 4 lineage. This UI verification created no production data jobs and made no generation requests.
+- The bridge and selected-document contract require the coordinated API release; local proof must not be described as public end-to-end proof before that release. Observations are recorded in `tests/evidence/frontend-workflows/observations.json`.
