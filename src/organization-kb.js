@@ -23,7 +23,7 @@
     technical.push(['문서 ID',e.id],['문서 버전',String(e.version)],['조회 테이블',linked?value(ref.table):missing],['조회 필드',linked?value(ref.field):missing],['원본 수집 시각',value(s.public_source?.collection_finished_at||s.public_source?.collected_at)]);
     note=s.synthetic===true||ref.synthetic===true||s.mapping_status==='synthetic_fixture'?'체험용 연결표의 부서 ID입니다. 실제 내부 ID 대응 관계와 현재 오류 여부는 확인되지 않았습니다.':'문서에 기록된 대상 정보입니다. 실제 내부 ID 대응 관계와 현재 오류 여부는 담당자 확인이 필요합니다.';
    }
-   const additional='오류 발생 시 추가할 자료: 오류 화면 · 발생 시각 · 오류 코드 (이 응답에 값이 없으며 첨부되지 않았습니다.)';
+   const additional='오류가 있다면 오류 화면·발생 시각·오류 코드를 확인해 함께 전달하세요. 이 복사 기능은 파일을 첨부하지 않습니다.';
    const text=[result.answer,'','함께 전달할 대상 정보',...fields.map(([k,v])=>`${k}: ${v}`),note,additional,...technical.map(([k,v])=>`${k}: ${v}`)].join('\n');
    return {fields,technical,note,additional,text,valid};
   }

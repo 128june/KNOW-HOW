@@ -7,8 +7,20 @@ vm.runInContext(fs.readFileSync('src/organization-kb.js','utf8').replace('return
 const c=ctx.window.KnowHowOrganizationUI.createController({allowInquiry:true});
 const h=c.inquiryHandoff(fixture);
 assert.equal(h.valid,true);
+// Supplied incident details must never acquire a claim that those values are absent.
+const provided=clone(fixture);provided.answer+=' 오류 발생 시각: 2026-09-22 09:10 / 오류 코드: E42';
+provided.ai.answer=provided.answer;
+const providedHandoff=c.inquiryHandoff(provided);
+assert.equal(providedHandoff.valid,true);
+assert.ok(providedHandoff.text.startsWith(provided.answer+'\n\n'));
+assert.deepEqual(providedHandoff.fields,h.fields);
+assert.deepEqual(providedHandoff.technical,h.technical);
+assert.ok(!providedHandoff.text.includes('값이 없'));
+assert.ok(!providedHandoff.text.includes('첨부되지 않았'));
+assert.ok(providedHandoff.text.includes('이 복사 기능은 파일을 첨부하지 않습니다.'));
+
 assert.ok(h.text.startsWith(fixture.answer+'\n\n'),'AI answer remains byte-for-byte unchanged');
-for(const v of ['GS타워','공공 충전기 ID: 01','DEMO-APP-d9c51dac6e274c75','서울특별시 강남구 논현로 508','GS차지비','part-000001.sqlite:20183','https://ev.or.kr/nportal/monitor/evMapExcel.do','v2','app_development_chargers','app_charger_id','오류 발생 시 추가할 자료','첨부되지 않았습니다'])assert.ok(h.text.includes(v),v);
+for(const v of ['GS타워','공공 충전기 ID: 01','DEMO-APP-d9c51dac6e274c75','서울특별시 강남구 논현로 508','GS차지비','part-000001.sqlite:20183','https://ev.or.kr/nportal/monitor/evMapExcel.do','v2','app_development_chargers','app_charger_id','오류가 있다면 오류 화면·발생 시각·오류 코드를 확인해 함께 전달하세요.','이 복사 기능은 파일을 첨부하지 않습니다.'])assert.ok(h.text.includes(v),v);
 assert.ok(c.responseMarkup(fixture,'inquiry',true).includes('data-copy-inquiry'));
 assert.ok(!c.responseMarkup(fixture,'knowledge',true).includes('data-copy-inquiry'));
 assert.ok(!c.responseMarkup({...fixture,ai_generated:false},'inquiry',true).includes('data-copy-inquiry'));
