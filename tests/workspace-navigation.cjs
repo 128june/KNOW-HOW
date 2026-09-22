@@ -7,6 +7,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const {test} = require('node:test');
 const source = fs.readFileSync(path.join(__dirname, '../src/platform-shell.js'), 'utf8');
+const homeSource = fs.readFileSync(path.join(__dirname, '../src/home-knowledge.js'), 'utf8');
 
 function setup({mobile = false, hash = '#general-4'} = {}) {
  const listeners = {}, mediaListeners = [], microtasks = [], focusCalls = [];
@@ -87,6 +88,7 @@ function setup({mobile = false, hash = '#general-4'} = {}) {
   KnowHowKBLineage: {createController() { return data; }},
   KnowHowKBCatalog: {createProvider() { return {}; }}
  };
+ vm.runInNewContext(homeSource, {window: root}, {filename: 'home-knowledge.js'});
  vm.runInNewContext(source, {window: root, document, location, getComputedStyle: node => ({visibility: node.visibility}), sampleDemo: {deactivate() {}, activate() { page.innerHTML = '<company>'; }}}, {filename: 'platform-shell.js'});
  function key(key, options = {}) {
   const event = {key, shiftKey: false, defaultPrevented: false, preventDefault() { this.defaultPrevented = true; }, ...options};

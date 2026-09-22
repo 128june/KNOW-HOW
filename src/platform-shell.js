@@ -56,7 +56,7 @@
   menu(false);root.queueMicrotask(focusPage);
  });
  function home(){
-  $('#page').innerHTML=`<section class="home-intro"><div class="eyebrow">흩어진 업무 정보와 기준을, 필요한 순간에</div><h1>충전기 고장 민원,<br>조회부터 부서 회신까지.</h1><p class="home-lead">상담사는 충전기 ID나 주소로 필요한 정보를 찾고,<br>개발 부서는 자신의 업무 KB를 따라 확인한 뒤 같은 티켓에 답합니다.</p><div class="home-result"><span>상담사 → 앱개발팀·충전기개발팀 → 상담사</span><p><strong>장비 조회 · KB에 따른 전달 · 부서별 조치 · 답글</strong></p><small>공개 DB의 장비 정보와 시연용 업무 기준으로 과정을 확인합니다.</small></div><div class="home-start"><a class="button primary" href="#support">고장 민원 접수하기 <span aria-hidden="true">→</span></a><a class="home-secondary" href="#support-kb">부서별 업무 KB 먼저 보기</a></div></section><section class="home-path" aria-label="업무 이어가기"><article><span>01 · 상담사</span><h2><a class="home-secondary" href="#support-tickets">보낸 티켓과 답글 확인 →</a></h2><p>담당 부서의 확인 결과와 고객 안내 문구를 읽습니다.</p></article><article><span>02 · 앱개발팀</span><h2><a class="home-secondary" href="#support-app">앱 관련 민원 확인 →</a></h2><p>요청·응답과 오류 기록을 점검하고 상담사에게 회신합니다.</p></article><article><span>03 · 충전기개발팀</span><h2><a class="home-secondary" href="#support-device">장비 관련 민원 확인 →</a></h2><p>장비·통신 상태와 추가 점검 사항을 확인합니다.</p></article></section>`;
+  $('#page').innerHTML=root.KnowHowHome.render();
  }
  function focusPage(){root.scrollTo?.(0,0);const h=$('#page h1');if(h){h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}}
  function navigation(mode){
