@@ -19,13 +19,13 @@ if base:
 out = root / 'dist'
 if out.exists(): shutil.rmtree(out)
 out.mkdir()
-for name in ('index.html','style.css','shell.css','app.js','demo-example.js','source-records.js','organization-kb.js','demo.js','general-knowledge.js','general-workflow-fixture.js','general-workflow-core.js','general-workflow-store.js','general-workflow-ui.js','general-workflow.css','data-knowledge-bridge.js','data-explorer.js','data-review-ui.js','data-handoff-ui.js','data-platform.css','data-lineage-ui.js','data-platform.js','support-workspace.js','support-workspace.css','kb-catalog.js','kb-lineage.js','kb-lineage.css','home-knowledge.js','home-knowledge.css','platform-shell.js'): shutil.copyfile(root/'src'/name,out/name)
+for name in ('index.html','style.css','shell.css','app.js','demo-example.js','source-records.js','organization-kb.js','demo.js','general-knowledge.js','general-workflow-fixture.js','general-workflow-core.js','general-workflow-store.js','general-workflow-ui.js','general-workflow.css','data-knowledge-bridge.js','data-explorer.js','data-review-ui.js','data-handoff-ui.js','data-platform.css','data-lineage-ui.js','data-platform.js','support-workspace.js','support-workspace.css','kb-catalog.js','kb-lineage.js','kb-lineage.css','home-knowledge.js','home-knowledge.css','clarity-design.css','platform-shell.js'): shutil.copyfile(root/'src'/name,out/name)
 config = {'apiBase':base,'aiRequestsPaused':ai_pause=='true'}
 if general_base: config['generalApiBase'] = general_base
 (out/'config.js').write_text('window.KNOWHOW_CONFIG = '+json.dumps(config)+';\n')
 # New HTML refers to the exact build assets, avoiding stale browser script caches.
 index = (out/'index.html').read_text()
-for asset in ('style.css', 'shell.css', 'config.js', 'app.js', 'demo-example.js', 'source-records.js', 'organization-kb.js', 'demo.js', 'general-knowledge.js','general-workflow-fixture.js','general-workflow-core.js','general-workflow-store.js','general-workflow-ui.js','general-workflow.css', 'data-knowledge-bridge.js','data-explorer.js','data-review-ui.js','data-handoff-ui.js','data-platform.css','data-lineage-ui.js','data-platform.js','support-workspace.js','support-workspace.css','kb-catalog.js','kb-lineage.js','kb-lineage.css','home-knowledge.js','home-knowledge.css', 'platform-shell.js'):
+for asset in ('style.css', 'shell.css', 'config.js', 'app.js', 'demo-example.js', 'source-records.js', 'organization-kb.js', 'demo.js', 'general-knowledge.js','general-workflow-fixture.js','general-workflow-core.js','general-workflow-store.js','general-workflow-ui.js','general-workflow.css', 'data-knowledge-bridge.js','data-explorer.js','data-review-ui.js','data-handoff-ui.js','data-platform.css','data-lineage-ui.js','data-platform.js','support-workspace.js','support-workspace.css','kb-catalog.js','kb-lineage.js','kb-lineage.css','home-knowledge.js','home-knowledge.css','clarity-design.css', 'platform-shell.js'):
     digest = hashlib.sha256((out/asset).read_bytes()).hexdigest()[:12]
     index = index.replace('./'+asset+'"', './'+asset+'?v='+digest+'"')
 (out/'index.html').write_text(index)
