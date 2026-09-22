@@ -43,7 +43,7 @@ const charger = {record_key:'fixture-row-01',charger_id:'01',type:'DC콤보',loc
 const target = {station,charger,facts:{station_name:station.name,charger_id:'01',address:station.address,operator:station.operator,capacity:'200kW',speed:'급속',connector:'DC콤보',location:charger.location,hours:'미제공',access:'미제공',manufacturer:'미제공',current_status:'수집 당시 미확인'},source:{collected_at:'2026-09-22T00:00:00Z',original_sha256:'fixture-source'}};
 const emptyIncident = () => ({symptom:'',occurred_at:'',error_code:'',app_context:'',device_context:'',recipients:['app','device']});
 let fixture;
-function setup(overrides={}) {fixture={documents:documents(),requests:[],candidates:[],candidateOwners:{},sessionSerial:0,tickets:[],createFailures:[],candidateFailures:[],changeOnPrepare:false,holdCandidate:false,releaseCandidate:null,...overrides};}
+function setup(overrides={}) {fixture={documents:documents(),requests:[],candidates:[],candidateOwners:{},reviewRequests:[],sessionSerial:0,tickets:[],createFailures:[],candidateFailures:[],changeOnPrepare:false,holdCandidate:false,releaseCandidate:null,...overrides};}
 function snapshot(body) {
   const incident=Object.fromEntries(['symptom','occurred_at','error_code','app_context','device_context'].map(key=>[key,(body[key]||'').trim()]));
   const knowledge=fixture.documents.filter(d=>['counselor',...body.recipients].includes(d.department)||(d.id==='INTAKE-001'&&['symptom','error_code','app_context','device_context'].some(key=>incident[key])));
@@ -83,13 +83,24 @@ async function serve(req,res) {
     }
     if(action==='tickets')return respond(res,{tickets:fixture.tickets});
     if(action==='ticket')return respond(res,fixture.tickets.find(t=>t.id===body.ticket_id));
+    if(action==='knowledge-review-requests') {
+      const visible=fixture.reviewRequests.filter(r=>fixture.candidateOwners[r.candidate_id]===body.session_id);
+      return respond(res,{requests:visible.map(r=>({...clone(r),candidate:clone(fixture.candidates.find(c=>c.id===r.candidate_id))})),unread_count:visible.filter(r=>!r.read_at).length});
+    }
+    if(action==='knowledge-review-read') {
+      const review=fixture.reviewRequests.find(r=>r.id===body.review_request_id&&fixture.candidateOwners[r.candidate_id]===body.session_id);
+      if(!review)return respond(res,{error:'Review request not in this fixture session'},404);
+      if(!review.read_at){review.read_at='2026-09-22T02:00:00Z';review.read_by='로컬 검증 KB 관리자';}
+      return respond(res,{review_request:clone(review)});
+    }
     if(action==='knowledge-candidate') {
       if(fixture.holdCandidate)await new Promise(resolve=>{fixture.releaseCandidate=resolve;fixture.onCandidateHeld?.();});
       const fail=fixture.candidateFailures.shift();if(fail){if(fail===409)fixture.documents.find(d=>d.id==='INTAKE-001').version++;return respond(res,{error:`Fixture ${fail}: KB 후보 등록 재시도`},fail);}
       const existing=fixture.candidates.find(c=>c.field===body.field&&c.value===body.value&&(!fixture.candidateOwners[c.id]||fixture.candidateOwners[c.id]===body.session_id));
-      if(existing)return respond(res,{candidate:existing,created:false});
+      if(existing)return respond(res,{candidate:existing,created:false,review_request:fixture.reviewRequests.find(r=>r.candidate_id===existing.id)});
       const candidate={id:`candidate-${fixture.candidates.length+1}`,status:'pending',status_label:'확정 전',field:body.field,value:body.value,kb_id:body.kb_id,kb_version:body.kb_version||1,source:{kind:'manual_input'},author:'로컬 검증 상담사',created_at:'2026-09-22T01:30:00Z'};
-      fixture.candidateOwners[candidate.id]=body.session_id;fixture.candidates.push(candidate);return respond(res,{candidate,created:true});
+      const review={id:`review-${candidate.id}`,candidate_id:candidate.id,kb_id:candidate.kb_id,kb_version:candidate.kb_version,field:candidate.field,status:'requested',status_label:'확정 요청',channel:'in_app',recipient_role:'kb_admin',requested_at:candidate.created_at,requested_by:'로컬 검증 상담사',read_at:null,read_by:null};
+      fixture.candidateOwners[candidate.id]=body.session_id;fixture.candidates.push(candidate);fixture.reviewRequests.push(review);return respond(res,{candidate,created:true,...(!fixture.omitReviewReceipt?{review_request:clone(review)}:{})});
     }
     return respond(res,{error:`Unexpected fixture action ${action}`},404);
   }
@@ -199,10 +210,12 @@ async function main() {
 
     setup();const custom=await open({...emptyIncident(),symptom:'직접 확인한 목록 밖 값',app_context:'수기 앱 정보 보존'});
     await custom.locator('[data-open-catalog="errors"]').click();await custom.locator('[name=catalog_value]').fill('CUSTOM-ACTUAL-77');
-    await custom.locator('[data-use-custom]').click();assert.equal(requests('knowledge-candidate').length,0);assert.equal(await field(custom,'error_code').inputValue(),'CUSTOM-ACTUAL-77');
+    await custom.locator('[data-use-custom]').click();assert.equal(requests('knowledge-candidate').length,0);assert.equal(fixture.reviewRequests.length,0);assert.equal(await field(custom,'error_code').inputValue(),'CUSTOM-ACTUAL-77');
     await custom.locator('[data-open-catalog="errors"]').click();await custom.locator('[name=catalog_value]').fill('CUSTOM-KB-88');await custom.locator('#support-catalog-custom button[type=submit]').click();
     await custom.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='CUSTOM-KB-88');
     assert.equal(requests('knowledge-candidate').length,1);assert.equal(requests('knowledge-candidate')[0].body.kb_id,'INTAKE-001');assert.equal(requests('knowledge-candidate')[0].body.field,'errors');assert.equal(requests('knowledge-candidate')[0].body.value,'CUSTOM-KB-88');assert.ok(requests('knowledge-candidate')[0].body.request_id);
+    assert.equal(await custom.locator('#support-catalog-dialog[open]').count(),1);assert.match(await custom.locator('.support-catalog-message').innerText(),/확정 요청을 남겼습니다/);assert.equal(await custom.locator('[data-pending-for="error_code"] .support-review-receipt').count(),1);assert.equal(fixture.reviewRequests.length,1);
+    if(await custom.locator('#support-catalog-dialog[open]').count())await custom.keyboard.press('Escape');
     await custom.locator('[data-open-catalog="errors"]').click();assert.match(await custom.locator('#support-catalog-dialog').innerText(),/CUSTOM-KB-88/);assert.match(await custom.locator('#support-catalog-dialog').innerText(),/확정 전/);
     const pendingStyle=await custom.locator('#support-catalog-dialog').evaluate(dialog=>{const el=[...dialog.querySelectorAll('*')].find(e=>e.textContent.includes('CUSTOM-KB-88')&&getComputedStyle(e).borderTopStyle==='dashed');return el?{border:getComputedStyle(el).borderTopStyle,background:getComputedStyle(el).backgroundColor}:null;});
     assert.ok(pendingStyle,'pending candidate has a dashed border');assert.notEqual(pendingStyle.background,'rgba(0, 0, 0, 0)');
@@ -276,6 +289,44 @@ async function main() {
     await versions.keyboard.press('Escape');await versions.goto(base+'/#support-kb');await versions.locator('[data-pending-id="old-candidate"]').waitFor();
     assert.equal(await versions.locator('[data-pending-id="confirmed-candidate"]').count(),0);assert.equal(await versions.locator('[data-pending-candidate]').count(),0);
     cases.push('Shared pending renderer selects only current-version pending candidates while KB view preserves older pending history and omits nonpending records');
+
+    const orderedCandidates=Object.keys(catalogFields).flatMap(key=>[
+      {...candidateBase,id:`${key}-older`,field:key,kb_version:1,value:`OLDER-${key}`,created_at:'2026-09-22T00:00:00Z'},
+      {...candidateBase,id:`${key}-newer`,field:key,kb_version:1,value:`NEWER-${key}`,created_at:'2026-09-22T01:00:00Z'}
+    ]);
+    setup({candidates:orderedCandidates});const ordered=await open({...emptyIncident(),symptom:'KB 목록 순서 확인',app_context:'기존 앱 메모',device_context:'기존 장비 메모'});
+    for(const launcher of await ordered.locator('[data-open-catalog]').all())assert.match(await launcher.innerText(),/민원 KB 목록/);
+    const openOrderedCatalog=async key=>{const direct=ordered.locator(`[data-open-catalog="${key}"]`);if(await direct.count())await direct.click();else{await ordered.locator('[data-open-catalog="app_os"]').click();await ordered.locator(`[data-catalog-tab="${key}"]`).click();}await ordered.locator('#support-catalog-dialog[open]').waitFor();};
+    for(const key of Object.keys(catalogFields)) {
+      await openOrderedCatalog(key);
+      const modalOrder=await ordered.locator('#support-catalog-dialog').evaluate(dialog=>{const form=dialog.querySelector('#support-catalog-custom'),pending=dialog.querySelector('.support-catalog-pending'),choices=dialog.querySelector('.support-catalog-options');return {dom:!!(form.compareDocumentPosition(pending)&Node.DOCUMENT_POSITION_FOLLOWING)&&!!(pending.compareDocumentPosition(choices)&Node.DOCUMENT_POSITION_FOLLOWING),visual:form.getBoundingClientRect().top<pending.getBoundingClientRect().top&&pending.getBoundingClientRect().top<choices.getBoundingClientRect().top};});
+      assert.deepEqual(modalOrder,{dom:true,visual:true},`${key}: add form, pending candidates, source choices`);
+      assert.deepEqual(await ordered.locator('#support-catalog-dialog [data-pending-candidate]').evaluateAll(items=>items.map(el=>el.dataset.pendingCandidate)),[`${key}-newer`,`${key}-older`],`${key}: newest pending item first despite oldest-first API array`);
+      if(key==='app_versions')await screenshot(ordered,'app-catalog');
+      const addedValue=`NEW-FIRST-${key}`;await ordered.locator('[name=catalog_value]').fill(addedValue);await ordered.locator('#support-catalog-custom button[type=submit]').click();
+      await ordered.waitForFunction(({field,value})=>document.querySelector(`#support-intake [name="${field}"]`)?.value.includes(value),{field:catalogFields[key],value:addedValue});
+      const addedCandidate=fixture.candidates.at(-1);assert.equal(addedCandidate.field,key);assert.equal(addedCandidate.value,addedValue);
+      if(await ordered.locator('#support-catalog-dialog[open]').count())await ordered.keyboard.press('Escape');await openOrderedCatalog(key);
+      assert.deepEqual(await ordered.locator('#support-catalog-dialog [data-pending-candidate]').evaluateAll(items=>items.map(el=>el.dataset.pendingCandidate)),[addedCandidate.id,`${key}-newer`,`${key}-older`],`${key}: newly registered candidate appears at top`);
+      await ordered.locator('[data-catalog-choice="0"]').click();const sourceValue=fixture.documents.find(d=>d.id==='INTAKE-001').catalogs[key][0].value;assert.ok((await field(ordered,catalogFields[key]).inputValue()).includes(sourceValue),`${key}: existing source option still applies`);
+      if(await ordered.locator('#support-catalog-dialog[open]').count())await ordered.keyboard.press('Escape');
+    }
+    assert.equal(requests('knowledge-candidate').length,6);assert.match(await field(ordered,'app_context').inputValue(),/기존 앱 메모/);assert.match(await field(ordered,'device_context').inputValue(),/기존 장비 메모/);
+    cases.push('All six KB catalogs put the add form before newest-first pending candidates and source options; newly added values appear first while existing choices and notes still work');
+
+    setup();const reviewPage=await open({...emptyIncident(),symptom:'관리자 확정 요청 읽음 확인'});const unchangedKnowledge=clone(fixture.documents);
+    await reviewPage.locator('[data-open-catalog="errors"]').click();await reviewPage.locator('[name=catalog_value]').fill('REVIEW-INBOX-21');await reviewPage.locator('#support-catalog-custom button[type=submit]').click();await reviewPage.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='REVIEW-INBOX-21');
+    assert.match(await reviewPage.locator('.support-catalog-message').innerText(),/확정 요청을 남겼습니다/);const reviewId=fixture.reviewRequests[0].id;await reviewPage.keyboard.press('Escape');
+    await reviewPage.goto(base+'/#support-kb-admin');await reviewPage.locator(`[data-review-request="${reviewId}"]`).waitFor();assert.equal(requests('knowledge-review-requests').at(-1).body.role,'kb_admin');
+    assert.match(await reviewPage.locator('.support-review-inbox').innerText(),/안 읽음 1건/);assert.match(await reviewPage.locator(`[data-review-request="${reviewId}"]`).innerText(),/REVIEW-INBOX-21/);await screenshot(reviewPage,'admin-unread');
+    await reviewPage.locator(`[data-review-read="${reviewId}"]`).click();await reviewPage.locator(`[data-review-request="${reviewId}"]`).getByText('관리자가 읽음 · 확정 전',{exact:true}).waitFor();
+    assert.equal(requests('knowledge-review-read').length,1);assert.equal(requests('knowledge-review-read')[0].body.review_request_id,reviewId);assert.equal(requests('knowledge-review-read')[0].body.role,'kb_admin');assert.match(await reviewPage.locator('.support-review-inbox').innerText(),/안 읽음 0건/);assert.equal(fixture.reviewRequests[0].status,'requested');assert.equal(fixture.candidates[0].status,'pending');assert.deepEqual(fixture.documents,unchangedKnowledge);await screenshot(reviewPage,'admin-read');
+    await reviewPage.reload();await reviewPage.locator(`[data-review-request="${reviewId}"]`).getByText('관리자가 읽음 · 확정 전',{exact:true}).waitFor();assert.equal(await reviewPage.locator('[data-review-read]').count(),0);
+
+    setup({omitReviewReceipt:true});const unconfirmedReceipt=await open({...emptyIncident(),symptom:'서버 영수증 없는 요청 상태'});
+    await unconfirmedReceipt.locator('[data-open-catalog="errors"]').click();await unconfirmedReceipt.locator('[name=catalog_value]').fill('RECEIPT-UNCONFIRMED-22');await unconfirmedReceipt.locator('#support-catalog-custom button[type=submit]').click();await unconfirmedReceipt.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='RECEIPT-UNCONFIRMED-22');
+    assert.match(await unconfirmedReceipt.locator('.support-catalog-message').innerText(),/확정 요청 상태는 아직 확인되지 않았습니다/);assert.doesNotMatch(await unconfirmedReceipt.locator('.support-catalog-message').innerText(),/확정 요청을 남겼습니다/);assert.equal(await unconfirmedReceipt.locator('.support-review-receipt').count(),0);
+    cases.push('In-app admin inbox persists read status without approving candidates; candidate registration claims notification only with a matching server receipt, while ticket-only input creates no request');
     assert.deepEqual(browserErrors,[]);assert.deepEqual(externalRequests,[]);
     console.log(JSON.stringify({passed:true,scope:'Isolated synthetic support API/browser regression, not live API or company data validation',cases,browserErrors,externalRequests},null,2));
   } finally {fixture.releaseCandidate?.();for(const context of contexts)await context.close();await browser.close();await new Promise(resolve=>server.close(resolve));}
