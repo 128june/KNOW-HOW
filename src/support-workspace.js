@@ -84,7 +84,8 @@
   const catalogOptions=key=>inputGuide()?.catalogs?.[key]||[];
   const catalogLimit=key=>Math.min(catalogMeta(key).max_length||1600,{errors:200,app_os:100,app_versions:100,app_actions:700,device_states:700,symptoms:1600}[key]||1600);
   const catalogContribution=(key,value)=>value?(appCatalogs.includes(key)?catalogTitles[key]+': '+value:value):'';
-  function selectedCandidate(c){const contribution=catalogContribution(c.field,c.value);return c.kb_id==='INTAKE-001'&&state.catalogSelections[c.field]===contribution&&state.incident[catalogFields[c.field]]?.includes(contribution);}
+  function selectionPresent(key,value){const current=state.incident[catalogFields[key]]||'';return !!value&&(current===value||(key!=='errors'&&(current.startsWith(value+'\n')||current.endsWith('\n'+value)||current.includes('\n'+value+'\n'))));}
+  function selectedCandidate(c){const contribution=catalogContribution(c.field,c.value);return c.kb_id==='INTAKE-001'&&state.catalogSelections[c.field]===contribution&&selectionPresent(c.field,contribution);}
   function pendingMarkup(candidates,options={}){
    candidates=candidates.filter(c=>c.status==='pending'&&(!options.kbId||c.kb_id===options.kbId)&&(!options.kbVersion||c.kb_version===options.kbVersion)&&(!options.field||c.field===options.field)).sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
    if(!candidates.length)return '';
@@ -114,7 +115,7 @@
   function catalogPanel(){
    const key=state.catalog,guide=inputGuide(),meta=catalogMeta(key),options=catalogOptions(key),draft=state.catalogDrafts[key]||{value:''};
    const relatedLabels=option=>(option.related||[]).map(ref=>{const related=catalogOptions(ref.catalog).find(o=>o.id===ref.id);return related?`${catalogTitles[ref.catalog]||ref.catalog}: ${related.label||related.value}`:'';}).filter(Boolean);
-   const selected=state.catalogSelections[key]||'',hasSelection=!!selected&&state.incident[catalogFields[key]]?.includes(selected);
+   const selected=state.catalogSelections[key]||'',hasSelection=selectionPresent(key,selected);
    const pending=pendingMarkup(state.candidates,{selectable:true,kbId:'INTAKE-001',kbVersion:guide?.version,field:key,compact:true,busy:state.catalogBusy});
    const choices=options.map((option,index)=>{
     const related=relatedLabels(option),mode=option.input_mode||'select',isSelected=mode==='select'&&hasSelection&&selected===catalogContribution(key,option.value);
@@ -122,7 +123,7 @@
    }).join('');
    return `<div class="support-modal-heading"><div><span class="eyebrow">KB에서 확인하고 선택</span><h2 id="support-catalog-title">${esc(appCatalogs.includes(key)?'앱 버전·OS와 실패한 동작':meta.title||catalogTitles[key])}</h2><p id="support-catalog-description">선택한 값은 티켓에 바로 반영됩니다. 모르는 값은 비워 두세요.</p></div><button type="button" class="support-modal-close" data-close-catalog aria-label="KB 선택 목록 닫기">×</button></div>
    <div class="support-modal-content">
-    ${appCatalogs.includes(key)?`<div class="support-catalog-tabs" aria-label="앱 정보 항목">${appCatalogs.map(k=>`<button type="button" data-catalog-tab="${k}" aria-pressed="${key===k}">${esc(catalogTitles[k])}<small>${esc(state.catalogSelections[k]&&state.incident[catalogFields[k]]?.includes(state.catalogSelections[k])?state.catalogSelections[k].replace(catalogTitles[k]+': ',''):'미확인')}</small></button>`).join('')}</div>`:''}
+    ${appCatalogs.includes(key)?`<div class="support-catalog-tabs" aria-label="앱 정보 항목">${appCatalogs.map(k=>`<button type="button" data-catalog-tab="${k}" aria-pressed="${key===k}">${esc(catalogTitles[k])}<small>${esc(selectionPresent(k,state.catalogSelections[k])?state.catalogSelections[k].replace(catalogTitles[k]+': ',''):'미확인')}</small></button>`).join('')}</div>`:''}
     <form id="support-catalog-custom" class="support-catalog-custom"><div class="support-catalog-custom-heading"><h3>새 항목 추가</h3><button type="button" class="support-catalog-jump" data-catalog-jump>KB 목록 보기 <span aria-hidden="true">↓</span></button></div><p class="support-caption">목록에 없는 값은 직접 입력하세요.</p><label for="support-catalog-value">${esc(catalogTitles[key])} 실제 값<textarea id="support-catalog-value" name="catalog_value" rows="2" maxlength="${catalogLimit(key)}" required aria-describedby="support-catalog-add-help" ${state.catalogBusy?'disabled':''}>${esc(draft.value)}</textarea></label><div class="support-custom-actions"><button type="button" data-use-custom ${state.catalogBusy?'disabled':''}>이번 티켓에만 입력</button><button type="submit" class="support-catalog-submit" ${!guide||state.catalogBusy?'disabled':''}>${state.catalogBusy?'KB에 추가하는 중…':'KB에 추가하고 선택'}</button></div><p class="support-caption" id="support-catalog-add-help">KB에 추가하면 관리자 검토 전까지 ‘확정 전’으로 표시됩니다.</p></form>
     <div class="support-catalog-message" role="status">${esc(state.catalogMessage)}</div>
     <section class="support-catalog-pending ${pending?'':'is-empty'}" aria-label="확정 전 KB 항목">${root.KnowHowSupportPending||!pending?'':'<h3>확정 전 항목</h3>'}${pending||'<p class="support-caption">확정 전 항목 <span>아직 추가한 항목이 없습니다.</span></p>'}</section>
