@@ -181,3 +181,13 @@ test('document revisions retain original history/hash and carry withdrawal metad
   const past=await provider.detail('support:CS-001',1);
   assert.equal(past.sections[0].text,original.sections[0].text);assert.equal(past.hash,original.hash);assert.equal(past.isHistorical,true);
 });
+
+test('explicit preserved publication link reads a withdrawn version without restoring current visibility',async()=>{
+ const past={...supportDoc(),id:'KHS-hidden',standard_id:'KHS-hidden',version:1,hash:'preserved-hash'};
+ const {provider,calls}=harness({shared:async()=>[],saved:{[sessionKey]:'same-space'},fetchReply:async()=>({body:{document:past,history:[past],state:{withdrawn:true}}})});
+ await assert.rejects(provider.detail('support:KHS-hidden'),/최신 목록에 없습니다/);
+ const detail=await provider.detail('support:KHS-hidden',1);
+ assert.equal(detail.hash,'preserved-hash');assert.equal(detail.isHistorical,true);assert.equal(detail.managementState.withdrawn,true);
+ assert.equal(calls.length,1);assert.equal(calls[0].body.version,1);assert.equal(calls[0].body.standard_id,'KHS-hidden');
+ assert.equal((await provider.load()).collections[0].count,0);
+});

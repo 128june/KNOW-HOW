@@ -78,16 +78,23 @@
    else if(key.startsWith('general:'))documents=await generalDocuments();
    else throw Error('지원하지 않는 KB입니다.');
    let document=documents.find(doc=>doc.key===key);
+   if(!document&&key.startsWith('support:')&&Number.isSafeInteger(Number(version))&&Number(version)>0){
+    const scope={session_id:await connect(),role:'counselor',version:Number(version)};
+    let result;
+    try{result=await request('knowledge-publication',{...scope,standard_id:key.slice(8)});}
+    catch(error){if(error.status!==404)throw error;result=await request('knowledge-document',{...scope,document_id:key.slice(8)});}
+    document={...supportDocument({...result.document,versions:result.history||[]}),isHistorical:true,managementState:result.state||null};
+   }
    if(!document)throw Error('선택한 KB가 최신 목록에 없습니다. 목록을 새로고침해 주세요.');
-   if(document.standard_id){
+   if(document.standard_id&&!document.isHistorical){
     const result=await request('knowledge-publication',{session_id:await connect(),role:'counselor',standard_id:document.standard_id});
     document={...supportDocument({...result.document,versions:result.history||[]}),withdrawnStandardIds:document.withdrawnStandardIds,managementState:result.state||null};
    }
-   if(document.collection==='support'&&!document.standard_id&&document.source_version){
+   if(document.collection==='support'&&!document.standard_id&&document.source_version&&!document.isHistorical){
     const result=await request('knowledge-document',{session_id:await connect(),role:'counselor',document_id:document.id});
     document={...supportDocument({...result.document,versions:result.history||[]}),withdrawnStandardIds:document.withdrawnStandardIds,managementState:result.state||null};
    }
-   if(version!==undefined){const v=document.versions.find(v=>v.version===Number(version));if(!v)throw Error('요청한 KB 버전이 보존되어 있지 않습니다.');return {...document,...clone(v),key:document.key,collection:document.collection,versions:document.versions,history:document.history,content:v.content||v.sections?.map(s=>s.title+'\n'+s.text).join('\n\n')||'',version:v.version,sections:v.sections||[],source_refs:v.source_refs||[],validFrom:v.validFrom||v.valid_from||v.effective_at||null,validTo:v.validTo||v.valid_to||null,isHistorical:Number(v.version)!==Number(document.version)};}
+   if(version!==undefined){const v=document.versions.find(v=>v.version===Number(version));if(!v)throw Error('요청한 KB 버전이 보존되어 있지 않습니다.');return {...document,...clone(v),key:document.key,collection:document.collection,versions:document.versions,history:document.history,content:v.content||v.sections?.map(s=>s.title+'\n'+s.text).join('\n\n')||'',version:v.version,sections:v.sections||[],source_refs:v.source_refs||[],validFrom:v.validFrom||v.valid_from||v.effective_at||null,validTo:v.validTo||v.valid_to||null,isHistorical:!!document.isHistorical||Number(v.version)!==Number(document.version)};}
    return document;
   }
   async function query(key,question,asOf,generate=false){

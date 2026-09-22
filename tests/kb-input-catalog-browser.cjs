@@ -18,7 +18,7 @@ async function main(){
   await page.goto(origin);await page.addStyleTag({url:origin+'/src/style.css'});await page.addStyleTag({url:origin+'/src/shell.css'});await page.addStyleTag({url:origin+'/src/kb-lineage.css'});
   await page.evaluate(guide=>{window.original=guide;window.docs=[structuredClone(guide)];window.KnowHowSupport={readKnowledge:async()=>structuredClone(window.docs)};window.KNOWHOW_CONFIG={apiBase:location.origin+'/knowhow'};},copy(guide));
   await page.addScriptTag({url:origin+'/src/kb-catalog.js'});await page.addScriptTag({url:origin+'/src/kb-lineage.js'});
-  await page.evaluate(()=>{window.provider=KnowHowKBCatalog.createProvider({general:{ready:async()=>{},docs:()=>[{id:'excluded-general',versions:[{version:1,content:'범위 제외'}]}]}});KnowHowKBLineage.createController({provider}).mount(document.querySelector('#map'));});
+  await page.evaluate(()=>{window.provider=KnowHowKBCatalog.createProvider({general:{ready:async()=>{},docs:()=>[{id:'excluded-general',versions:[{version:1,content:'범위 제외'}]}]}});window.controller=KnowHowKBLineage.createController({provider});controller.mount(document.querySelector('#map'));});
   await page.locator('[data-kb-key="support:INTAKE-001"]').click();await page.locator('#kb-detail-title').waitFor();
   assert.equal(await page.locator('[data-kb-catalog]').count(),6);
   for(const [field,options] of Object.entries(guide.catalogs)){
@@ -45,6 +45,16 @@ async function main(){
   await page.locator('[data-kb-refresh]').click();await page.locator('[data-kb-key="support:INTAKE-001"]').click();await page.locator('#kb-detail-title').waitFor();
   assert.ok((await page.locator('[data-kb-catalog-option="symptoms-original"]').textContent()).includes('정정된 원문 v3'));
   assert.match(await page.locator('.kb-detail-heading').textContent(),/v3/);
+  await page.evaluate(async()=>{
+    const preserved=await provider.detail('support:INTAKE-001');
+    controller.destroy();docs=[];
+    provider.detail=async(key,version)=>{if(key!=='support:INTAKE-001'||version!==3)throw Error('Expected explicit preserved version');return {...preserved,isHistorical:true};};
+    location.hash='#data?kb=INTAKE-001&version=3';
+    controller=KnowHowKBLineage.createController({provider});controller.mount(document.querySelector('#map'));
+  });
+  await page.locator('#kb-detail-modal[open] #kb-detail-title').waitFor();
+  assert.equal(await page.locator('[data-kb-key="support:INTAKE-001"]').count(),0,'preserved detail must not restore the active card');
+  assert.equal(await page.locator('[data-kb-admin-enter]').count(),0,'preserved out-of-list detail must remain read-only');
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
   console.log(JSON.stringify({passed:true,catalog_fields:6,original_options:18,checks:['same canonical source and hash','all option IDs and complete text','HTML and newline preservation','refresh to new version','desktop/mobile overflow','zero external or model calls']}));
  }finally{await browser.close();await new Promise(r=>server.close(r));}
