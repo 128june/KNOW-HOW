@@ -128,13 +128,16 @@ aside nav button,aside .scenario-link,aside nav button[data-scenario] { font-siz
 .kh-home-preview-label,.kh-home-answer-preview dt { color: var(--kh-muted); font-size: 13px; }
 .kh-home-question { font-size: 14px; color: var(--kh-text); }
 .kh-home-answer-preview dd { font-size: 14px; color: var(--kh-text); }
-.kh-home-answer-preview > strong { color: var(--kh-ink); font-size: 16px; }
+.kh-home .kh-home-conclusion { color: var(--kh-ink); font-size: 16px; }
+.kh-home-evidence > div { font-size: 13px; }
 .kh-home-answer-note,.kh-home-connection > .kh-home-helper { color: var(--kh-muted); font-size: 13px; }
 .kh-home-review,.kh-home-apply { border-color: var(--kh-line); }
-.kh-home-review-steps li { border-color: var(--kh-line); }
-.kh-home-review-steps :is(p,small,span) { color: var(--kh-muted); font-size: 13px; }
-.kh-home-usecases article { background: #fff; border-color: var(--kh-line); border-radius: 8px; }
-.kh-home-usecases p { color: var(--kh-text); font-size: 14px; }
+.kh-home-review-flow span,.kh-home-entry-label { color: var(--kh-muted); font-size: 13px; }
+.kh-home-review-flow strong { color: var(--kh-ink); font-size: 15px; }
+.kh-home-review-flow p { color: var(--kh-text); font-size: 14px; }
+.kh-home-entries article { background: #fff; border-color: var(--kh-line); border-radius: 8px; }
+.kh-home-entries h3 { font-size: 17px; }
+.kh-home-entries p { color: var(--kh-text); font-size: 14px; }
 
 /* Support: source, identifier and judgment each have a distinct visual level. */
 .support-workspace { color: var(--kh-text); }
