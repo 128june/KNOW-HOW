@@ -63,6 +63,7 @@
   const payments=fixture.payments.filter(p=>query.contract_ids.includes(p.contract_id)&&p.status==='succeeded'&&!p.is_test);
   const paymentIds=payments.map(p=>p.id);
   const refunds=fixture.refunds.filter(r=>paymentIds.includes(r.payment_id)&&(query.topic!=='refund'||query.refund_id==='all'||query.refund_id===r.id));
+  if(query.topic==='refund'&&query.refund_id!=='all'&&!refunds.length) fail('선택한 환불 '+query.refund_id+'은 선택한 계약에 연결되지 않습니다. 환불에 연결된 계약을 선택하세요.','refund_scope_mismatch');
   const refundIds=refunds.map(r=>r.id);
   const settlements=fixture.settlements.filter(s=>s.ref_type==='payment'?paymentIds.includes(s.ref_id):refundIds.includes(s.ref_id));
   const periodPayments=payments.filter(p=>inPeriod(p.paid_at));
@@ -111,7 +112,7 @@
   refunds.filter(r=>refundStatus(r,state)!=='completed').forEach(r=>excluded.push(row(r,'refund','완료액에서 제외 또는 보류',[opsRef],{reason:refundStatus(r,state)==='pending'?'PENDING이며 완료시각 없음':'상태 코드의 업무 의미 미확인',status:refundStatus(r,state)})));
   const key=aliases[query.topic][query.purpose], chosen=metrics.find(m=>m.key===key), topicLabel={revenue:'매출',customer:'고객',refund:'환불'}[query.topic];
   const scope=contracts.map(c=>c.id).join('·'), periodLabel=october?'10월 7일까지':'9월';
-  let summary=chosen?(chosen.value===null?chosen.label+'은 현재 근거로 확정할 수 없습니다. '+chosen.definition:chosen.label+'은 '+chosen.value.toLocaleString('ko-KR')+chosen.unit+'입니다. '+chosen.definition):'업무 목적을 선택하면 사용할 지표를 표시합니다. 같은 대상의 값도 정의·집계 단위·시점이 달라집니다.';
+  let summary=chosen?(chosen.value===null?chosen.label+': 현재 근거로 확정할 수 없습니다. '+chosen.definition:chosen.label+': '+chosen.value.toLocaleString('ko-KR')+chosen.unit+'입니다. '+chosen.definition):'업무 목적을 선택하면 사용할 지표를 표시합니다. 같은 대상의 값도 정의·집계 단위·시점이 달라집니다.';
   if(query.topic==='refund'&&state.refundVersion===1)summary='고객 환불 완료 안내는 보류하세요. 요청과 정산 기록은 있으나 DONE·SUCCEEDED의 업무 의미가 아직 확인되지 않았습니다.';
   if(query.topic==='refund'&&state.refundVersion===2&&refunds.some(r=>r.id==='R1'))summary+=' R1은 10/2 결제사 접수, 10/3 고객 환불 완료, 10/6 정산 차감으로 구분합니다.';
   const knowledge=query.topic==='revenue'?[{id:'KB-REV-01',version:1},{id:'KB-REF-01',version:state.refundVersion}]:[{id:query.topic==='customer'?'KB-CUST-01':'KB-REF-01',version:query.topic==='customer'?1:state.refundVersion}];
