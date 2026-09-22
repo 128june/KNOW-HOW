@@ -43,7 +43,8 @@
   const controls=[toggle,...sidebar.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),summary,select:not([disabled]),[tabindex="0"]')].filter(node=>node.getClientRects().length&&!node.closest('[inert]')&&getComputedStyle(node).visibility!=='hidden');
   const index=controls.indexOf(document.activeElement);
   const next=index<0?(event.shiftKey?controls.length-1:0):(index+(event.shiftKey?-1:1)+controls.length)%controls.length;
-  event.preventDefault();controls[next]?.focus({preventScroll:true});
+  // Tab may need to scroll a short drawer to reveal its next control.
+  event.preventDefault();controls[next]?.focus({preventScroll:next===0});
  });
  mobile?.addEventListener('change',()=>menu(false));
  // Scenario buttons update history directly, and same-route links emit no hashchange.
