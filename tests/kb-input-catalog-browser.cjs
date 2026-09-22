@@ -48,10 +48,11 @@ async function main(){
   await page.evaluate(async()=>{
     const preserved=await provider.detail('support:INTAKE-001');
     controller.destroy();docs=[];
-    provider.detail=async(key,version)=>{if(key!=='support:INTAKE-001'||version!==3)throw Error('Expected explicit preserved version');return {...preserved,isHistorical:true};};
+    window.archivedDetailAttempts=0;provider.detail=async(key,version)=>{if(key!=='support:INTAKE-001'||version!==3)throw Error('Expected explicit preserved version');if(++window.archivedDetailAttempts===1)throw Error('Temporary preserved source read failure');return {...preserved,isHistorical:true};};
     location.hash='#data?kb=INTAKE-001&version=3';
     controller=KnowHowKBLineage.createController({provider});controller.mount(document.querySelector('#map'));
   });
+  await page.locator('[data-kb-retry]').click();
   await page.locator('#kb-detail-modal[open] #kb-detail-title').waitFor();
   assert.equal(await page.locator('[data-kb-key="support:INTAKE-001"]').count(),0,'preserved detail must not restore the active card');
   assert.equal(await page.locator('[data-kb-admin-enter]').count(),0,'preserved out-of-list detail must remain read-only');

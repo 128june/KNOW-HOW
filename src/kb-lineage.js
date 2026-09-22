@@ -6,7 +6,7 @@
   const fallbackCollections = [{id:'support',label:'충전 민원 대응'}, {id:'general',label:'매출·고객·환불'}];
   function createController({provider} = {}) {
     let host = null, epoch = 0, selectionEpoch = 0;
-    const state = {documents:[], collections:fallbackCollections, notices:[], selected:null, detail:null, loading:false, detailLoading:false, error:'', detailError:'', modalOpen:false, management:null, adminMode:'', adminTarget:null, adminError:'', adminBusy:false, actionNotice:''};
+    const state = {documents:[], collections:fallbackCollections, notices:[], selected:null, requestedVersion:undefined, detail:null, loading:false, detailLoading:false, error:'', detailError:'', modalOpen:false, management:null, adminMode:'', adminTarget:null, adminError:'', adminBusy:false, actionNotice:''};
     const department = d => d.departmentLabel || teams[d.department] || d.department || '담당 부서 미등록';
     const version = d => d.version == null ? '버전 미등록' : 'v' + d.version;
     const documentKind = d => d.collection !== 'support' ? d.kindLabel || d.originLabel || '미등록' : d.standard_id || d.publication_status === 'published' ? '관리자 발행 KB' : Object.keys(d.catalogs || {}).length ? '민원 입력 목록' : '부서별 업무 참고 자료';
@@ -174,7 +174,7 @@
       panel.scrollTop = 0;
       panel.setAttribute('aria-busy', String(state.detailLoading));
       bindAdmin(panel);
-      panel.querySelector('[data-kb-retry]')?.addEventListener('click', () => select(state.selected));
+      panel.querySelector('[data-kb-retry]')?.addEventListener('click', () => select(state.selected, state.requestedVersion));
       panel.querySelector('[data-kb-version]')?.addEventListener('change', event => select(state.selected, Number(event.target.value)));
       panel.querySelector('[data-kb-query]')?.addEventListener('submit', async event => {
         event.preventDefault();
@@ -217,7 +217,7 @@
       if (!key || !host) return;
       const ticket = ++selectionEpoch, mount = epoch;
       state.management = null; state.adminMode = ''; state.adminTarget = null; state.adminError = ''; state.adminBusy = false;
-      state.selected = key; state.detail = null; state.detailLoading = true; state.detailError = ''; state.modalOpen = true;
+      state.selected = key; state.requestedVersion = requestedVersion; state.detail = null; state.detailLoading = true; state.detailError = ''; state.modalOpen = true;
       updateSelection();
       renderDetail();
       const dialog = host.querySelector('#kb-detail-modal');
