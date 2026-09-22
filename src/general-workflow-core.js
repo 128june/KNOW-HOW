@@ -34,7 +34,7 @@
   if (section && !document.section_contents[String(section)]) fail('요청한 원문 절이 없습니다.','not_found',404);
   return clone(section?{...document,content:document.section_contents[String(section)]}:document);
  }
- const aliases={revenue:{contract:'signed',signed:'signed',payment:'paid',paid:'paid',recognition:'recognized',recognized:'recognized',deposit:'cash',cash:'cash'},customer:{accounts:'login',login:'login',buyers:'buyer',buyer:'buyer',entities:'legal',legal:'legal',billing:'billing'},refund:{customer:'completed_refund',refund:'requested',settlement:'settled',completed_refund:'completed_refund'}};
+ const aliases={revenue:{contract:'signed',signed:'signed',payment:'net_payment',paid:'paid',recognition:'recognized',recognized:'recognized',deposit:'cash',cash:'cash'},customer:{accounts:'login',login:'login',buyers:'buyer',buyer:'buyer',entities:'legal',legal:'legal',billing:'billing'},refund:{customer:'completed_refund',refund:'requested',settlement:'settled',completed_refund:'completed_refund'}};
  function normalizeQuery(input) {
   if (!input||!aliases[input.topic]) fail('매출·고객·환불 중 업무를 선택하세요.');
   const period=input.period|| (input.topic==='revenue'?'september':'october');
@@ -113,6 +113,7 @@
   const key=aliases[query.topic][query.purpose], chosen=metrics.find(m=>m.key===key), topicLabel={revenue:'매출',customer:'고객',refund:'환불'}[query.topic];
   const scope=contracts.map(c=>c.id).join('·'), periodLabel=october?'10월 7일까지':'9월';
   let summary=chosen?(chosen.value===null?chosen.label+': 현재 근거로 확정할 수 없습니다. '+chosen.definition:chosen.label+': '+chosen.value.toLocaleString('ko-KR')+chosen.unit+'입니다. '+chosen.definition):'업무 목적을 선택하면 사용할 지표를 표시합니다. 같은 대상의 값도 정의·집계 단위·시점이 달라집니다.';
+  if(query.topic==='revenue'&&query.purpose==='payment'&&state.refundVersion===1)summary='성공 결제: '+paidAmount.toLocaleString('ko-KR')+'원입니다. 환불 완료 정의가 미확인이라 차감할 완료 환불액과 결제 운영 보고 순액은 확정할 수 없습니다. 성공 결제액은 수수료 차감 전 금액입니다.';
   if(query.topic==='refund'&&state.refundVersion===1)summary='고객 환불 완료 안내는 보류하세요. 요청과 정산 기록은 있으나 DONE·SUCCEEDED의 업무 의미가 아직 확인되지 않았습니다.';
   if(query.topic==='refund'&&state.refundVersion===2&&refunds.some(r=>r.id==='R1'))summary+=' R1은 10/2 결제사 접수, 10/3 고객 환불 완료, 10/6 정산 차감으로 구분합니다.';
   const knowledge=query.topic==='revenue'?[{id:'KB-REV-01',version:1},{id:'KB-REF-01',version:state.refundVersion}]:[{id:query.topic==='customer'?'KB-CUST-01':'KB-REF-01',version:query.topic==='customer'?1:state.refundVersion}];

@@ -60,7 +60,7 @@ async function main(){
  assert.equal(JSON.stringify(reloaded.state().answers[0]),historicalJSON);assert.equal(reloaded.state().comments.length,2);
  const snapshot=JSON.stringify(reloaded.state());await assert.rejects(reloaded.command('publish',{review_id:review.result.id}));assert.equal(JSON.stringify(reloaded.state()),snapshot);
  const revenue=await reloaded.answer({topic:'revenue',purpose:'payment',period:'september',contract_ids:['C1','C2'],question:'9월 결제액은?'});
- assert.match(revenue.summary,/성공 결제: 500,000원/);assert.match(revenue.summary,/수수료 차감 전/);
+ assert.match(revenue.summary,/결제 운영 순액: 500,000원/);assert.match(revenue.summary,/완료가 확인된 환불/);
  assert.equal(disk.values.get(LEGACY_KEY),legacy,'legacy knowledge remains byte-for-byte unchanged');assert.equal(disk.values.get('unrelated.app.setting'),'retained');
  assert.ok(disk.writes.every(write=>write.key===KEY),'new module writes only its own key');
  for(const corrupt of ['{broken json',JSON.stringify({revision:0,refundVersion:1,comments:null,reviews:[],answers:[]})]) {
