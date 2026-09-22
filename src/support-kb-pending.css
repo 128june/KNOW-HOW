@@ -1,0 +1,127 @@
+/* Pending content keeps its own presentation outside confirmed KB sections. */
+.support-kb-pending {
+  margin: 20px 0;
+  color: #704313;
+  overflow-wrap: anywhere;
+}
+.support-kb-pending-heading,
+.support-kb-pending-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.support-kb-pending .support-kb-pending-heading h3 {
+  margin: 0;
+  color: #704313;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.support-kb-pending-heading > span {
+  font-size: 12px;
+}
+.support-kb-pending .support-kb-pending-notice,
+.support-kb-pending .support-kb-pending-empty {
+  margin: 8px 0 12px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.support-kb-pending-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.support-kb-pending-item {
+  min-width: 0;
+}
+.support-kb-pending-card {
+  padding: 16px;
+  border: 2px dashed #c47b31;
+  border-radius: 10px;
+  background: #fff5e8;
+  color: #704313;
+}
+.support-kb-pending-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px dashed #c47b31;
+  border-radius: 5px;
+  background: #fff5e8;
+  color: #704313;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.support-kb-pending-card-heading h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.6;
+}
+.support-kb-pending .support-kb-pending-value {
+  margin: 12px 0;
+  color: #543619;
+  font-size: 14px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.support-kb-pending-meta {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.support-kb-pending-meta > div {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 8px;
+}
+.support-kb-pending-meta dt,
+.support-kb-pending-meta dd {
+  margin: 0;
+}
+.support-kb-pending .support-kb-pending-select {
+  min-height: 42px;
+  margin: 14px 0 0;
+  padding: 9px 12px;
+  border: 1px solid #b9752d;
+  border-radius: 7px;
+  background: #fffaf3;
+  color: #704313;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.support-kb-pending-select:focus-visible {
+  outline: 3px solid #85511e;
+  outline-offset: 3px;
+}
+.support-kb-pending-select:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+.support-kb-pending.is-compact .support-kb-pending-card {
+  padding: 12px;
+}
+.support-kb-pending.is-compact .support-kb-pending-list {
+  gap: 8px;
+}
+@media (max-width: 600px) {
+  .support-kb-pending-card {
+    padding: 13px;
+  }
+  .support-kb-pending .support-kb-pending-select {
+    width: 100%;
+  }
+}
+@media (forced-colors: active) {
+  .support-kb-pending-card,
+  .support-kb-pending-badge {
+    border-color: CanvasText;
+  }
+}
