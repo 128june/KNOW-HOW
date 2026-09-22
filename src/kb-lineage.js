@@ -11,7 +11,7 @@
     const version = d => d.version == null ? '버전 미등록' : 'v' + d.version;
     const documentKind = d => d.collection !== 'support' ? d.kindLabel || d.originLabel || '미등록' : d.standard_id || d.publication_status === 'published' ? '관리자 발행 KB' : Object.keys(d.catalogs || {}).length ? '민원 입력 목록' : '부서별 업무 참고 자료';
     function node(d) {
-      return `<li><button class="kb-map-node" data-kb-key="${esc(d.key)}" aria-haspopup="dialog" aria-expanded="${state.modalOpen && d.key === state.selected}" aria-controls="kb-detail-modal"><span class="kb-node-team">${esc(department(d))}<span aria-hidden="true">↗</span></span><strong>${esc(d.title)}</strong><span class="kb-node-meta">${esc(d.id)} <span>· ${esc(version(d))}</span></span><span class="kb-node-origin">${esc(d.collection === 'support' ? documentKind(d) : d.originLabel || d.kindLabel || '')}</span></button></li>`;
+      return `<li><button class="kb-map-node" ${state.loading ? 'disabled' : ''} data-kb-key="${esc(d.key)}" aria-haspopup="dialog" aria-expanded="${state.modalOpen && d.key === state.selected}" aria-controls="kb-detail-modal"><span class="kb-node-team">${esc(department(d))}<span aria-hidden="true">↗</span></span><strong>${esc(d.title)}</strong><span class="kb-node-meta">${esc(d.id)} <span>· ${esc(version(d))}</span></span><span class="kb-node-origin">${esc(d.collection === 'support' ? documentKind(d) : d.originLabel || d.kindLabel || '')}</span></button></li>`;
     }
     function graph() {
       const collections = state.collections.length ? state.collections : fallbackCollections;

@@ -35,6 +35,12 @@ async function main(){
   assert.ok((await page.locator('#kb-reading-panel').textContent()).includes(guide.source));
   for(const width of [1440,390]){await page.setViewportSize({width,height:950});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);const comparison=await page.locator('.kb-catalog-comparison').evaluate(el=>({position:getComputedStyle(el).position,visibility:getComputedStyle(el).visibility,height:el.getBoundingClientRect().height}));assert.equal(comparison.position,'static');assert.equal(comparison.visibility,'visible');assert.ok(comparison.height<350,'comparison must not inherit full-height navigation styles');if(process.env.KB_CATALOG_EVIDENCE_DIR){fs.mkdirSync(process.env.KB_CATALOG_EVIDENCE_DIR,{recursive:true});await page.screenshot({path:path.join(process.env.KB_CATALOG_EVIDENCE_DIR,'catalog-'+width+'.png'),fullPage:true});}}
   await page.keyboard.press('Escape');
+  await page.evaluate(()=>{window.KnowHowSupport.readKnowledge=()=>new Promise(resolve=>{window.finishCatalogRead=()=>resolve(structuredClone(window.docs));});});
+  await page.locator('[data-kb-refresh]').click();
+  await page.waitForFunction(()=>typeof window.finishCatalogRead==='function');
+  assert.equal(await page.locator('[data-kb-key="support:INTAKE-001"]').isDisabled(),true,'old cards must not open while list refresh can replace their dialog');
+  await page.evaluate(()=>{window.KnowHowSupport.readKnowledge=async()=>structuredClone(window.docs);window.finishCatalogRead();});
+  await page.locator('[data-kb-refresh]:not([disabled])').waitFor();
   await page.evaluate(()=>{docs[0].version=3;docs[0].hash='b'.repeat(64);docs[0].catalogs.symptoms[0].value='정정된 원문 v3';});
   await page.locator('[data-kb-refresh]').click();await page.locator('[data-kb-key="support:INTAKE-001"]').click();await page.locator('#kb-detail-title').waitFor();
   assert.ok((await page.locator('[data-kb-catalog-option="symptoms-original"]').textContent()).includes('정정된 원문 v3'));
