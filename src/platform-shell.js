@@ -3,28 +3,51 @@
  const titles=['왜 부서마다 답이 다를까?','기준을 지식으로 남기기','조건과 예외 보완하기','다음 업무에 재사용하기','팀에서 함께 쓸 지식'];
  const general=root.KnowHowGeneralKnowledge?.createController();
  const $=selector=>document.querySelector(selector);
- let data=null,current='',menuOpen=false;
+ let data=null,current='',menuOpen=false,desktopCollapsed=false;
  const mobile=root.matchMedia?.('(max-width: 760px)');
- function menu(open,restoreFocus=false){
-  menuOpen=Boolean(open&&mobile?.matches);document.body.classList.toggle('navigation-open',menuOpen);
-  $('#navigation-toggle').setAttribute('aria-expanded',String(menuOpen));$('#navigation-toggle').setAttribute('aria-label',menuOpen?'메뉴 닫기':'메뉴 열기');
-  $('#navigation-scrim').hidden=!menuOpen;$('#main-content').inert=menuOpen;
-  if(menuOpen)$('aside a')?.focus();else if(restoreFocus)$('#navigation-toggle').focus();
+ const toggle=$('#navigation-toggle'),sidebar=$('#workspace-navigation');
+ function syncNavigation(restoreFocus=false){
+  const isMobile=Boolean(mobile?.matches),expanded=isMobile?menuOpen:!desktopCollapsed;
+  // Move focus before hiding the drawer; resizing must not strand it in inert content.
+  $('#main-content').inert=isMobile&&menuOpen;
+  if(restoreFocus||(!expanded&&sidebar.contains(document.activeElement)))toggle.focus({preventScroll:true});
+  sidebar.inert=!expanded;
+  document.body.classList.toggle('navigation-open',isMobile&&menuOpen);
+  document.body.classList.toggle('navigation-collapsed',!isMobile&&desktopCollapsed);
+  const label=isMobile?(expanded?'작업 메뉴 닫기':'작업 메뉴 열기'):(expanded?'작업 메뉴 접기':'작업 메뉴 펼치기');
+  toggle.setAttribute('aria-expanded',String(expanded));toggle.setAttribute('aria-label',label);toggle.title=label;
+  $('#navigation-scrim').hidden=!(isMobile&&menuOpen);
  }
- $('#navigation-toggle').onclick=()=>menu(!menuOpen,true);
+ // Route changes close only the mobile drawer, keeping the desktop choice intact.
+ function menu(open,restoreFocus=false){
+  menuOpen=Boolean(open&&mobile?.matches);syncNavigation(restoreFocus);
+  if(menuOpen)sidebar.querySelector('a[href]')?.focus({preventScroll:true});
+ }
+ toggle.onclick=()=>{
+  if(mobile?.matches)menu(!menuOpen,true);
+  else{desktopCollapsed=!desktopCollapsed;syncNavigation(true)}
+ };
  $('#navigation-scrim').onclick=()=>menu(false,true);
  $('.skip-link').onclick=event=>{event.preventDefault();menu(false);$('#page').focus()};
  document.addEventListener('keydown',event=>{
+  if(event.defaultPrevented)return;
+  if(!mobile?.matches){
+   if(event.key==='Escape'&&!desktopCollapsed&&(sidebar.contains(document.activeElement)||document.activeElement===toggle)){
+    event.preventDefault();desktopCollapsed=true;syncNavigation(true);
+   }
+   return;
+  }
   if(!menuOpen)return;
   if(event.key==='Escape'){event.preventDefault();menu(false,true);return}
   if(event.key!=='Tab')return;
-  const controls=[$('#navigation-toggle'),...$('aside').querySelectorAll('a[href],button:not([disabled]),summary,select')].filter(node=>node.getClientRects().length);
-  const index=controls.indexOf(document.activeElement),next=(index+(event.shiftKey?-1:1)+controls.length)%controls.length;
-  event.preventDefault();controls[next]?.focus();
+  const controls=[toggle,...sidebar.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),summary,select:not([disabled]),[tabindex="0"]')].filter(node=>node.getClientRects().length&&!node.closest('[inert]')&&getComputedStyle(node).visibility!=='hidden');
+  const index=controls.indexOf(document.activeElement);
+  const next=index<0?(event.shiftKey?controls.length-1:0):(index+(event.shiftKey?-1:1)+controls.length)%controls.length;
+  event.preventDefault();controls[next]?.focus({preventScroll:true});
  });
  mobile?.addEventListener('change',()=>menu(false));
  // Scenario buttons update history directly, and same-route links emit no hashchange.
- $('aside').addEventListener('click',event=>{
+ sidebar.addEventListener('click',event=>{
   if(!menuOpen||!event.target.closest('a[href^="#"],button[data-scenario]'))return;
   menu(false);root.queueMicrotask(focusPage);
  });
