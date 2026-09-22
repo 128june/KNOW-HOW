@@ -36,7 +36,7 @@
       const d = state.detail;
       if (!d) return '<div class="kb-detail-placeholder"><span aria-hidden="true">↖</span><h2>KB를 선택하세요</h2><p>리니지에서 문서를 누르면<br>내용과 출처를 여기서 볼 수 있습니다.</p></div>';
       const sections = Array.isArray(d.sections) ? d.sections : [];
-      return `<div class="kb-detail-heading"><p>${esc(department(d))} <span>· ${esc(d.id)} · ${esc(version(d))}</span></p><h2 id="kb-detail-title">${esc(d.title)}</h2><span class="kb-detail-state">${esc(d.stateLabel || d.status || '검토 상태 미등록')}</span></div><div class="kb-detail-content">${d.purpose ? `<p class="kb-detail-purpose">${esc(d.purpose)}</p>` : ''}${sections.length ? sections.map((s,i) => `<section class="kb-content-section"><h3><span>${String(i+1).padStart(2,'0')}</span>${esc(s.title)}</h3><p class="kb-full-text">${esc(s.text)}</p>${d.checklist?.includes(s.id) ? '<span class="kb-check-item">개발자 확인 항목</span>' : ''}</section>`).join('') : `<section class="kb-content-section"><h3>전체 내용</h3><p class="kb-full-text">${esc(d.content || '본문이 제공되지 않았습니다.')}</p></section>`}${d.intake_fields?.length ? `<section class="kb-content-section"><h3>접수 시 필요한 정보</h3>${d.intake_fields.map(f => `<p><strong>${esc(f.label)}</strong><br>${esc(f.placeholder || '')}</p>`).join('')}</section>` : ''}${d.reply_hint ? `<section class="kb-content-section"><h3>회신 작성 안내</h3><p>${esc(d.reply_hint)}</p></section>` : ''}${source(d)}${history(d)}</div>`;
+      return `<div class="kb-detail-heading"><p>${esc(department(d))} <span>· ${esc(d.id)} · ${esc(version(d))}</span></p><h2 id="kb-detail-title">${esc(d.title)}</h2><span class="kb-detail-state">${esc(d.stateLabel || d.status || '검토 상태 미등록')}</span></div><div class="kb-detail-content">${d.purpose ? `<p class="kb-detail-purpose">${esc(d.purpose)}</p>` : ''}${sections.length ? sections.map((s,i) => `<section class="kb-content-section"><h3><span>${String(i+1).padStart(2,'0')}</span>${esc(s.title)}</h3><p class="kb-full-text">${esc(s.text)}</p>${d.checklist?.includes(s.id) ? '<span class="kb-check-item">개발자 확인 항목</span>' : ''}</section>`).join('') : `<section class="kb-content-section"><h3>전체 내용</h3><p class="kb-full-text">${esc(d.content || '본문이 제공되지 않았습니다.')}</p></section>`}${d.intake_fields?.length ? `<section class="kb-content-section"><h3>접수 시 필요한 정보</h3>${d.intake_fields.map(f => `<p><strong>${esc(f.label)}</strong><br>${esc(f.placeholder || '')}</p>`).join('')}</section>` : ''}${d.reply_hint ? `<section class="kb-content-section"><h3>회신 작성 안내</h3><p>${esc(d.reply_hint)}</p></section>` : ''}${d.collection==='general'?`<p><a class="button" href="#general-${d.id==='KB-CUST-01'?2:d.id==='KB-REF-01'?3:1}">이 기준으로 업무 질문 보기 →</a></p>`:''}${source(d)}${history(d)}</div>`;
     }
     function selectedButton() {
       return [...(host?.querySelectorAll('[data-kb-key]') || [])].find(b => b.dataset.kbKey === state.selected);
@@ -99,7 +99,8 @@
       document.body.classList.add('kb-modal-open');
       host.querySelector('[data-kb-close]').focus({preventScroll:true});
       try {
-        const d = await provider.detail(key);
+        const listed = state.documents.find(doc => doc.key === key);
+        const d = await provider.detail(key, key.startsWith('general:') ? listed?.version : undefined);
         if (ticket !== selectionEpoch || mount !== epoch || !host || !state.modalOpen) return;
         if (!d || d.key !== key) throw Error('선택한 KB와 조회된 문서가 다릅니다. 목록을 새로고침해 주세요.');
         state.detail = d;

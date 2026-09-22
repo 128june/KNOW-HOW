@@ -45,14 +45,15 @@
    const order={counselor:0,app:1,device:2};
    return docs.sort((a,b)=>(order[a.department]??3)-(order[b.department]??3));
   }
-  function generalDocuments(){
+  async function generalDocuments(){
+   await generalController?.ready?.();
    if(!generalController?.docs)throw Error('매출·고객·환불 KB를 읽는 기능을 불러오지 못했습니다.');
    const docs=generalController.docs();
    if(!Array.isArray(docs)||!docs.length)throw Error('매출·고객·환불 KB 목록에 문서가 없습니다.');
    return docs.map(doc=>{
     const current=doc.versions?.[0];
     if(typeof doc.id!=='string'||!current||typeof current.content!=='string'||!current.content.trim())throw Error('이 기기의 KB 본문 또는 버전 형식을 확인하지 못했습니다.');
-    return {...clone(doc),key:'general:'+doc.id,collection:'general',collectionLabel:labels.general,departmentLabel:doc.owner||departments[doc.department]||doc.department||'부서 미지정',originLabel:doc.prepared?'준비된 예시':'이 기기 기록',kindLabel:'가상 업무 기준',stateLabel:doc.prepared?'준비된 기준 · 이 기기 저장 전':'이 기기 저장 · 팀 공유 상태 별도 확인',content:current.content,version:current.version,validFrom:current.validFrom||null,validTo:current.validTo||null,source:{kind:'general_browser_knowledge',fixture_id:doc.id,synthetic:true,filename:doc.filename||null,basis:doc.basis||null,raw:doc.raw??null,schema:doc.schema||null,guide:doc.guide||null},versions:clone(doc.versions),history:clone(doc.versions),comments:clone(doc.comments||[])};
+    return {...clone(doc),key:'general:'+doc.id,collection:'general',collectionLabel:labels.general,departmentLabel:doc.owner||departments[doc.department]||doc.department||'부서 미지정',originLabel:doc.originLabel||(doc.prepared?'준비된 예시':'이 기기 기록'),kindLabel:'가상 업무 기준',stateLabel:doc.stateLabel||(doc.prepared?'준비된 기준 · 이 기기 저장 전':'이 기기 저장 · 팀 공유 상태 별도 확인'),content:current.content,version:current.version,validFrom:current.validFrom||null,validTo:current.validTo||null,source:{kind:doc.storageMode==='api'?'general_workflow_api':'general_browser_knowledge',source_refs:current.source_refs||[],fixture_id:doc.id,synthetic:true,filename:doc.filename||null,basis:doc.basis||null,raw:doc.raw??null,schema:doc.schema||null,guide:doc.guide||null},versions:clone(doc.versions),history:clone(doc.versions),comments:clone(doc.comments||[])};
    });
   }
   async function load(){
@@ -69,14 +70,15 @@
    });
    return {documents,collections,notices};
   }
-  async function detail(key){
+  async function detail(key,version){
    if(typeof key!=='string')throw Error('선택한 KB 식별자를 확인하세요.');
    let documents;
    if(key.startsWith('support:'))documents=await supportDocuments();
-   else if(key.startsWith('general:'))documents=generalDocuments();
+   else if(key.startsWith('general:'))documents=await generalDocuments();
    else throw Error('지원하지 않는 KB입니다.');
    const document=documents.find(doc=>doc.key===key);
    if(!document)throw Error('선택한 KB가 최신 목록에 없습니다. 목록을 새로고침해 주세요.');
+   if(version!==undefined){const v=document.versions.find(v=>v.version===Number(version));if(!v)throw Error('요청한 KB 버전이 보존되어 있지 않습니다.');return {...document,content:v.content,version:v.version,sections:v.sections||[],source_refs:v.source_refs||[],validFrom:v.validFrom||null,validTo:v.validTo||null};}
    return document;
   }
   return {load,detail};
