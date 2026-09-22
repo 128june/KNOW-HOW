@@ -132,6 +132,7 @@ async function main() {
   const preview = page => page.locator('#support-preview-content');
   const field = (page,name) => page.locator(`#support-intake [name="${name}"]`);
   const choose = async(page,key,index=0) => {await page.locator(`[data-open-catalog="${key}"]`).click();await page.locator('#support-catalog-dialog[open]').waitFor();await page.locator(`[data-catalog-choice="${index}"]`).click();};
+  const expandCreate = async page => {const accordion=page.locator('#support-catalog-create');if(!await accordion.evaluate(el=>el.open))await accordion.locator(':scope > summary').click();await page.locator('#support-catalog-custom [name=catalog_value]').waitFor({state:'visible'});};
   const sent = async page => {await page.waitForURL(/#support-tickets\?ticket=/);await page.locator('#support-reply').waitFor();};
   const submit = page => page.locator('#support-intake button[type=submit]').click();
   const requests = action => fixture.requests.filter(r=>r.action===action);
@@ -144,7 +145,7 @@ async function main() {
     await regression('Multiline error candidates retain exact text and pending status through edits, modal reopen, reload and ticket submission',async()=>{
       setup();const multiline=await open({...emptyIncident(),symptom:'여러 줄 오류 원문 확인',app_context:'기존 앱 메모'});
       const errorText='E-RAW-401\n첫 번째 안내 문구\n다시 연결해 주세요.';
-      await multiline.locator('[data-open-catalog="errors"]').click();await multiline.locator('[name=catalog_value]').fill(errorText);
+      await multiline.locator('[data-open-catalog="errors"]').click();await expandCreate(multiline);await multiline.locator('[name=catalog_value]').fill(errorText);
       await multiline.locator('#support-catalog-custom button[type=submit]').click();
       await multiline.locator('.support-catalog-message').filter({hasText:'확정 요청을 남겼습니다'}).waitFor();
       assert.equal(requests('knowledge-candidate')[0].body.value,errorText);assert.equal(fixture.candidates[0].value,errorText);
@@ -172,7 +173,7 @@ async function main() {
       const expiredCandidate=await open(incident),incidentKeys=['symptom','occurred_at','error_code','app_context','device_context'];
       const originalInputs=Object.fromEntries(await Promise.all(incidentKeys.map(async key=>[key,await field(expiredCandidate,key).inputValue()])));
       const customValue='NEW-AFTER-EXPIRED-31';
-      await expiredCandidate.locator('[data-open-catalog="errors"]').click();await expiredCandidate.locator('[name=catalog_value]').fill(customValue);
+      await expiredCandidate.locator('[data-open-catalog="errors"]').click();await expandCreate(expiredCandidate);await expiredCandidate.locator('[name=catalog_value]').fill(customValue);
       await expiredCandidate.locator('#support-catalog-custom button[type=submit]').click();
       await expiredCandidate.waitForFunction(()=>document.body.textContent.includes('Fixture 401')&&!document.querySelector('[name=catalog_value]')?.disabled);
       assert.equal(await expiredCandidate.locator('#support-catalog-dialog[open]').count(),0,'candidate 401 must dismiss the dialog so global session recovery is reachable');
@@ -188,6 +189,7 @@ async function main() {
       assert.notEqual(renewedSession,failedRequest.session_id);assert.equal(await recovery.count(),0);
       for(const key of incidentKeys)assert.equal(await field(expiredCandidate,key).inputValue(),originalInputs[key],`after renewal: preserve ${key}`);
       await expiredCandidate.locator('[data-open-catalog="errors"]').click();
+      await expandCreate(expiredCandidate);
       assert.equal(await expiredCandidate.locator('[name=catalog_value]').inputValue(),customValue,'renewal must retain the unsubmitted custom text');
       assert.equal(await expiredCandidate.locator('[data-pending-candidate]').count(),0);
       await expiredCandidate.locator('#support-catalog-custom button[type=submit]').click();
@@ -201,6 +203,50 @@ async function main() {
       assert.equal(await field(expiredCandidate,'symptom').inputValue(),incident.symptom);
     });
     if(regressionFailures.length)throw new AggregateError(regressionFailures,'Input KB recovery regressions failed');
+
+    setup();const accordionPage=await open({...emptyIncident(),symptom:'새 항목 입력 아코디언 확인'});
+    await accordionPage.locator('[data-open-catalog="app_os"]').click();
+    const createAccordion=accordionPage.locator('#support-catalog-create');
+    const createSummary=createAccordion.locator(':scope > summary');
+    const createInput=accordionPage.locator('#support-catalog-custom [name=catalog_value]');
+    assert.equal(await createAccordion.evaluate(el=>el.tagName),'DETAILS');
+    assert.equal(await createAccordion.locator(':scope > #support-catalog-custom').count(),1);
+    assert.match(await createSummary.innerText(),/새 항목 추가/);
+    assert.equal(await createAccordion.evaluate(el=>el.open),false,'a newly opened KB modal starts collapsed');
+    assert.equal(await createSummary.isVisible(),true);assert.equal(await createInput.isVisible(),false);
+    await screenshot(accordionPage,'accordion-collapsed');
+    await createSummary.focus();await createSummary.press('Enter');await createInput.waitFor({state:'visible'});
+    assert.equal(await createAccordion.evaluate(el=>el.open),true,'Enter expands the native summary');
+    assert.ok((await createInput.boundingBox()).height>=150,'expanded input must provide at least 150px writing space');
+    const osDraft='고객이 확인한 OS 이름\n버전도 별도 확인 중';await createInput.fill(osDraft);
+    await screenshot(accordionPage,'accordion-expanded');
+    await createSummary.focus();await createSummary.press('Space');await createInput.waitFor({state:'hidden'});
+    assert.equal(await createAccordion.evaluate(el=>el.open),false,'Space collapses the native summary');
+    await createSummary.press('Space');await createInput.waitFor({state:'visible'});
+    assert.equal(await createInput.inputValue(),osDraft,'collapsing and expanding must preserve custom text');
+    await accordionPage.locator('[data-catalog-choice="0"]').click();
+    assert.equal(await createAccordion.evaluate(el=>el.open),true,'refreshing the same catalog retains its expanded state');
+    assert.equal(await createInput.inputValue(),osDraft);
+    await accordionPage.locator('[data-catalog-tab="app_versions"]').click();
+    assert.equal(await createAccordion.evaluate(el=>el.open),false,'switching to another catalog resets the accordion');
+    assert.equal(await createInput.isVisible(),false);await expandCreate(accordionPage);await createInput.fill('새 버전 직접 입력 초안');
+    await accordionPage.locator('[data-catalog-tab="app_os"]').click();
+    assert.equal(await createAccordion.evaluate(el=>el.open),false,'returning to a catalog also starts collapsed');
+    assert.equal(await createInput.inputValue(),osDraft,'each catalog retains its own input draft');
+    await accordionPage.locator('.support-catalog-option[data-input-mode="custom"] [data-catalog-choice]').click();
+    await createInput.waitFor({state:'visible'});
+    assert.equal(await createAccordion.evaluate(el=>el.open),true,'the direct-input choice opens the accordion');
+    assert.equal(await createInput.evaluate(el=>el===document.activeElement),true,'the direct-input choice focuses its textarea');
+    assert.equal(await createInput.inputValue(),osDraft);
+    await accordionPage.keyboard.press('Escape');await accordionPage.locator('[data-open-catalog="app_os"]').click();
+    assert.equal(await createAccordion.evaluate(el=>el.open),false,'reopening the modal resets its expanded state');
+    assert.equal(await createInput.isVisible(),false);await expandCreate(accordionPage);assert.equal(await createInput.inputValue(),osDraft);
+    await accordionPage.setViewportSize({width:390,height:844});
+    for(const selector of ['#support-catalog-dialog','#support-catalog-create','#support-catalog-value'])assert.equal(await accordionPage.locator(selector).evaluate(el=>{const bounds=el.getBoundingClientRect();return bounds.left>=0&&bounds.right<=innerWidth;}),true,`${selector}: expanded accordion fits a mobile viewport`);
+    assert.ok((await createInput.boundingBox()).height>=150,'mobile expanded input retains its writing height');
+    assert.equal(requests('knowledge-candidate').length,0,'toggling and drafting never register KB content');
+    await accordionPage.keyboard.press('Escape');
+    cases.push('New-item accordions start collapsed, support Enter/Space, expand to a large input, preserve drafts and same-catalog refresh state, reset on reopen/tab changes, and focus direct input');
 
     setup();const search=await open(null,'search');
     await search.locator('[name=q]').fill('로컬 검증');await search.locator('#support-search button').first().click();await search.locator('[data-station="0"]').waitFor();
@@ -274,9 +320,9 @@ async function main() {
     cases.push('Restored ISO seconds stay visible and exact in ticket payload when editing another field or opening a catalog');
 
     setup();const custom=await open({...emptyIncident(),symptom:'직접 확인한 목록 밖 값',app_context:'수기 앱 정보 보존'});
-    await custom.locator('[data-open-catalog="errors"]').click();await custom.locator('[name=catalog_value]').fill('CUSTOM-ACTUAL-77');
+    await custom.locator('[data-open-catalog="errors"]').click();await expandCreate(custom);await custom.locator('[name=catalog_value]').fill('CUSTOM-ACTUAL-77');
     await custom.locator('[data-use-custom]').click();assert.equal(requests('knowledge-candidate').length,0);assert.equal(fixture.reviewRequests.length,0);assert.equal(await field(custom,'error_code').inputValue(),'CUSTOM-ACTUAL-77');
-    await custom.locator('[data-open-catalog="errors"]').click();await custom.locator('[name=catalog_value]').fill('CUSTOM-KB-88');await custom.locator('#support-catalog-custom button[type=submit]').click();
+    await custom.locator('[data-open-catalog="errors"]').click();await expandCreate(custom);await custom.locator('[name=catalog_value]').fill('CUSTOM-KB-88');await custom.locator('#support-catalog-custom button[type=submit]').click();
     await custom.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='CUSTOM-KB-88');
     assert.equal(requests('knowledge-candidate').length,1);assert.equal(requests('knowledge-candidate')[0].body.kb_id,'INTAKE-001');assert.equal(requests('knowledge-candidate')[0].body.field,'errors');assert.equal(requests('knowledge-candidate')[0].body.value,'CUSTOM-KB-88');assert.ok(requests('knowledge-candidate')[0].body.request_id);
     assert.equal(await custom.locator('#support-catalog-dialog[open]').count(),1);assert.match(await custom.locator('.support-catalog-message').innerText(),/확정 요청을 남겼습니다/);assert.equal(await custom.locator('[data-pending-for="error_code"] .support-review-receipt').count(),1);assert.equal(fixture.reviewRequests.length,1);
@@ -293,14 +339,14 @@ async function main() {
     cases.push('Direct value can stay in one ticket or register a pending KB candidate; candidate stays separate from immutable catalogs and survives reload with dashed box','Unknown app option removes its tracked contribution while preserving existing free text');
 
     setup({candidateFailures:[500]});const retryCandidate=await open({...emptyIncident(),symptom:'후보 등록 재시도'});
-    await retryCandidate.locator('[data-open-catalog="errors"]').click();await retryCandidate.locator('[name=catalog_value]').fill('CUSTOM-RETRY-99');await retryCandidate.locator('#support-catalog-custom button[type=submit]').click();
+    await retryCandidate.locator('[data-open-catalog="errors"]').click();await expandCreate(retryCandidate);await retryCandidate.locator('[name=catalog_value]').fill('CUSTOM-RETRY-99');await retryCandidate.locator('#support-catalog-custom button[type=submit]').click();
     await retryCandidate.locator('.support-catalog-message').filter({hasText:'Fixture 500'}).waitFor();assert.equal(await retryCandidate.locator('[name=catalog_value]').inputValue(),'CUSTOM-RETRY-99');
     await retryCandidate.locator('#support-catalog-custom button[type=submit]').click();await retryCandidate.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='CUSTOM-RETRY-99');
     assert.equal(requests('knowledge-candidate').length,2);assert.equal(requests('knowledge-candidate')[0].body.request_id,requests('knowledge-candidate')[1].body.request_id);assert.equal(fixture.candidates.length,1);
     cases.push('Candidate registration failure preserves direct value and reuses its idempotency key on retry');
 
     setup({candidateFailures:[409]});const candidateConflict=await open({...emptyIncident(),symptom:'후보 등록 시 KB 갱신'});
-    await candidateConflict.locator('[data-open-catalog="errors"]').click();await candidateConflict.locator('[name=catalog_value]').fill('CUSTOM-UPDATED-11');await candidateConflict.locator('#support-catalog-custom button[type=submit]').click();
+    await candidateConflict.locator('[data-open-catalog="errors"]').click();await expandCreate(candidateConflict);await candidateConflict.locator('[name=catalog_value]').fill('CUSTOM-UPDATED-11');await candidateConflict.locator('#support-catalog-custom button[type=submit]').click();
     await candidateConflict.locator('.support-catalog-message').filter({hasText:'Fixture 409'}).waitFor();assert.equal(await candidateConflict.locator('[name=catalog_value]').inputValue(),'CUSTOM-UPDATED-11');
     await candidateConflict.locator('#support-catalog-custom button[type=submit]').click();await candidateConflict.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='CUSTOM-UPDATED-11');
     assert.equal(requests('knowledge-candidate').length,2);assert.equal(requests('knowledge-candidate')[0].body.kb_version,1);assert.equal(requests('knowledge-candidate')[1].body.kb_version,2);assert.notEqual(requests('knowledge-candidate')[0].body.request_id,requests('knowledge-candidate')[1].body.request_id);assert.equal(fixture.candidates.length,1);assert.equal(fixture.candidates[0].kb_version,2);
@@ -311,7 +357,7 @@ async function main() {
     cases.push('Catalog selection exceeding the combined input limit preserves all existing text and keeps the choice dialog open');
 
     setup({holdCandidate:true});const delayed=await open({...emptyIncident(),symptom:'늦은 후보 응답',error_code:'닫기 전 오류 원문'});
-    await delayed.locator('[data-open-catalog="errors"]').click();await delayed.locator('[name=catalog_value]').fill('CUSTOM-LATE-10');await delayed.locator('#support-catalog-custom button[type=submit]').click();
+    await delayed.locator('[data-open-catalog="errors"]').click();await expandCreate(delayed);await delayed.locator('[name=catalog_value]').fill('CUSTOM-LATE-10');await delayed.locator('#support-catalog-custom button[type=submit]').click();
     await delayed.locator('[name=catalog_value]:disabled').waitFor();await delayed.keyboard.press('Escape');await field(delayed,'error_code').fill('닫은 뒤 고객이 정정한 원문');
     assert.equal(typeof fixture.releaseCandidate,'function');fixture.releaseCandidate();
     await delayed.locator('[data-open-catalog="errors"]').click();await delayed.locator('[data-pending-candidate]').waitFor();
@@ -322,7 +368,7 @@ async function main() {
     await submit(candidateOnly);await candidateOnly.getByRole('alert').filter({hasText:'Fixture 500'}).waitFor();
     const retainedCreate=clone(requests('create')[0].body);assert.equal(requests('prepare').length,1);
     const candidateHeld=new Promise(resolve=>{fixture.onCandidateHeld=resolve;});
-    await candidateOnly.locator('[data-open-catalog="errors"]').click();await candidateOnly.locator('[name=catalog_value]').fill('CANDIDATE-ONLY-12');await candidateOnly.locator('#support-catalog-custom button[type=submit]').click();await candidateHeld;
+    await candidateOnly.locator('[data-open-catalog="errors"]').click();await expandCreate(candidateOnly);await candidateOnly.locator('[name=catalog_value]').fill('CANDIDATE-ONLY-12');await candidateOnly.locator('#support-catalog-custom button[type=submit]').click();await candidateHeld;
     await candidateOnly.keyboard.press('Escape');fixture.releaseCandidate();
     await candidateOnly.locator('[data-open-catalog="errors"]').click();await candidateOnly.locator('[data-pending-candidate]').waitFor();await candidateOnly.keyboard.press('Escape');
     assert.equal(fixture.candidates.length,1);assert.equal(fixture.candidates[0].value,'CANDIDATE-ONLY-12');assert.equal(await field(candidateOnly,'error_code').inputValue(),retainedCreate.error_code);
@@ -332,13 +378,13 @@ async function main() {
 
     setup({createFailures:[401],holdCandidate:true});const renewed=await open({...emptyIncident(),symptom:'새 체험으로 이전 응답 격리',error_code:'고객 원문 유지'});
     const oldCandidateHeld=new Promise(resolve=>{fixture.onCandidateHeld=resolve;});
-    await renewed.locator('[data-open-catalog="errors"]').click();await renewed.locator('[name=catalog_value]').fill('OLD-SESSION-CANDIDATE-13');await renewed.locator('#support-catalog-custom button[type=submit]').click();await oldCandidateHeld;await renewed.keyboard.press('Escape');
+    await renewed.locator('[data-open-catalog="errors"]').click();await expandCreate(renewed);await renewed.locator('[name=catalog_value]').fill('OLD-SESSION-CANDIDATE-13');await renewed.locator('#support-catalog-custom button[type=submit]').click();await oldCandidateHeld;await renewed.keyboard.press('Escape');
     await submit(renewed);await renewed.getByRole('alert').filter({hasText:'Fixture 401'}).waitFor();await renewed.locator('[data-action="new-session"]').click();await renewed.locator('#support-intake > fieldset:not([disabled])').waitFor();
     const oldSession=requests('knowledge-candidate')[0].body.session_id,newSession=requests('knowledge').at(-1).body.session_id;assert.notEqual(newSession,oldSession);
     await renewed.locator('[data-open-catalog="errors"]').click();assert.equal(await renewed.locator('[name=catalog_value]').isEnabled(),true);assert.equal(await renewed.locator('[data-pending-candidate]').count(),0);
     const oldResponse=renewed.waitForResponse(r=>r.url().endsWith('/knowledge-candidate'));fixture.releaseCandidate();await (await oldResponse).finished();await renewed.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     assert.equal(fixture.candidates.length,1);assert.equal(fixture.candidateOwners[fixture.candidates[0].id],oldSession);assert.equal(await renewed.locator('[data-pending-candidate]').count(),0);assert.doesNotMatch(await renewed.locator('#support-catalog-dialog').innerText(),/OLD-SESSION-CANDIDATE-13/);assert.equal(await field(renewed,'error_code').inputValue(),'고객 원문 유지');
-    fixture.holdCandidate=false;await renewed.locator('[name=catalog_value]').fill('NEW-SESSION-CANDIDATE-14');await renewed.locator('#support-catalog-custom button[type=submit]').click();await renewed.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='NEW-SESSION-CANDIDATE-14');
+    fixture.holdCandidate=false;await expandCreate(renewed);await renewed.locator('[name=catalog_value]').fill('NEW-SESSION-CANDIDATE-14');await renewed.locator('#support-catalog-custom button[type=submit]').click();await renewed.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='NEW-SESSION-CANDIDATE-14');
     assert.equal(requests('knowledge-candidate')[1].body.session_id,newSession);await renewed.reload();await renewed.locator('[data-open-catalog="errors"]').click();assert.equal(await renewed.locator('[data-pending-candidate]').count(),1);assert.match(await renewed.locator('#support-catalog-dialog').innerText(),/NEW-SESSION-CANDIDATE-14/);assert.doesNotMatch(await renewed.locator('#support-catalog-dialog').innerText(),/OLD-SESSION-CANDIDATE-13/);
     cases.push('A candidate response from an expired session cannot populate the renewed session; its candidate controls reset and new candidates remain session-scoped');
 
@@ -364,11 +410,13 @@ async function main() {
     const openOrderedCatalog=async key=>{const direct=ordered.locator(`[data-open-catalog="${key}"]`);if(await direct.count())await direct.click();else{await ordered.locator('[data-open-catalog="app_os"]').click();await ordered.locator(`[data-catalog-tab="${key}"]`).click();}await ordered.locator('#support-catalog-dialog[open]').waitFor();};
     for(const key of Object.keys(catalogFields)) {
       await openOrderedCatalog(key);
-      const modalOrder=await ordered.locator('#support-catalog-dialog').evaluate(dialog=>{const form=dialog.querySelector('#support-catalog-custom'),pending=dialog.querySelector('.support-catalog-pending'),choices=dialog.querySelector('.support-catalog-options');return {dom:!!(form.compareDocumentPosition(pending)&Node.DOCUMENT_POSITION_FOLLOWING)&&!!(pending.compareDocumentPosition(choices)&Node.DOCUMENT_POSITION_FOLLOWING),visual:form.getBoundingClientRect().top<pending.getBoundingClientRect().top&&pending.getBoundingClientRect().top<choices.getBoundingClientRect().top};});
-      assert.deepEqual(modalOrder,{dom:true,visual:true},`${key}: add form, pending candidates, source choices`);
+      assert.equal(await ordered.locator('#support-catalog-create').evaluate(el=>el.open),false,`${key}: new-item accordion starts collapsed`);
+      assert.equal(await ordered.locator('[name=catalog_value]').isVisible(),false,`${key}: the input stays hidden until expanded`);
+      const modalOrder=await ordered.locator('#support-catalog-dialog').evaluate(dialog=>{const create=dialog.querySelector('#support-catalog-create'),pending=dialog.querySelector('.support-catalog-pending'),choices=dialog.querySelector('.support-catalog-options');return {dom:!!(create.compareDocumentPosition(pending)&Node.DOCUMENT_POSITION_FOLLOWING)&&!!(pending.compareDocumentPosition(choices)&Node.DOCUMENT_POSITION_FOLLOWING),visual:create.getBoundingClientRect().top<pending.getBoundingClientRect().top&&pending.getBoundingClientRect().top<choices.getBoundingClientRect().top};});
+      assert.deepEqual(modalOrder,{dom:true,visual:true},`${key}: collapsed add accordion, pending candidates, source choices`);
       assert.deepEqual(await ordered.locator('#support-catalog-dialog [data-pending-candidate]').evaluateAll(items=>items.map(el=>el.dataset.pendingCandidate)),[`${key}-newer`,`${key}-older`],`${key}: newest pending item first despite oldest-first API array`);
       if(key==='app_versions')await screenshot(ordered,'app-catalog');
-      const addedValue=`NEW-FIRST-${key}`;await ordered.locator('[name=catalog_value]').fill(addedValue);await ordered.locator('#support-catalog-custom button[type=submit]').click();
+      const addedValue=`NEW-FIRST-${key}`;await expandCreate(ordered);await ordered.locator('[name=catalog_value]').fill(addedValue);await ordered.locator('#support-catalog-custom button[type=submit]').click();
       await ordered.waitForFunction(({field,value})=>document.querySelector(`#support-intake [name="${field}"]`)?.value.includes(value),{field:catalogFields[key],value:addedValue});
       const addedCandidate=fixture.candidates.at(-1);assert.equal(addedCandidate.field,key);assert.equal(addedCandidate.value,addedValue);
       if(await ordered.locator('#support-catalog-dialog[open]').count())await ordered.keyboard.press('Escape');await openOrderedCatalog(key);
@@ -377,10 +425,10 @@ async function main() {
       if(await ordered.locator('#support-catalog-dialog[open]').count())await ordered.keyboard.press('Escape');
     }
     assert.equal(requests('knowledge-candidate').length,6);assert.match(await field(ordered,'app_context').inputValue(),/기존 앱 메모/);assert.match(await field(ordered,'device_context').inputValue(),/기존 장비 메모/);
-    cases.push('All six KB catalogs put the add form before newest-first pending candidates and source options; newly added values appear first while existing choices and notes still work');
+    cases.push('All six KB catalogs put the collapsed add accordion before newest-first pending candidates and source options; newly added values appear first while existing choices and notes still work');
 
     setup();const reviewPage=await open({...emptyIncident(),symptom:'관리자 확정 요청 읽음 확인'});const unchangedKnowledge=clone(fixture.documents);
-    await reviewPage.locator('[data-open-catalog="errors"]').click();await reviewPage.locator('[name=catalog_value]').fill('REVIEW-INBOX-21');await reviewPage.locator('#support-catalog-custom button[type=submit]').click();await reviewPage.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='REVIEW-INBOX-21');
+    await reviewPage.locator('[data-open-catalog="errors"]').click();await expandCreate(reviewPage);await reviewPage.locator('[name=catalog_value]').fill('REVIEW-INBOX-21');await reviewPage.locator('#support-catalog-custom button[type=submit]').click();await reviewPage.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='REVIEW-INBOX-21');
     assert.match(await reviewPage.locator('.support-catalog-message').innerText(),/확정 요청을 남겼습니다/);const reviewId=fixture.reviewRequests[0].id;await reviewPage.keyboard.press('Escape');
     await reviewPage.goto(base+'/#support-kb-admin');await reviewPage.locator(`[data-review-request="${reviewId}"]`).waitFor();assert.equal(requests('knowledge-review-requests').at(-1).body.role,'kb_admin');
     assert.match(await reviewPage.locator('.support-review-inbox').innerText(),/안 읽음 1건/);assert.match(await reviewPage.locator(`[data-review-request="${reviewId}"]`).innerText(),/REVIEW-INBOX-21/);await screenshot(reviewPage,'admin-unread');
@@ -389,7 +437,7 @@ async function main() {
     await reviewPage.reload();await reviewPage.locator(`[data-review-request="${reviewId}"]`).getByText('관리자가 읽음 · 확정 전',{exact:true}).waitFor();assert.equal(await reviewPage.locator('[data-review-read]').count(),0);
 
     setup({omitReviewReceipt:true});const unconfirmedReceipt=await open({...emptyIncident(),symptom:'서버 영수증 없는 요청 상태'});
-    await unconfirmedReceipt.locator('[data-open-catalog="errors"]').click();await unconfirmedReceipt.locator('[name=catalog_value]').fill('RECEIPT-UNCONFIRMED-22');await unconfirmedReceipt.locator('#support-catalog-custom button[type=submit]').click();await unconfirmedReceipt.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='RECEIPT-UNCONFIRMED-22');
+    await unconfirmedReceipt.locator('[data-open-catalog="errors"]').click();await expandCreate(unconfirmedReceipt);await unconfirmedReceipt.locator('[name=catalog_value]').fill('RECEIPT-UNCONFIRMED-22');await unconfirmedReceipt.locator('#support-catalog-custom button[type=submit]').click();await unconfirmedReceipt.waitForFunction(()=>document.querySelector('#support-intake [name=error_code]')?.value==='RECEIPT-UNCONFIRMED-22');
     assert.match(await unconfirmedReceipt.locator('.support-catalog-message').innerText(),/확정 요청 상태는 아직 확인되지 않았습니다/);assert.doesNotMatch(await unconfirmedReceipt.locator('.support-catalog-message').innerText(),/확정 요청을 남겼습니다/);assert.equal(await unconfirmedReceipt.locator('.support-review-receipt').count(),0);
     cases.push('In-app admin inbox persists read status without approving candidates; candidate registration claims notification only with a matching server receipt, while ticket-only input creates no request');
     assert.deepEqual(browserErrors,[]);assert.deepEqual(externalRequests,[]);
