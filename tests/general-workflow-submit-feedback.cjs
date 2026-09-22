@@ -56,7 +56,7 @@ async function main(){
   await page.waitForFunction(previous=>window.submitFeedbackStore.state().answers.at(-1).id!==previous,changed.id);
   const repeated=await current();assert.notEqual(repeated.id,changed.id);assert.deepEqual(repeated.query,changed.query);assert.deepEqual(repeated.metrics,changed.metrics);
   const completed=page.locator('.gw-notice[role="status"]').filter({hasText:'조회 완료'});
-  await completed.waitFor();assert.match(await completed.innerText(),new RegExp(repeated.id));assert.match(await completed.innerText(),/\d{2}:\d{2}:\d{2}/);
+  await completed.waitFor();assert.equal(await completed.getAttribute('data-answer-id'),repeated.id);assert.doesNotMatch(await completed.innerText(),/ANS-\d+/);assert.match(await completed.innerText(),/\d{2}:\d{2}:\d{2}/);
   assert.equal(await page.locator('.gw-history-list button.is-active').getAttribute('data-id'),repeated.id);
   assert.equal(await page.locator('.gw-result h2').evaluate(node=>node===document.activeElement),true);
   // Keep a real promise pending so the loading state is observable, then release it.
@@ -92,7 +92,7 @@ async function main(){
   await submit().click();await page.locator('.gw-answer-summary').filter({hasText:'재무 제공 실적: 100,000원'}).waitFor();
   assert.equal(await page.locator('.gw-error').count(),0);assert.equal(await page.locator('.gw-result h2').evaluate(node=>node===document.activeElement),true);
   assert.deepEqual(pageErrors,[]);assert.deepEqual(unexpected,[]);
-  const report={passed:true,checks:['changed purpose and input preserved through render','same query announces a new answer ID and completion time','slow answer visibly busy and duplicate submission blocked','failure focuses an alert and preserves history; retry succeeds'],pageErrors,unexpectedRequests:unexpected};
+  const report={passed:true,checks:['changed purpose and input preserved through render','same query identifies a new result and announces completion time','slow answer visibly busy and duplicate submission blocked','failure focuses an alert and preserves history; retry succeeds'],pageErrors,unexpectedRequests:unexpected};
   fs.writeFileSync(evidence+'/report.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
  }finally{await context.close();await browser.close();}
 }
