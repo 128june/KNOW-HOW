@@ -1,0 +1,267 @@
+{
+  "layouts": [
+    {
+      "route": "home",
+      "width": 1280,
+      "headerHeight": 48,
+      "pageWidth": 1265
+    },
+    {
+      "route": "general-1",
+      "width": 1280,
+      "headerHeight": 48,
+      "pageWidth": 1265,
+      "resultTop": 552.703125
+    },
+    {
+      "route": "general-2",
+      "width": 1280,
+      "headerHeight": 48,
+      "pageWidth": 1265,
+      "resultTop": 552.703125
+    },
+    {
+      "route": "general-3",
+      "width": 1280,
+      "headerHeight": 48,
+      "pageWidth": 1265,
+      "resultTop": 552.703125
+    },
+    {
+      "route": "data",
+      "width": 1280,
+      "headerHeight": 48,
+      "pageWidth": 1265
+    },
+    {
+      "route": "support",
+      "width": 1280,
+      "headerHeight": 48,
+      "pageWidth": 1280
+    },
+    {
+      "route": "support-kb",
+      "width": 1280,
+      "headerHeight": 48,
+      "pageWidth": 1265
+    },
+    {
+      "route": "home",
+      "width": 768,
+      "headerHeight": 48,
+      "pageWidth": 753
+    },
+    {
+      "route": "general-1",
+      "width": 768,
+      "headerHeight": 48,
+      "pageWidth": 753,
+      "resultTop": 690.2578125
+    },
+    {
+      "route": "general-2",
+      "width": 768,
+      "headerHeight": 48,
+      "pageWidth": 753,
+      "resultTop": 690.2578125
+    },
+    {
+      "route": "general-3",
+      "width": 768,
+      "headerHeight": 48,
+      "pageWidth": 753,
+      "resultTop": 690.2578125
+    },
+    {
+      "route": "data",
+      "width": 768,
+      "headerHeight": 48,
+      "pageWidth": 753
+    },
+    {
+      "route": "support",
+      "width": 768,
+      "headerHeight": 48,
+      "pageWidth": 768
+    },
+    {
+      "route": "support-kb",
+      "width": 768,
+      "headerHeight": 48,
+      "pageWidth": 753
+    },
+    {
+      "route": "home",
+      "width": 390,
+      "headerHeight": 56,
+      "pageWidth": 375
+    },
+    {
+      "route": "general-1",
+      "width": 390,
+      "headerHeight": 56,
+      "pageWidth": 375,
+      "resultTop": 849.046875
+    },
+    {
+      "route": "general-2",
+      "width": 390,
+      "headerHeight": 56,
+      "pageWidth": 375,
+      "resultTop": 849.046875
+    },
+    {
+      "route": "general-3",
+      "width": 390,
+      "headerHeight": 56,
+      "pageWidth": 375,
+      "resultTop": 931.140625
+    },
+    {
+      "route": "data",
+      "width": 390,
+      "headerHeight": 56,
+      "pageWidth": 375
+    },
+    {
+      "route": "support",
+      "width": 390,
+      "headerHeight": 56,
+      "pageWidth": 390
+    },
+    {
+      "route": "support-kb",
+      "width": 390,
+      "headerHeight": 56,
+      "pageWidth": 375
+    }
+  ],
+  "contrast": [
+    {
+      "route": "home",
+      "width": 1280,
+      "count": 78,
+      "fail": []
+    },
+    {
+      "route": "general-1",
+      "width": 1280,
+      "count": 144,
+      "fail": []
+    },
+    {
+      "route": "general-2",
+      "width": 1280,
+      "count": 163,
+      "fail": []
+    },
+    {
+      "route": "general-3",
+      "width": 1280,
+      "count": 125,
+      "fail": []
+    },
+    {
+      "route": "data",
+      "width": 1280,
+      "count": 62,
+      "fail": []
+    },
+    {
+      "route": "support",
+      "width": 1280,
+      "count": 40,
+      "fail": []
+    },
+    {
+      "route": "support-kb",
+      "width": 1280,
+      "count": 129,
+      "fail": []
+    },
+    {
+      "route": "home",
+      "width": 768,
+      "count": 77,
+      "fail": []
+    },
+    {
+      "route": "general-1",
+      "width": 768,
+      "count": 146,
+      "fail": []
+    },
+    {
+      "route": "general-2",
+      "width": 768,
+      "count": 165,
+      "fail": []
+    },
+    {
+      "route": "general-3",
+      "width": 768,
+      "count": 125,
+      "fail": []
+    },
+    {
+      "route": "data",
+      "width": 768,
+      "count": 60,
+      "fail": []
+    },
+    {
+      "route": "support",
+      "width": 768,
+      "count": 39,
+      "fail": []
+    },
+    {
+      "route": "support-kb",
+      "width": 768,
+      "count": 128,
+      "fail": []
+    },
+    {
+      "route": "home",
+      "width": 390,
+      "count": 73,
+      "fail": []
+    },
+    {
+      "route": "general-1",
+      "width": 390,
+      "count": 133,
+      "fail": []
+    },
+    {
+      "route": "general-2",
+      "width": 390,
+      "count": 148,
+      "fail": []
+    },
+    {
+      "route": "general-3",
+      "width": 390,
+      "count": 110,
+      "fail": []
+    },
+    {
+      "route": "data",
+      "width": 390,
+      "count": 51,
+      "fail": []
+    },
+    {
+      "route": "support",
+      "width": 390,
+      "count": 20,
+      "fail": []
+    },
+    {
+      "route": "support-kb",
+      "width": 390,
+      "count": 109,
+      "fail": []
+    }
+  ]
+}

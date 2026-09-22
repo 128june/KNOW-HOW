@@ -117,7 +117,8 @@
       renderDetail();
       host.querySelector('[data-kb-selection-status]').textContent = state.detail ? state.detail.title + ' 상세가 열렸습니다.' : state.detailError;
     }
-    async function load() {
+    async function load(event) {
+      const restoreRefreshFocus = event?.currentTarget?.matches('[data-kb-refresh]');
       closeModal(false);
       const mount = ++epoch;
       selectionEpoch++;
@@ -133,6 +134,7 @@
       }
       if (mount !== epoch || !host) return;
       state.loading = false; render();
+      if (restoreRefreshFocus) host.querySelector('[data-kb-refresh]')?.focus({preventScroll:true});
     }
     return {mount(target) {host=target; load();}, destroy() {closeModal(false); epoch++; selectionEpoch++; host=null;}};
   }
