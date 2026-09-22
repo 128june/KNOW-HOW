@@ -54,7 +54,7 @@
    catch{if(obsolete())throw new Obsolete();throw Error('서버에 연결하지 못했습니다. 작성한 내용은 유지됩니다. 다시 시도해 주세요.')}
    const body=await response.json().catch(()=>({error:'서버 응답을 읽지 못했습니다.'}));
    if(obsolete())throw new Obsolete();
-   if(!response.ok){if(response.status===401)state.expired=true;const error=Error(body.error||'요청을 완료하지 못했습니다.');error.status=response.status;throw error;}
+   if(!response.ok){if(response.status===401)state.expired=true;const message=action==='knowledge-review-ai-draft'&&body.error_code==='invalid_response'?'AI 연결 또는 응답을 확인하지 못했습니다. 작성한 내용은 보존되어 있으니 다시 입력하지 않아도 됩니다.':body.error;const error=Error(message||'요청을 완료하지 못했습니다.');error.status=response.status;throw error;}
    return body;
   }
   function unreadBadge(count=state.unreadReviewCount){return Number.isSafeInteger(count)&&count>0?`<span class="support-admin-unread" aria-label="새 KB 검토 요청 ${count}건">${count>99?'99+':count}</span>`:'';}
