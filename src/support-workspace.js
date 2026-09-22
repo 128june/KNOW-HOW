@@ -50,7 +50,7 @@
   async function request(action,payload={},anonymous=false){
    const version=epoch,requestSession=state.session,obsolete=()=>version!==epoch||(!anonymous&&requestSession!==state.session);
    let response;
-   try{response=await fetch(base+'/demo/support/'+action,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({...(!anonymous?{session_id:state.session,role:state.role}:{}),...payload}),signal:AbortSignal.timeout(30000)})}
+   try{response=await fetch(base+'/demo/support/'+action,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({...(!anonymous?{session_id:state.session,role:state.role}:{}),...payload}),signal:AbortSignal.timeout(action==='knowledge-review-ai-draft'?90000:30000)})}
    catch{if(obsolete())throw new Obsolete();throw Error('서버에 연결하지 못했습니다. 작성한 내용은 유지됩니다. 다시 시도해 주세요.')}
    const body=await response.json().catch(()=>({error:'서버 응답을 읽지 못했습니다.'}));
    if(obsolete())throw new Obsolete();
