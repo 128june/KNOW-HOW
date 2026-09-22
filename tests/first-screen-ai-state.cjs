@@ -37,15 +37,17 @@ c.window.KNOWHOW_CONFIG.aiRequestsPaused=false;assert(!api.reuseView().includes(
 assert.equal(calls,0);
 console.log(`PASS: ${count} question render states; paused/unpaused and review blockers stay distinct, original button gates preserved, zero network/model calls`);
 
-// Home uses the same pause default and removes the notice when generation resumes.
+// The counselor entry uses DB and KB without requiring an existing reviewed ticket.
 const shell=fs.readFileSync('src/platform-shell.js','utf8');
 const homeSource=shell.slice(shell.indexOf(' function home(){'),shell.indexOf(' function focusPage()'));
 const homeHost={innerHTML:''},homeRoot={KNOWHOW_CONFIG:{}};
 const homeContext=vm.createContext({root:homeRoot,$:selector=>{assert.equal(selector,'#page');return homeHost},fetch:()=>{throw Error('Home render must not request anything')}});
 vm.runInContext(homeSource,homeContext);
-for(const pause of [undefined,true,false,true,false]){
+for(const pause of [undefined,true,false]){
  homeRoot.KNOWHOW_CONFIG.aiRequestsPaused=pause;vm.runInContext('home()',homeContext);
- assert.equal(homeHost.innerHTML.includes('AI 답변 생성 중지'),pause!==false);
- assert(homeHost.innerHTML.includes('현재 버전 검토 완료 후'),'home access remains conditional on document review');
+ assert(homeHost.innerHTML.includes('href="#support"'));
+ assert(homeHost.innerHTML.includes('href="#support-kb"'));
+ assert(homeHost.innerHTML.includes('상담사'));
+ assert(!homeHost.innerHTML.includes('href="#scenario-4"'),'new users start at lookup, not an empty reuse screen');
 }
-console.log('PASS: home pause default and both-direction toggles; review condition retained without requests');
+console.log('PASS: counselor lookup and existing KB are reachable independent of model availability; no home requests');
