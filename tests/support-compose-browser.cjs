@@ -47,6 +47,8 @@ function setup(overrides={}) {fixture={documents:documents(),standards:[],reques
 function snapshot(body) {
   const incident=Object.fromEntries(['symptom','occurred_at','error_code','app_context','device_context'].map(key=>[key,(body[key]||'').trim()]));
   const knowledge=fixture.documents.filter(d=>['counselor',...body.recipients].includes(d.department)||(d.id==='INTAKE-001'&&['symptom','error_code','app_context','device_context'].some(key=>incident[key])));
+  const normalized=incident.symptom.replace(/\s+/g,' ').toLowerCase();
+  knowledge.push(...fixture.documents.filter(d=>d.publication_status==='published'&&[d.title,...(d.aliases||[])].some(value=>value&&normalized.includes(value.replace(/\s+/g,' ').toLowerCase()))));
   const preview={target:clone(target),incident,recipients:[...body.recipients].sort(),knowledge:clone(knowledge)};
   return {...preview,preview_hash:digest(preview)};
 }
@@ -164,6 +166,29 @@ async function main() {
     if(process.env.SUPPORT_COMPOSE_FOCUS==='published-standard'){
       assert.deepEqual(browserErrors,[]);assert.deepEqual(externalRequests,[]);
       console.log(JSON.stringify({passed:true,scope:'Synthetic API/browser publication catalog regression; no model call',cases,browserErrors,externalRequests},null,2));return;
+    }
+    const publication={id:'STD-PREPARE-FIXTURE',standard_id:'STD-PREPARE-FIXTURE',version:1,title:'발행 검증 증상',aliases:['발행증상'],department:'counselor-guide',publication_status:'published',status:'발행',purpose:'확인한 범위의 증상 정의',sections:[{id:'meaning',title:'뜻',text:'원인 동일 여부 미확인'}]};
+    const withPublication=()=>[...documents(),clone(publication)];
+    setup({documents:withPublication()});const verified=await open({...emptyIncident(),symptom:'발행증상 고객 원문'});
+    await submit(verified);await verified.getByRole('alert').filter({hasText:'KB가 갱신되었습니다'}).waitFor();
+    assert.equal(requests('create').length,0);assert.match(await preview(verified).innerText(),/STD-PREPARE-FIXTURE · v1/);assert.match(await preview(verified).innerText(),/서버 확인 완료 · 전달할 근거/);assert.match(await preview(verified).innerText(),/관리자 발행/);
+    await submit(verified);await sent(verified);assert.equal(requests('prepare').length,1);assert.equal(fixture.tickets[0].knowledge.find(d=>d.id===publication.id).version,1);
+    cases.push('Server-prepared published KB ID/version appears before reconfirmation and is preserved in the sent ticket');
+    setup({documents:withPublication()});const editedEvidence=await open({...emptyIncident(),symptom:'발행증상 수정 전 원문'});
+    await submit(editedEvidence);await editedEvidence.getByRole('alert').filter({hasText:'KB가 갱신되었습니다'}).waitFor();assert.match(await preview(editedEvidence).innerText(),/STD-PREPARE-FIXTURE · v1/);
+    await field(editedEvidence,'symptom').fill('다른 현상으로 수정한 고객 원문');assert.doesNotMatch(await preview(editedEvidence).innerText(),/STD-PREPARE-FIXTURE|서버 확인 완료/);
+    await submit(editedEvidence);await sent(editedEvidence);assert.equal(requests('prepare').length,2);assert.equal(fixture.tickets[0].knowledge.some(d=>d.id===publication.id),false);assert.equal(fixture.tickets[0].incident.symptom,'다른 현상으로 수정한 고객 원문');
+    cases.push('Editing after prepare invalidates confirmed evidence and re-prepares without unrelated published KB');
+    setup({documents:withPublication()});const staleEvidence=await open({...emptyIncident(),symptom:'발행증상 정정 버전 검증'});
+    await submit(staleEvidence);await staleEvidence.getByRole('alert').filter({hasText:'KB가 갱신되었습니다'}).waitFor();assert.match(await preview(staleEvidence).innerText(),/STD-PREPARE-FIXTURE · v1/);
+    fixture.documents.find(d=>d.id===publication.id).version=2;
+    await submit(staleEvidence);await staleEvidence.getByRole('alert').filter({hasText:'Fixture snapshot changed'}).waitFor();assert.doesNotMatch(await preview(staleEvidence).innerText(),/서버 확인 완료/);
+    await submit(staleEvidence);await staleEvidence.getByRole('alert').filter({hasText:'KB가 갱신되었습니다'}).waitFor();assert.match(await preview(staleEvidence).innerText(),/STD-PREPARE-FIXTURE · v2/);assert.doesNotMatch(await preview(staleEvidence).innerText(),/STD-PREPARE-FIXTURE · v1/);
+    await submit(staleEvidence);await sent(staleEvidence);assert.equal(fixture.tickets[0].knowledge.find(d=>d.id===publication.id).version,2);assert.notEqual(requests('create')[0].body.request_id,requests('create')[1].body.request_id);
+    cases.push('Stale publication returns409, clears confirmed preview, and requires visible version2 confirmation before sending');
+    if(process.env.SUPPORT_COMPOSE_FOCUS==='published-preview'){
+      assert.deepEqual(browserErrors,[]);assert.deepEqual(externalRequests,[]);
+      console.log(JSON.stringify({passed:true,scope:'Synthetic API/browser published preview regression; no model call',cases,browserErrors,externalRequests},null,2));return;
     }
     // Run both independent regressions before failing, so a broken first path
     // cannot hide the session-recovery failure in the second path.
