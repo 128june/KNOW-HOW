@@ -397,7 +397,7 @@ async function main() {
     setup({documents:versionDocs,candidates:[{...candidateBase,id:'old-candidate',kb_version:1,value:'OLD-VERSION-CANDIDATE'},{...candidateBase,id:'confirmed-candidate',status:'confirmed',kb_version:2,value:'CONFIRMED-CANDIDATE'},{...candidateBase,id:'current-candidate',kb_version:2,value:'CURRENT-VERSION-CANDIDATE'}]});
     const versions=await open({...emptyIncident(),symptom:'후보 버전과 상태 경계'});await versions.locator('[data-open-catalog="errors"]').click();
     assert.equal(await versions.locator('#support-catalog-dialog [data-pending-candidate="current-candidate"]').count(),1);assert.equal(await versions.locator('#support-catalog-dialog [data-pending-candidate="old-candidate"]').count(),0);assert.equal(await versions.locator('#support-catalog-dialog [data-pending-id="confirmed-candidate"]').count(),0);
-    await versions.keyboard.press('Escape');await versions.goto(base+'/#support-kb');await versions.locator('[data-pending-id="old-candidate"]').waitFor();
+    await versions.keyboard.press('Escape');await versions.goto(base+'/#support-kb');await versions.locator('.support-kb-pending-disclosure > summary').click();await versions.locator('[data-pending-id="old-candidate"]').waitFor();
     assert.equal(await versions.locator('[data-pending-id="confirmed-candidate"]').count(),0);assert.equal(await versions.locator('[data-pending-candidate]').count(),0);
     cases.push('Shared pending renderer selects only current-version pending candidates while KB view preserves older pending history and omits nonpending records');
 
