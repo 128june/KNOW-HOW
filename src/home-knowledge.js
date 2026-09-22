@@ -7,7 +7,7 @@
    <h1 id="kh-home-title">조직마다 다른 말과 기준을,<br>함께 쓰는 지식으로 연결합니다.</h1>
    <p class="kh-home-lead">엑셀·노션·메신저·개인 메모에서 찾은 정보, 다른 부서에서도 같은 뜻일까요?<br> 이름과 의미의 차이를 보존하고 <strong>출처·적용 조건·확인 담당자</strong>를 연결해 공통 지식 기반(KB)으로 남깁니다.</p>
    <p class="kh-home-loop">AI는 근거로 답하고, 담당자는 확인·정정해 다음 업무에 남깁니다.</p>
-   <div class="kh-home-actions"><a class="button primary" href="#scenario-1">정보가 지식으로 연결되는 과정 보기 <span aria-hidden="true">→</span></a><a class="kh-home-link" href="#data">KB 구조와 문서 살펴보기 <span aria-hidden="true">↗</span></a></div>
+   <div class="kh-home-actions"><a class="button primary" href="#data">연결된 KB와 원문 살펴보기 <span aria-hidden="true">→</span></a></div>
   </section>
 
   <section class="kh-home-example" aria-labelledby="kh-home-example-title">
@@ -25,6 +25,8 @@
       <p>서울 강남구 논현로 508의 원본 행을 함께 대조하고, 부서별 ID 대응 관계와 확인할 내용을 KB로 남깁니다.</p>
       <ul aria-label="지식에 함께 남기는 맥락"><li>원문 출처</li><li>대상·부서</li><li>적용 기간</li><li>담당자·확인 상태</li><li>버전</li></ul>
      </div>
+     <a class="kh-home-link" href="#scenario-1" aria-describedby="kh-home-id-note">준비된 ID 대조·초안 작성 체험 <span aria-hidden="true">→</span></a>
+     <p class="kh-home-answer-note" id="kh-home-id-note">연결된 부서 문서가 없으면 확인할 내용을 초안으로 남기는 체험입니다.</p>
     </div>
     <div class="kh-home-answer">
      <h3><span class="kh-home-step">02</span> 연결된 KB를 AI가 답변의 근거로</h3>
