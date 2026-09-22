@@ -137,7 +137,72 @@ async function main() {
   const requests = action => fixture.requests.filter(r=>r.action===action);
   const screenshot = async(page,name) => {if(evidenceDir){fs.mkdirSync(evidenceDir,{recursive:true});await page.screenshot({path:path.join(evidenceDir,name+'.png'),fullPage:true});}};
   try {
-    const search=await open(null,'search');
+    // Run both independent regressions before failing, so a broken first path
+    // cannot hide the session-recovery failure in the second path.
+    const regressionFailures=[];
+    const regression=async(name,check)=>{try{await check();cases.push(name);}catch(error){regressionFailures.push(new Error(name,{cause:error}));}};
+    await regression('Multiline error candidates retain exact text and pending status through edits, modal reopen, reload and ticket submission',async()=>{
+      setup();const multiline=await open({...emptyIncident(),symptom:'여러 줄 오류 원문 확인',app_context:'기존 앱 메모'});
+      const errorText='E-RAW-401\n첫 번째 안내 문구\n다시 연결해 주세요.';
+      await multiline.locator('[data-open-catalog="errors"]').click();await multiline.locator('[name=catalog_value]').fill(errorText);
+      await multiline.locator('#support-catalog-custom button[type=submit]').click();
+      await multiline.locator('.support-catalog-message').filter({hasText:'확정 요청을 남겼습니다'}).waitFor();
+      assert.equal(requests('knowledge-candidate')[0].body.value,errorText);assert.equal(fixture.candidates[0].value,errorText);
+      await multiline.keyboard.press('Escape');
+      const assertMultiline=async stage=>{
+        assert.equal(await field(multiline,'error_code').inputValue(),errorText,`${stage}: error text must retain every newline`);
+        const pending=multiline.locator('[data-pending-for="error_code"]');
+        assert.equal(await pending.locator('[data-pending-status="pending"]').count(),1,`${stage}: selected candidate must remain visibly pending`);
+        assert.equal(await pending.locator('strong').textContent(),errorText);
+        assert.ok((await preview(multiline).textContent()).includes(errorText),`${stage}: preview must retain the original error text`);
+      };
+      await assertMultiline('after registration');
+      await field(multiline,'symptom').fill('다른 입력란에서 보완한 민원 증상');await assertMultiline('after editing another field');
+      await multiline.locator('[data-open-catalog="errors"]').click();
+      assert.equal(await multiline.locator('#support-catalog-dialog .support-kb-pending-value').textContent(),errorText);
+      await multiline.keyboard.press('Escape');await assertMultiline('after reopening the KB dialog');
+      await multiline.reload();await multiline.locator('#support-intake > fieldset:not([disabled])').waitFor();
+      await assertMultiline('after reload');assert.equal(await field(multiline,'symptom').inputValue(),'다른 입력란에서 보완한 민원 증상');
+      await submit(multiline);await sent(multiline);
+      assert.equal(requests('create')[0].body.error_code,errorText);assert.equal(fixture.tickets[0].incident.error_code,errorText);
+    });
+    await regression('A candidate 401 immediately exposes session recovery and preserves incident and custom draft while resetting the request id',async()=>{
+      setup({candidateFailures:[401]});
+      const incident={...emptyIncident(),symptom:'만료 전에 작성한 민원',occurred_at:'2026-09-22T10:30:00+09:00',error_code:'기존 오류 원문',app_context:'기존 앱 정보',device_context:'기존 장비 표시'};
+      const expiredCandidate=await open(incident),incidentKeys=['symptom','occurred_at','error_code','app_context','device_context'];
+      const originalInputs=Object.fromEntries(await Promise.all(incidentKeys.map(async key=>[key,await field(expiredCandidate,key).inputValue()])));
+      const customValue='NEW-AFTER-EXPIRED-31';
+      await expiredCandidate.locator('[data-open-catalog="errors"]').click();await expiredCandidate.locator('[name=catalog_value]').fill(customValue);
+      await expiredCandidate.locator('#support-catalog-custom button[type=submit]').click();
+      await expiredCandidate.waitForFunction(()=>document.body.textContent.includes('Fixture 401')&&!document.querySelector('[name=catalog_value]')?.disabled);
+      assert.equal(await expiredCandidate.locator('#support-catalog-dialog[open]').count(),0,'candidate 401 must dismiss the dialog so global session recovery is reachable');
+      const recovery=expiredCandidate.locator('[data-action="new-session"]');
+      assert.equal(await recovery.isVisible(),true,'new-session recovery must appear without another navigation or submit');
+      assert.match(await expiredCandidate.getByRole('alert').innerText(),/Fixture 401/);
+      assert.equal(await expiredCandidate.getByText('작성 중인 내용은 화면에 유지됩니다. 새 체험에서는 이전 티켓에 접근할 수 없습니다.',{exact:true}).isVisible(),true);
+      for(const key of incidentKeys)assert.equal(await field(expiredCandidate,key).inputValue(),originalInputs[key],`before renewal: preserve ${key}`);
+      assert.equal(fixture.candidates.length,0);assert.equal(fixture.reviewRequests.length,0);
+      const failedRequest=clone(requests('knowledge-candidate')[0].body);
+      await recovery.click();await expiredCandidate.locator('#support-intake > fieldset:not([disabled])').waitFor();
+      const renewedSession=requests('knowledge').at(-1).body.session_id;
+      assert.notEqual(renewedSession,failedRequest.session_id);assert.equal(await recovery.count(),0);
+      for(const key of incidentKeys)assert.equal(await field(expiredCandidate,key).inputValue(),originalInputs[key],`after renewal: preserve ${key}`);
+      await expiredCandidate.locator('[data-open-catalog="errors"]').click();
+      assert.equal(await expiredCandidate.locator('[name=catalog_value]').inputValue(),customValue,'renewal must retain the unsubmitted custom text');
+      assert.equal(await expiredCandidate.locator('[data-pending-candidate]').count(),0);
+      await expiredCandidate.locator('#support-catalog-custom button[type=submit]').click();
+      await expiredCandidate.locator('.support-catalog-message').filter({hasText:'확정 요청을 남겼습니다'}).waitFor();
+      const retriedRequest=requests('knowledge-candidate')[1].body;
+      assert.equal(requests('knowledge-candidate').length,2);assert.equal(retriedRequest.session_id,renewedSession);
+      assert.notEqual(retriedRequest.request_id,failedRequest.request_id,'a renewed session must not reuse the expired request id');
+      assert.equal(retriedRequest.value,customValue);assert.equal(fixture.candidates.length,1);assert.equal(fixture.reviewRequests.length,1);
+      assert.equal(fixture.candidateOwners[fixture.candidates[0].id],renewedSession);
+      await expiredCandidate.keyboard.press('Escape');assert.equal(await field(expiredCandidate,'error_code').inputValue(),customValue);
+      assert.equal(await field(expiredCandidate,'symptom').inputValue(),incident.symptom);
+    });
+    if(regressionFailures.length)throw new AggregateError(regressionFailures,'Input KB recovery regressions failed');
+
+    setup();const search=await open(null,'search');
     await search.locator('[name=q]').fill('로컬 검증');await search.locator('#support-search button').first().click();await search.locator('[data-station="0"]').waitFor();
     await search.locator('[data-operator]').selectOption(JSON.stringify('Fixture B'));
     await search.waitForFunction(()=>document.querySelectorAll('[data-station]').length===1&&document.querySelector('.support-stations')?.textContent.includes('Fixture B'));
