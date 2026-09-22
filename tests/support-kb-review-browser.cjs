@@ -22,7 +22,7 @@ async function main(){
    window.fixture={review,requests:[],failAi:false,proposal:null,inbox};let busy=false;
    const copy=x=>JSON.parse(JSON.stringify(x));
    const request=async(action,payload={})=>{fixture.requests.push({action,payload:copy(payload)});if(payload.revision&&payload.revision!==review.revision)throw Object.assign(Error('검토 충돌'),{status:409});
-    if(action==='knowledge-publications')return {documents:[],standards:[]};
+    if(action==='knowledge-management')return {documents:[],publications:[],standards:[],reviews:[]};
     if(action==='knowledge-review')return {review:copy(review),standards:[],previous_publication:null};
     if(action==='knowledge-review-save'){review.draft=copy(payload.draft);review.revision++;return {review:copy(review)};}
     if(action==='knowledge-review-comment'){review.comments.push({id:'comment-1',message:payload.message,author:'합성 관리자'});review.revision++;return {review:copy(review)};}
