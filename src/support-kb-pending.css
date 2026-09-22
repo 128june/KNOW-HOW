@@ -111,8 +111,23 @@
 .support-kb-pending.is-compact .support-kb-pending-list {
   gap: 8px;
 }
+.support-kb-review-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #dfcbb2;
+  border-radius: 12px;
+  background: #fffdfa;
+}
+.support-kb-review-read-state {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.support-kb-review-candidate {
+  margin-top: 14px;
+}
 @media (max-width: 600px) {
-  .support-kb-pending-card {
+  .support-kb-pending-card,
+  .support-kb-review-card {
     padding: 13px;
   }
   .support-kb-pending .support-kb-pending-select {
