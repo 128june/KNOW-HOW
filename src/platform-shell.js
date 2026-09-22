@@ -73,7 +73,7 @@
   if(mode==='support'){
    $('#session').hidden=true;$('#connection').textContent='공개 DB 보존 자료와 시연용 부서 KB를 사용합니다. 역할 선택은 실제 직원 인증이 아니며, 티켓은 이 체험 공간에만 저장됩니다. 체험은 8시간 후 만료됩니다.';
    $('.workspace').innerHTML='충전 민원 업무';$('.aside-note').textContent='찾기 → 전달 → 부서별 확인 → 답글';
-   nav.innerHTML=[['#support','민원 접수'],['#support-tickets','보낸 티켓·답글'],['#support-app','앱개발팀 받은 티켓'],['#support-device','충전기개발팀 받은 티켓'],['#support-kb','부서별 업무 KB']].map(([href,label],i)=>`<a class="scenario-link ${hash.split('?')[0]===href?'active':''}" href="${href}"><span>0${i+1}</span>${label}</a>`).join('');
+   nav.innerHTML=[['#support','민원 접수'],['#support-tickets','보낸 티켓·답글'],['#support-app','앱개발팀 받은 티켓'],['#support-device','충전기개발팀 받은 티켓'],['#support-kb','부서별 업무 KB']].map(([href,label],i)=>`<a class="scenario-link ${(hash.split('?')[0]===href||(href==='#support'&&hash==='#support-compose'))?'active':''}" href="${href}"><span>0${i+1}</span>${label}</a>`).join('');
    support?.mount($('#page'));focusPage();return;
   }
   if(mode==='company'){sampleDemo.activate();$('.brand').href='#home';focusPage();return}
