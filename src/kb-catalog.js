@@ -1,4 +1,4 @@
-/* Read the shared support KB and the existing browser knowledge without generating content. */
+/* Shared KB source reader and explicit, server-authorized charging KB management. */
 (function(root){'use strict';
  const departments={counselor:'상담사',app:'앱개발팀',device:'충전기개발팀',finance:'재무팀',data:'데이터팀',operations:'고객운영팀'};
  const labels={support:'충전 민원 대응',general:'매출·고객·환불'};
@@ -9,14 +9,14 @@
   const generalController=general||root.KnowHowGeneralKnowledge?.createController();
   let session=null,connecting=null;
   async function request(action,body){
-   if(!['session','knowledge','knowledge-publication','knowledge-query'].includes(action))throw Error('지원하지 않는 KB 조회입니다.');
+   if(!['session','knowledge','knowledge-publication','knowledge-query','knowledge-document','knowledge-management','knowledge-document-save','knowledge-document-state','knowledge-publication-state','knowledge-review-standard'].includes(action))throw Error('지원하지 않는 KB 요청입니다.');
    let response;
    try{response=await root.fetch(apiBase+'/demo/support/'+action,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});}
    catch{throw Error('상담사 업무 KB 서버에 연결하지 못했습니다.');}
    const result=await response.json().catch(()=>null);
    if(!response.ok){
-    if([401,403].includes(response.status)){session=null;try{root.sessionStorage.removeItem(sessionKey)}catch{}}
-    throw Error('상담사 업무 KB를 조회하지 못했습니다 (HTTP '+response.status+').'+(response.status===404?' 조회 API가 아직 제공되지 않습니다.':''));
+    if(response.status===401){session=null;try{root.sessionStorage.removeItem(sessionKey)}catch{}}
+    const error=Error((result?.error||'충전 민원 KB 요청을 완료하지 못했습니다.')+' (HTTP '+response.status+').'+(response.status===409?' 작성 내용은 유지됩니다. 최신 버전을 확인한 뒤 다시 수정하세요.':''));error.status=response.status;throw error;
    }
    if(!result||typeof result!=='object')throw Error('상담사 업무 KB 응답 형식을 확인하지 못했습니다.');
    return result;
@@ -36,11 +36,12 @@
    return {...clone(doc),key:'support:'+doc.id,collection:'support',collectionLabel:labels.support,departmentLabel:doc.standard_id?'충전 업무 표준':departments[doc.department]||doc.department||'부서 미지정',originLabel:doc.standard_id?'관리자 발행 KB':'서버 저장 KB',kindLabel:doc.standard_id?'이 업무 공간의 검토·발행 기록':'시연용 업무 기준',stateLabel:doc.status_label||doc.status||'검토 상태 미제공',content,validFrom:doc.valid_from||doc.effective_at||null,validTo:doc.valid_to||null,versions:doc.versions||doc.history||[],history:doc.history||[],comments:doc.comments||[],source:doc.source||null};
   }
   async function supportDocuments(){
-   let documents;
-   if(typeof root.KnowHowSupport?.readKnowledge==='function')documents=await root.KnowHowSupport.readKnowledge();
-   else {const sessionId=await connect();documents=(await request('knowledge',{session_id:sessionId,role:'counselor'})).documents;}
-   if(!Array.isArray(documents)||!documents.length)throw Error('상담사 업무 KB 목록에 문서가 없습니다.');
-   const docs=documents.map(supportDocument);
+   let snapshot;
+   if(typeof root.KnowHowSupport?.readKnowledgeSnapshot==='function')snapshot=await root.KnowHowSupport.readKnowledgeSnapshot();
+   else if(typeof root.KnowHowSupport?.readKnowledge==='function')snapshot={documents:await root.KnowHowSupport.readKnowledge()};
+   else snapshot=await request('knowledge',{session_id:await connect(),role:'counselor'});
+   if(!Array.isArray(snapshot.documents))throw Error('상담사 업무 KB 목록 형식을 확인하지 못했습니다.');
+   const docs=snapshot.documents.map(doc=>({...supportDocument(doc),withdrawnStandardIds:clone(snapshot.withdrawn_standard_ids||[]),managementState:clone(snapshot.document_states?.[doc.id]||null)}));
    if(new Set(docs.map(doc=>doc.key)).size!==docs.length)throw Error('상담사 KB 응답에 중복 문서가 있습니다.');
    const order={counselor:0,app:1,device:2};
    return docs.sort((a,b)=>(order[a.department]??3)-(order[b.department]??3));
@@ -80,7 +81,11 @@
    if(!document)throw Error('선택한 KB가 최신 목록에 없습니다. 목록을 새로고침해 주세요.');
    if(document.standard_id){
     const result=await request('knowledge-publication',{session_id:await connect(),role:'counselor',standard_id:document.standard_id});
-    document=supportDocument({...result.document,versions:result.history||[]});
+    document={...supportDocument({...result.document,versions:result.history||[]}),withdrawnStandardIds:document.withdrawnStandardIds,managementState:result.state||null};
+   }
+   if(document.collection==='support'&&!document.standard_id&&document.source_version){
+    const result=await request('knowledge-document',{session_id:await connect(),role:'counselor',document_id:document.id});
+    document={...supportDocument({...result.document,versions:result.history||[]}),withdrawnStandardIds:document.withdrawnStandardIds,managementState:result.state||null};
    }
    if(version!==undefined){const v=document.versions.find(v=>v.version===Number(version));if(!v)throw Error('요청한 KB 버전이 보존되어 있지 않습니다.');return {...document,...clone(v),key:document.key,collection:document.collection,versions:document.versions,history:document.history,content:v.content||v.sections?.map(s=>s.title+'\n'+s.text).join('\n\n')||'',version:v.version,sections:v.sections||[],source_refs:v.source_refs||[],validFrom:v.validFrom||v.valid_from||v.effective_at||null,validTo:v.validTo||v.valid_to||null,isHistorical:Number(v.version)!==Number(document.version)};}
    return document;
@@ -90,7 +95,13 @@
    const sessionId=await connect();
    return request('knowledge-query',{session_id:sessionId,role:'counselor',document_id:key.slice(8),question,as_of:asOf,generate});
   }
-  return {load,detail,query};
+  async function admin(action,payload={}){return request(action,{...payload,session_id:await connect(),role:'kb_admin'});}
+  const management=()=>admin('knowledge-management');
+  const saveDocument=payload=>admin('knowledge-document-save',payload);
+  const setDocumentState=payload=>admin('knowledge-document-state',payload);
+  const setStandardState=payload=>admin('knowledge-publication-state',payload);
+  const openStandardReview=payload=>admin('knowledge-review-standard',payload);
+  return {load,detail,query,management,saveDocument,setDocumentState,setStandardState,openStandardReview};
  }
  root.KnowHowKBCatalog={createProvider};
 })(window);

@@ -29,7 +29,7 @@ function harness({shared,fetchReply,saved={},general=true} = {}) {
   root.fetch=async (url,options)=>{
     const call={url,method:options.method,body:JSON.parse(options.body)};calls.push(call);
     // Reject all side-effect endpoints except the explicitly allowed support reader session.
-    assert.match(url,/\/demo\/support\/(session|knowledge|knowledge-publication|knowledge-query)$/);
+    assert.match(url,/\/demo\/support\/(session|knowledge|knowledge-publication|knowledge-query|knowledge-document|knowledge-management|knowledge-document-save|knowledge-document-state|knowledge-publication-state|knowledge-review-standard)$/);
     assert.equal(options.method,'POST');
     assert.equal(options.credentials,'omit');
     const reply=fetchReply ? await fetchReply(call) : {body:url.endsWith('/session')?{session_id:'test-reader'}:{documents:[supportDoc()]}};
@@ -111,7 +111,7 @@ test('missing or malformed support documents report the cause without a static f
   await assert.rejects(provider.detail('general:missing'),/최신 목록에 없습니다/);
   await assert.rejects(provider.detail('unknown:CS-001'),/지원하지 않는 KB/);
   documents=[];
-  let result=await provider.load();assert.equal(result.collections[0].status,'error');assert.match(result.notices[0],/문서가 없습니다/);
+  let result=await provider.load();assert.equal(result.collections[0].status,'ready');assert.equal(result.collections[0].count,0);assert.equal(result.notices.length,0);
   documents=[{...supportDoc(),sections:[]}];
   result=await provider.load();assert.equal(result.collections[0].status,'error');assert.match(result.notices[0],/본문을 확인하지 못했습니다/);
 });
@@ -157,4 +157,27 @@ test('published evidence query carries same scope and explicitly disables model 
   await provider.query('support:KHS-TEST','확인할 근거','2026-09-22');
   assert.deepEqual(calls[0].body,{session_id:'same-support-space',role:'counselor',document_id:'KHS-TEST',question:'확인할 근거',as_of:'2026-09-22',generate:false});
   assert.equal(calls[0].url,base+'/demo/support/knowledge-query');
+});
+
+test('administrator requests keep the shared session, force role, and preserve it after 403',async()=>{
+  let forbidden=true;
+  const {provider,calls,storage}=harness({saved:{[sessionKey]:'same-space'},fetchReply:async()=>forbidden?{status:403,body:{error:'관리자 권한 필요'}}:{body:{state:{revision:1}}}});
+  await assert.rejects(provider.management(),/HTTP 403/);
+  assert.equal(storage.getItem(sessionKey),'same-space');
+  forbidden=false;
+  await provider.setStandardState({standard_id:'STD-INTAKE-001-errors-e1',expected_version:0,expected_state_revision:0,withdrawn:true,reason:'중복',session_id:'wrong-space',role:'counselor'});
+  assert.equal(calls[1].body.session_id,'same-space');assert.equal(calls[1].body.role,'kb_admin');
+  assert.equal(calls[1].body.expected_state_revision,0);assert.equal(calls[1].body.withdrawn,true);
+  assert.equal(calls.filter(c=>c.url.endsWith('/session')).length,0);
+});
+
+test('document revisions retain original history/hash and carry withdrawal metadata independently',async()=>{
+  const original=supportDoc(), revised={...copy(original),version:2,source_version:1,hash:'new-hash',sections:[{id:'original',title:'개정 절',text:'개정 본문'}]};
+  const {provider,root}=harness({shared:async()=>{throw Error('old reader used');},saved:{[sessionKey]:'same-space'},fetchReply:async()=>({body:{document:revised,history:[revised,original],state:{revision:2,withdrawn:false}}})});
+  root.KnowHowSupport.readKnowledgeSnapshot=async()=>({documents:[revised],withdrawn_standard_ids:['STD-hidden'],document_states:{'CS-001':{revision:2,withdrawn:false}}});
+  const latest=await provider.detail('support:CS-001');
+  assert.equal(latest.sections[0].text,'개정 본문');assert.deepEqual(copy(latest.withdrawnStandardIds),['STD-hidden']);
+  assert.equal(latest.managementState.revision,2);
+  const past=await provider.detail('support:CS-001',1);
+  assert.equal(past.sections[0].text,original.sections[0].text);assert.equal(past.hash,original.hash);assert.equal(past.isHistorical,true);
 });
