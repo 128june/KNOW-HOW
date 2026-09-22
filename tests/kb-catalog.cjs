@@ -29,7 +29,7 @@ function harness({shared,fetchReply,saved={},general=true} = {}) {
   root.fetch=async (url,options)=>{
     const call={url,method:options.method,body:JSON.parse(options.body)};calls.push(call);
     // Reject all side-effect endpoints except the explicitly allowed support reader session.
-    assert.match(url,/\/demo\/support\/(session|knowledge)$/);
+    assert.match(url,/\/demo\/support\/(session|knowledge|knowledge-publication|knowledge-query)$/);
     assert.equal(options.method,'POST');
     assert.equal(options.credentials,'omit');
     const reply=fetchReply ? await fetchReply(call) : {body:url.endsWith('/session')?{session_id:'test-reader'}:{documents:[supportDoc()]}};
@@ -138,4 +138,23 @@ test('HTTP failure remains an explicit partial result and is never retried as a 
   const result=await provider.load();assert.equal(result.collections[0].status,'error');
   assert.match(result.notices[0],/HTTP 401/);assert.equal(calls.length,1);
   assert.equal(calls[0].url,base+'/demo/support/knowledge');
+});
+
+test('published support detail retrieves immutable versions and retains the old evidence snapshot',async()=>{
+  const first={...supportDoc(),id:'KHS-TEST',standard_id:'KHS-TEST',version:1,source:'original-source',effective_at:'2026-09-21T00:00:00Z',evidence:[{snapshot_hash:'old-source'}]};
+  const second={...copy(first),version:2,source:'corrected-source',effective_at:'2026-09-22T00:00:00Z',evidence:[{snapshot_hash:'new-source'}]};
+  const {provider,calls}=harness({shared:async()=>[second],saved:{[sessionKey]:'same-support-space'},fetchReply:async()=>({body:{document:second,history:[second,first]}})});
+  const latest=await provider.detail('support:KHS-TEST');
+  const historical=await provider.detail('support:KHS-TEST',1);
+  assert.equal(latest.version,2);assert.equal(latest.originLabel,'관리자 발행 KB');
+  assert.equal(historical.version,1);assert.equal(historical.source,'original-source');
+  assert.equal(historical.evidence[0].snapshot_hash,'old-source');assert.equal(historical.isHistorical,true);
+  assert.ok(calls.every(c=>c.body.session_id==='same-support-space'));
+});
+
+test('published evidence query carries same scope and explicitly disables model generation',async()=>{
+  const {provider,calls}=harness({saved:{[sessionKey]:'same-support-space'},fetchReply:async()=>({body:{evidence:[],ai_generated:false}})});
+  await provider.query('support:KHS-TEST','확인할 근거','2026-09-22');
+  assert.deepEqual(calls[0].body,{session_id:'same-support-space',role:'counselor',document_id:'KHS-TEST',question:'확인할 근거',as_of:'2026-09-22',generate:false});
+  assert.equal(calls[0].url,base+'/demo/support/knowledge-query');
 });

@@ -24,6 +24,12 @@
       const raw = typeof s === 'string' ? s : s ? JSON.stringify(s,null,2) : '';
       return `<details class="kb-detail-record"><summary>출처와 기록 정보</summary><dl class="kb-detail-meta"><div><dt>문서 구분</dt><dd>${esc(d.kindLabel || d.originLabel || '미등록')}</dd></div>${d.validFrom || d.validTo ? `<div><dt>적용 기간</dt><dd>${esc(d.validFrom || '시작일 미등록')} ~ ${esc(d.validTo || '종료일 미등록')}</dd></div>` : ''}${d.hash ? `<div><dt>원문 해시</dt><dd><code>${esc(d.hash)}</code></dd></div>` : ''}</dl>${raw ? `<pre>${esc(raw)}</pre>` : '<p>출처 정보가 등록되지 않았습니다.</p>'}</details>`;
     }
+    function publishedDetails(d) {
+      if (!d.standard_id) return '';
+      const rows = d.versions || d.history || [];
+      const evidence = d.evidence || d.source?.evidence || [];
+      return `<section class="kb-publication-info"><h3>발행과 적용 기록</h3>${d.isHistorical?'<p class="kb-history-notice">이전 버전 원문입니다. 현재 업무에는 최신 버전의 적용 조건을 확인하세요.</p>':''}<dl class="kb-detail-meta"><div><dt>표준 ID</dt><dd>${esc(d.standard_id)}</dd></div><div><dt>적용 시작</dt><dd>${esc(d.effective_at || d.validFrom || '미등록')}</dd></div><div><dt>확인자</dt><dd>${esc(d.confirmed_by || d.published_by || '미등록')}</dd></div><div><dt>발행 시각</dt><dd>${esc(d.published_at || '미등록')}</dd></div><div><dt>수정 이유</dt><dd>${esc(d.change_reason || d.reason || '미등록')}</dd></div></dl>${rows.length?`<label>보존된 원문 버전<select data-kb-version>${rows.map(v=>`<option value="${esc(v.version)}" ${Number(v.version)===Number(d.version)?'selected':''}>v${esc(v.version)} · ${esc(v.change_reason || v.reason || v.published_at || '')}</option>`).join('')}</select></label>`:''}${evidence.length?`<details class="kb-detail-record"><summary>발행 시 검토한 근거 ${evidence.length}개</summary>${evidence.map(e=>`<article><h4>${esc(e.reference || e.id)} · ${e.verification==='confirmed'?'검토 확인':'미확인'}</h4><p class="kb-full-text">${esc(e.excerpt || '')}</p>${e.snapshot?`<details><summary>당시 보존한 원문</summary><pre>${esc(JSON.stringify(e.snapshot,null,2))}</pre></details>`:''}</article>`).join('')}</details>`:''}</section>${!d.isHistorical&&provider.query?`<form class="kb-evidence-query" data-kb-query><h3>이 KB에서 근거 찾기</h3><p>발행 원문과 적용 조건을 조회합니다. 모델 호출은 하지 않습니다.</p><label>확인할 내용<textarea name="question" required maxlength="1000" rows="2" placeholder="예: 시작 요청 실패와 연결하려면 무엇을 확인해야 하나요?"></textarea></label><label>적용일<input name="as_of" type="date" value="${new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'})}" required></label><button class="primary">원문 근거 조회</button><div data-kb-query-result role="status" aria-live="polite"></div></form>`:''}`;
+    }
     function history(d) {
       const rows = d.versions || d.history || [];
       const comments = d.comments || [];
@@ -36,7 +42,7 @@
       const d = state.detail;
       if (!d) return '<div class="kb-detail-placeholder"><span aria-hidden="true">↖</span><h2>KB를 선택하세요</h2><p>리니지에서 문서를 누르면<br>내용과 출처를 여기서 볼 수 있습니다.</p></div>';
       const sections = Array.isArray(d.sections) ? d.sections : [];
-      return `<div class="kb-detail-heading"><p>${esc(department(d))} <span>· ${esc(d.id)} · ${esc(version(d))}</span></p><h2 id="kb-detail-title">${esc(d.title)}</h2><span class="kb-detail-state">${esc(d.stateLabel || d.status || '검토 상태 미등록')}</span></div><div class="kb-detail-content">${d.purpose ? `<p class="kb-detail-purpose">${esc(d.purpose)}</p>` : ''}${sections.length ? sections.map((s,i) => `<section class="kb-content-section"><h3><span>${String(i+1).padStart(2,'0')}</span>${esc(s.title)}</h3><p class="kb-full-text">${esc(s.text)}</p>${d.checklist?.includes(s.id) ? '<span class="kb-check-item">개발자 확인 항목</span>' : ''}</section>`).join('') : `<section class="kb-content-section"><h3>전체 내용</h3><p class="kb-full-text">${esc(d.content || '본문이 제공되지 않았습니다.')}</p></section>`}${d.intake_fields?.length ? `<section class="kb-content-section"><h3>접수 시 필요한 정보</h3>${d.intake_fields.map(f => `<p><strong>${esc(f.label)}</strong><br>${esc(f.placeholder || '')}</p>`).join('')}</section>` : ''}${d.reply_hint ? `<section class="kb-content-section"><h3>회신 작성 안내</h3><p>${esc(d.reply_hint)}</p></section>` : ''}${d.collection==='general'?`<p><a class="button" href="#general-${d.id==='KB-CUST-01'?2:d.id==='KB-REF-01'?3:1}">이 기준으로 업무 질문 보기 →</a></p>`:''}${source(d)}${history(d)}</div>`;
+      return `<div class="kb-detail-heading"><p>${esc(department(d))} <span>· ${esc(d.id)} · ${esc(version(d))}</span></p><h2 id="kb-detail-title">${esc(d.title)}</h2><span class="kb-detail-state">${esc(d.stateLabel || d.status || '검토 상태 미등록')}</span></div><div class="kb-detail-content">${d.purpose ? `<p class="kb-detail-purpose">${esc(d.purpose)}</p>` : ''}${sections.length ? sections.map((s,i) => `<section class="kb-content-section"><h3><span>${String(i+1).padStart(2,'0')}</span>${esc(s.title)}</h3><p class="kb-full-text">${esc(s.text)}</p>${d.checklist?.includes(s.id) ? '<span class="kb-check-item">개발자 확인 항목</span>' : ''}</section>`).join('') : `<section class="kb-content-section"><h3>전체 내용</h3><p class="kb-full-text">${esc(d.content || '본문이 제공되지 않았습니다.')}</p></section>`}${d.intake_fields?.length ? `<section class="kb-content-section"><h3>접수 시 필요한 정보</h3>${d.intake_fields.map(f => `<p><strong>${esc(f.label)}</strong><br>${esc(f.placeholder || '')}</p>`).join('')}</section>` : ''}${d.reply_hint ? `<section class="kb-content-section"><h3>회신 작성 안내</h3><p>${esc(d.reply_hint)}</p></section>` : ''}${d.collection==='general'?`<p><a class="button" href="#general-${d.id==='KB-CUST-01'?2:d.id==='KB-REF-01'?3:1}">이 기준으로 업무 질문 보기 →</a></p>`:''}${publishedDetails(d)}${source(d)}${history(d)}</div>`;
     }
     function selectedButton() {
       return [...(host?.querySelectorAll('[data-kb-key]') || [])].find(b => b.dataset.kbKey === state.selected);
@@ -61,6 +67,19 @@
       panel.scrollTop = 0;
       panel.setAttribute('aria-busy', String(state.detailLoading));
       panel.querySelector('[data-kb-retry]')?.addEventListener('click', () => select(state.selected));
+      panel.querySelector('[data-kb-version]')?.addEventListener('change', event => select(state.selected, Number(event.target.value)));
+      panel.querySelector('[data-kb-query]')?.addEventListener('submit', async event => {
+        event.preventDefault();
+        const form=event.currentTarget, button=form.querySelector('button'), output=form.querySelector('[data-kb-query-result]');
+        const ticket=selectionEpoch, mount=epoch, key=state.selected;
+        button.disabled=true; output.textContent='발행 원문을 조회하고 있습니다…';
+        try {
+          const result=await provider.query(key,form.elements.question.value.trim(),form.elements.as_of.value,false);
+          if(ticket!==selectionEpoch||mount!==epoch||!state.modalOpen)return;
+          output.innerHTML=`<p>${esc(result.notice || result.answer || '발행된 원문에서 찾은 근거입니다.')}</p><p class="kb-query-mode">원문 근거 조회 · 모델 호출 없음</p>${(result.evidence||[]).map(e=>`<article><strong>${esc(e.title || e.name || e.doc_id || e.id)} · v${esc(e.version)}</strong><p class="kb-full-text">${esc(e.text || e.content || '')}</p><small>${esc(e.location || '')}</small></article>`).join('')||'<p>적용일과 질문에 맞는 원문 근거가 없습니다.</p>'}`;
+        } catch(error) {if(ticket===selectionEpoch&&mount===epoch)output.textContent=error.message||'근거 조회에 실패했습니다.';}
+        finally {if(ticket===selectionEpoch&&mount===epoch)button.disabled=false;}
+      });
     }
     function render() {
       if (!host) return;
@@ -86,7 +105,7 @@
         backdropPointer = false;
       });
     }
-    async function select(key) {
+    async function select(key, requestedVersion) {
       if (!key || !host) return;
       const ticket = ++selectionEpoch, mount = epoch;
       state.selected = key; state.detail = null; state.detailLoading = true; state.detailError = ''; state.modalOpen = true;
@@ -100,13 +119,13 @@
       host.querySelector('[data-kb-close]').focus({preventScroll:true});
       try {
         const listed = state.documents.find(doc => doc.key === key);
-        const d = await provider.detail(key, key.startsWith('general:') ? listed?.version : undefined);
+        const d = await provider.detail(key, requestedVersion ?? (key.startsWith('general:') ? listed?.version : undefined));
         if (ticket !== selectionEpoch || mount !== epoch || !host || !state.modalOpen) return;
         if (!d || d.key !== key) throw Error('선택한 KB와 조회된 문서가 다릅니다. 목록을 새로고침해 주세요.');
         state.detail = d;
-        state.documents = state.documents.map(old => old.key === key ? d : old);
+        if (!requestedVersion) state.documents = state.documents.map(old => old.key === key ? d : old);
         // Refresh this card without replacing the dialog or its focused controls.
-        selectedButton()?.closest('li').replaceWith(document.createRange().createContextualFragment(node(d)));
+        if (!requestedVersion) selectedButton()?.closest('li').replaceWith(document.createRange().createContextualFragment(node(d)));
         if (selectedButton()) selectedButton().onclick = () => select(key);
       } catch (error) {
         if (ticket !== selectionEpoch || mount !== epoch || !host || !state.modalOpen) return;
@@ -135,6 +154,8 @@
       if (mount !== epoch || !host) return;
       state.loading = false; render();
       if (restoreRefreshFocus) host.querySelector('[data-kb-refresh]')?.focus({preventScroll:true});
+      const linked = new URLSearchParams(root.location.hash.split('?')[1]||'').get('kb');
+      if (!event && linked && state.documents.some(d=>d.key==='support:'+linked)) select('support:'+linked);
     }
     return {mount(target) {host=target; load();}, destroy() {closeModal(false); epoch++; selectionEpoch++; host=null;}};
   }

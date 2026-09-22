@@ -9,7 +9,7 @@
   const generalController=general||root.KnowHowGeneralKnowledge?.createController();
   let session=null,connecting=null;
   async function request(action,body){
-   if(!['session','knowledge'].includes(action))throw Error('지원하지 않는 KB 조회입니다.');
+   if(!['session','knowledge','knowledge-publication','knowledge-query'].includes(action))throw Error('지원하지 않는 KB 조회입니다.');
    let response;
    try{response=await root.fetch(apiBase+'/demo/support/'+action,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});}
    catch{throw Error('상담사 업무 KB 서버에 연결하지 못했습니다.');}
@@ -33,7 +33,7 @@
   function supportDocument(doc){
    if(!doc||typeof doc.id!=='string'||!doc.id||typeof doc.title!=='string'||!Array.isArray(doc.sections)||!doc.sections.length||doc.sections.some(s=>typeof s.title!=='string'||typeof s.text!=='string'))throw Error('상담사 KB의 문서 본문을 확인하지 못했습니다.');
    const content=[doc.purpose||'',...doc.sections.map(s=>s.title+'\n'+s.text)].filter(Boolean).join('\n\n');
-   return {...clone(doc),key:'support:'+doc.id,collection:'support',collectionLabel:labels.support,departmentLabel:departments[doc.department]||doc.department||'부서 미지정',originLabel:'서버 저장 KB',kindLabel:'시연용 업무 기준',stateLabel:doc.status||'검토 상태 미제공',content,validFrom:doc.valid_from||null,validTo:doc.valid_to||null,versions:doc.versions||doc.history||[],history:doc.history||[],comments:doc.comments||[],source:doc.source||null};
+   return {...clone(doc),key:'support:'+doc.id,collection:'support',collectionLabel:labels.support,departmentLabel:doc.standard_id?'충전 업무 표준':departments[doc.department]||doc.department||'부서 미지정',originLabel:doc.standard_id?'관리자 발행 KB':'서버 저장 KB',kindLabel:doc.standard_id?'이 업무 공간의 검토·발행 기록':'시연용 업무 기준',stateLabel:doc.status_label||doc.status||'검토 상태 미제공',content,validFrom:doc.valid_from||doc.effective_at||null,validTo:doc.valid_to||null,versions:doc.versions||doc.history||[],history:doc.history||[],comments:doc.comments||[],source:doc.source||null};
   }
   async function supportDocuments(){
    let documents;
@@ -76,12 +76,21 @@
    if(key.startsWith('support:'))documents=await supportDocuments();
    else if(key.startsWith('general:'))documents=await generalDocuments();
    else throw Error('지원하지 않는 KB입니다.');
-   const document=documents.find(doc=>doc.key===key);
+   let document=documents.find(doc=>doc.key===key);
    if(!document)throw Error('선택한 KB가 최신 목록에 없습니다. 목록을 새로고침해 주세요.');
-   if(version!==undefined){const v=document.versions.find(v=>v.version===Number(version));if(!v)throw Error('요청한 KB 버전이 보존되어 있지 않습니다.');return {...document,content:v.content,version:v.version,sections:v.sections||[],source_refs:v.source_refs||[],validFrom:v.validFrom||null,validTo:v.validTo||null};}
+   if(document.standard_id){
+    const result=await request('knowledge-publication',{session_id:await connect(),role:'counselor',standard_id:document.standard_id});
+    document=supportDocument({...result.document,versions:result.history||[]});
+   }
+   if(version!==undefined){const v=document.versions.find(v=>v.version===Number(version));if(!v)throw Error('요청한 KB 버전이 보존되어 있지 않습니다.');return {...document,...clone(v),key:document.key,collection:document.collection,versions:document.versions,history:document.history,content:v.content||v.sections?.map(s=>s.title+'\n'+s.text).join('\n\n')||'',version:v.version,sections:v.sections||[],source_refs:v.source_refs||[],validFrom:v.validFrom||v.valid_from||v.effective_at||null,validTo:v.validTo||v.valid_to||null,isHistorical:Number(v.version)!==Number(document.version)};}
    return document;
   }
-  return {load,detail};
+  async function query(key,question,asOf,generate=false){
+   if(typeof key!=='string'||!key.startsWith('support:'))throw Error('발행한 충전 KB를 선택하세요.');
+   const sessionId=await connect();
+   return request('knowledge-query',{session_id:sessionId,role:'counselor',document_id:key.slice(8),question,as_of:asOf,generate});
+  }
+  return {load,detail,query};
  }
  root.KnowHowKBCatalog={createProvider};
 })(window);

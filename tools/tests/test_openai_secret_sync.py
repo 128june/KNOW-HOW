@@ -130,7 +130,14 @@ class SecretDeliveryTests(unittest.TestCase):
             subprocess.run([sys.executable, "-B", str(root / "tools/build.py")],
                            env=env, check=True, capture_output=True)
             names = {path.name for path in (root / "dist").iterdir()}
-            self.assertEqual(names, {"index.html", "style.css", "app.js", "demo.js", "config.js", ".nojekyll"})
+            self.assertEqual(names, set('''index.html style.css app.js demo.js config.js .nojekyll
+                shell.css demo-example.js source-records.js organization-kb.js general-knowledge.js
+                general-workflow-fixture.js general-workflow-core.js general-workflow-store.js
+                general-workflow-ui.js general-workflow.css data-knowledge-bridge.js data-explorer.js
+                data-review-ui.js data-handoff-ui.js data-platform.css data-lineage-ui.js data-platform.js
+                support-kb-pending.js support-kb-pending.css support-kb-review.js support-kb-review.css
+                support-workspace.js support-workspace.css kb-catalog.js kb-lineage.js kb-lineage.css
+                home-knowledge.js home-knowledge.css clarity-design.css platform-shell.js'''.split()))
             for path in (root / "dist").iterdir():
                 self.assertNotIn(b"test-public-build-key-marker", path.read_bytes())
                 self.assertNotIn(b"test-public-build-token-marker", path.read_bytes())

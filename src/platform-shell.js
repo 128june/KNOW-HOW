@@ -7,6 +7,17 @@
  const support=root.KnowHowSupport?.createController();
  const $=selector=>document.querySelector(selector);
  let data=null,current='',menuOpen=false,desktopCollapsed=false;
+ let kbUnread=0;
+ function updateKBBadge(){
+  document.querySelectorAll('[data-kb-admin-badge]').forEach(badge=>{
+   badge.textContent=kbUnread>99?'99+':String(kbUnread);badge.hidden=kbUnread===0;
+   badge.setAttribute('aria-label',`새 KB 검토 요청 ${kbUnread}건`);
+  });
+ }
+ root.addEventListener('knowhow:kb-review-unread',event=>{
+  if(!Number.isInteger(event.detail?.count)||event.detail.count<0)return;
+  kbUnread=event.detail.count;updateKBBadge();
+ });
  const mobile=root.matchMedia?.('(max-width: 760px)');
  const toggle=$('#navigation-toggle'),sidebar=$('#workspace-navigation');
  function syncNavigation(restoreFocus=false){
@@ -75,10 +86,11 @@
   if(mode==='support'){
    $('#session').hidden=true;$('#connection').textContent='공개 DB 보존 자료와 시연용 부서 KB를 사용합니다. 역할 선택은 실제 직원 인증이 아니며, 티켓은 이 체험 공간에만 저장됩니다. 체험은 8시간 후 만료됩니다.';
    $('.workspace').innerHTML='충전 민원 업무';$('.aside-note').textContent='찾기 → 전달 → 부서별 확인 → 답글';
-   nav.innerHTML=[['#support','민원 접수'],['#support-tickets','보낸 티켓·답글'],['#support-app','앱개발팀 받은 티켓'],['#support-device','충전기개발팀 받은 티켓'],['#support-kb','부서별 업무 KB']].map(([href,label],i)=>{
+   nav.innerHTML=[['#support','민원 접수'],['#support-tickets','보낸 티켓·답글'],['#support-app','앱개발팀 받은 티켓'],['#support-device','충전기개발팀 받은 티켓'],['#support-kb','발행 KB · 업무 기준'],['#support-kb-admin','KB 관리자']].map(([href,label],i)=>{
     const active=hash.split('?')[0]===href||(href==='#support'&&hash==='#support-compose');
-    return `<a class="scenario-link ${active?'active':''}" href="${href}" ${active?'aria-current="page"':''}><span>0${i+1}</span>${label}</a>`;
+    return `<a class="scenario-link ${active?'active':''}" href="${href}${href==='#support-kb-admin'?'?filter=unread':''}" ${active?'aria-current="page"':''}><span>0${i+1}</span>${label}${href==='#support-kb-admin'?'<span class="kb-unread-badge" data-kb-admin-badge hidden></span>':''}</a>`;
    }).join('');
+   updateKBBadge();
    support?.mount($('#page'));focusPage();return;
   }
   if(mode==='company'){sampleDemo.activate();$('.brand').href='#home';focusPage();return}
@@ -104,4 +116,6 @@
   });
  });
  root.addEventListener('hashchange',render);render();
+ // Existing shared support session only; unrelated landing visits do not create one.
+ try {const base=(root.KNOWHOW_CONFIG?.apiBase||'https://api.ctrl-j.xyz/knowhow').replace(/\/$/,'');if(current!=='support'&&root.sessionStorage?.getItem('knowhow.support.session:'+base))root.KnowHowSupport?.readUnreadCount?.().catch(()=>{});} catch{}
 })(window);
