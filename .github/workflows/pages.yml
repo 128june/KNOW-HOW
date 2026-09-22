@@ -24,6 +24,7 @@ jobs:
       - name: Build public files
         env:
           KNOWHOW_API_BASE: ${{ vars.KNOWHOW_API_BASE }}
+          KNOWHOW_GENERAL_API_BASE: ${{ vars.KNOWHOW_GENERAL_API_BASE }}
           KNOWHOW_AI_PAUSED: ${{ vars.KNOWHOW_AI_PAUSED || 'true' }}
         run: python tools/build.py
       - uses: actions/configure-pages@v5

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "actual UI click request→source→review→publish→next query",
+    "v1 historical answer held",
+    "cross browser shared workspace v2",
+    "revenue/customer/refund views",
+    "same KB lineage modal",
+    "390px no horizontal overflow"
+  ],
+  "pageErrors": [],
+  "externalRequests": []
+}

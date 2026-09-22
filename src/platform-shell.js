@@ -1,7 +1,9 @@
 /* One workspace navigation; task results own the main viewport. */
 (function(root){'use strict';
- const titles=['왜 부서마다 답이 다를까?','기준을 지식으로 남기기','조건과 예외 보완하기','다음 업무에 재사용하기','팀에서 함께 쓸 지식'];
- const general=root.KnowHowGeneralKnowledge?.createController();
+ const titles=['매출 · 보고 기준 연결','고객 · 집계 단위 연결','환불 · 완료 기준 확인'];
+ const generalStore=root.KnowHowGeneralWorkflowStore?.createStore();
+ const workflow=root.KnowHowGeneralWorkflowUI?.createController({store:generalStore});
+ const general=workflow?{mount:(host,tab)=>workflow.mount(host,tab),destroy:()=>workflow.unmount(),docs:()=>generalStore.docs(),ready:()=>generalStore.sync()}:root.KnowHowGeneralKnowledge?.createController();
  const support=root.KnowHowSupport?.createController();
  const $=selector=>document.querySelector(selector);
  let data=null,current='',menuOpen=false,desktopCollapsed=false;
@@ -78,8 +80,8 @@
   }
   if(mode==='company'){sampleDemo.activate();$('.brand').href='#home';focusPage();return}
   if(mode==='general'){
-   const tab=Math.max(1,Math.min(5,Number(hash.slice(9))||1));$('#connection').textContent='매출·고객 집계 기준과 환불 예외를 다루는 데모 작업공간입니다. 이 기기의 임시 기록과 담당자 확인을 마친 공유 지식을 구분합니다.';
-   $('.workspace').innerHTML='업무 흐름';$('.aside-note').textContent='근거 확인 → 예외 보완 → 다음 업무에 재사용';
+   const tab=Math.max(1,Math.min(3,Number(hash.slice(9))||1));$('#connection').textContent='합성 계약·거래와 부서 기준을 연결한 체험입니다. 역할 선택은 실제 직원 인증이 아니며, 준비된 규칙으로 계산합니다.';
+   $('.workspace').innerHTML='업무 흐름';$('.aside-note').textContent='질문 → 대상 연결 → 부서 확인 → KB 재사용';
    nav.innerHTML=titles.map((t,i)=>`<a class="scenario-link ${tab===i+1?'active':''}" href="#general-${i+1}" ${tab===i+1?'aria-current="page"':''}><span>0${i+1}</span>${t}</a>`).join('');general?.mount($('#page'),tab);focusPage();return;
   }
   $('.workspace').innerHTML='지식 구조';$('.aside-note').textContent='KB 전체 구조 → 문서 내용 확인';
@@ -88,5 +90,15 @@
   if(data)data.mount($('#page'));else $('#page').innerHTML='<h1>KB 리니지</h1><p role="alert">KB 화면을 불러오지 못했습니다. 새로고침해 주세요.</p>';
   focusPage();
  }
+ root.addEventListener('knowhow:general-topic',event=>{
+  const tab=event.detail?.tab;
+  if(current!=='general'||![1,2,3].includes(tab))return;
+  root.history.replaceState(null,'','#general-'+tab);
+  sidebar.querySelectorAll('nav a[href^="#general-"]').forEach(link=>{
+   const active=link.getAttribute('href')==='#general-'+tab;
+   link.classList.toggle('active',active);
+   if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+  });
+ });
  root.addEventListener('hashchange',render);render();
 })(window);

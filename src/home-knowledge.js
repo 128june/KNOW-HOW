@@ -47,7 +47,7 @@
   </section>
 
   <section class="kh-home-review" aria-labelledby="kh-home-review-title">
-   <div class="kh-home-section-head"><div><p class="kh-home-kicker">확인한 내용을 조직의 지식으로</p><h2 id="kh-home-review-title">한 사람의 확인이, 다음 부서의 출발점이 됩니다.</h2></div><a class="kh-home-link" href="#general-3">매출·고객·환불 정정 체험 <span aria-hidden="true">→</span></a></div>
+   <div class="kh-home-section-head"><div><p class="kh-home-kicker">확인한 내용을 조직의 지식으로</p><h2 id="kh-home-review-title">한 사람의 확인이, 다음 부서의 출발점이 됩니다.</h2></div><a class="kh-home-link" href="#general-3">환불 기준 확인·정정 체험 <span aria-hidden="true">→</span></a></div>
    <ol class="kh-home-review-flow">
     <li><span>01 · 사용자 댓글</span><strong>빠진 조건을 묻고</strong><p>“이 기준은 어떤 상황까지 적용하나요?”</p></li>
     <li><span>02 · 담당자 검토</span><strong>근거와 조건을 보완</strong><p>확인 결과·예외·정정 이유를 기록합니다.</p></li>
@@ -60,7 +60,7 @@
    <div class="kh-home-section-head"><div><p class="kh-home-kicker">다른 업무에도 같은 연결 방식</p><h2 id="kh-home-apply-title">부서 사이에서 막혔던 업무로 시작하세요.</h2></div></div>
    <div class="kh-home-entries">
     <article><span class="kh-home-entry-label">대표 적용 사례 · 충전 업무</span><h3>정보 확인에서 부서 간 회신까지</h3><p>상담사·앱개발팀·충전기개발팀이 각자의 KB로 확인하고 같은 티켓에 답합니다.</p><div class="kh-home-entry-links"><a class="kh-home-link" href="#support">민원 업무 체험 <span aria-hidden="true">→</span></a><a class="kh-home-link" href="#support-kb">부서별 업무 KB</a></div></article>
-    <article><span class="kh-home-entry-label">확장 사례 · 매출·고객·환불</span><h3>같은 숫자와 용어, 다른 판단 기준</h3><p>매출의 결제일·정산일, 고객 수의 계정·고객키, 환불의 면제 신청·확정을 가상 사례로 비교합니다.</p><div class="kh-home-entry-links"><a class="kh-home-link" href="#general-1">업무 기준 비교하기 <span aria-hidden="true">→</span></a></div></article>
+    <article><span class="kh-home-entry-label">확장 사례 · 매출·고객·환불</span><h3>같은 숫자와 용어, 다른 판단 기준</h3><p>매출의 수주·결제·제공 실적·입금, 고객의 계정·계약 법인·청구처, 환불의 요청·결제사 완료·정산 차감을 같은 가상 계약 사례로 연결합니다.</p><div class="kh-home-entry-links"><a class="kh-home-link" href="#general-1">업무 기준 비교하기 <span aria-hidden="true">→</span></a></div></article>
    </div>
   </section>
  </div>`;}

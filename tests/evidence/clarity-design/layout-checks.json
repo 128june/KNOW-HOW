@@ -1,0 +1,82 @@
+[
+  {
+    "route": "home",
+    "size": "desktop",
+    "bodyWidth": 1280,
+    "headerHeight": 48,
+    "heading": "조직마다 다른 말과 기준을,함께 쓰는 지식으로 연결합니다.",
+    "width": 1280
+  },
+  {
+    "route": "support",
+    "size": "desktop",
+    "bodyWidth": 1280,
+    "headerHeight": 48,
+    "heading": "민원 접수",
+    "width": 1280
+  },
+  {
+    "route": "support-kb",
+    "size": "desktop",
+    "bodyWidth": 1280,
+    "headerHeight": 48,
+    "heading": "부서별 업무 KB",
+    "width": 1280
+  },
+  {
+    "route": "data",
+    "size": "desktop",
+    "bodyWidth": 1280,
+    "headerHeight": 48,
+    "heading": "KB 리니지",
+    "width": 1280
+  },
+  {
+    "route": "general-1",
+    "size": "desktop",
+    "bodyWidth": 1280,
+    "headerHeight": 48,
+    "heading": "왜 부서마다 답이 다를까?",
+    "width": 1280
+  },
+  {
+    "route": "home",
+    "size": "mobile",
+    "bodyWidth": 390,
+    "headerHeight": 56,
+    "heading": "조직마다 다른 말과 기준을,함께 쓰는 지식으로 연결합니다.",
+    "width": 390
+  },
+  {
+    "route": "support",
+    "size": "mobile",
+    "bodyWidth": 390,
+    "headerHeight": 56,
+    "heading": "민원 접수",
+    "width": 390
+  },
+  {
+    "route": "support-kb",
+    "size": "mobile",
+    "bodyWidth": 390,
+    "headerHeight": 56,
+    "heading": "부서별 업무 KB",
+    "width": 390
+  },
+  {
+    "route": "data",
+    "size": "mobile",
+    "bodyWidth": 390,
+    "headerHeight": 56,
+    "heading": "KB 리니지",
+    "width": 390
+  },
+  {
+    "route": "general-1",
+    "size": "mobile",
+    "bodyWidth": 390,
+    "headerHeight": 56,
+    "heading": "왜 부서마다 답이 다를까?",
+    "width": 390
+  }
+]
