@@ -30,7 +30,7 @@
  });
  function home(){
   const paused=root.KNOWHOW_CONFIG?.aiRequestsPaused!==false;
-  $('#page').innerHTML=`<section class="home-intro"><div class="eyebrow">같은 업무를 다시 묻지 않도록</div><h1>확인한 업무 답을,<br>함께 쓰는 기준으로.</h1><p class="home-lead">부서 문서와 사람의 확인 내용을 연결해,<br> 다음 사람이 근거를 보고 판단할 수 있게 합니다.</p><div class="home-result"><span>남는 업무 기록 · 구성 예시</span><p><strong>업무 답 · 원문 근거 · 적용 조건 · 검토 기록</strong></p><small>실제 기준은 문서를 열어 확인합니다.</small></div><div class="home-start"><a class="button primary" href="#scenario-4">충전 업무 근거 찾기 <span aria-hidden="true">→</span></a><span class="home-entry-note">부서 문서를 열어 근거 확인</span></div><p class="home-ai-status">${paused?'AI 답변 생성 중지 · 원문 근거 조회 가능':'원문 근거부터 조회 · AI 답변은 요청할 때 생성'}<small>문서의 현재 버전 검토 완료 후 조회할 수 있습니다.</small></p></section><section class="home-path" aria-label="목적별 시작하기"><article><span>01 · 다른 업무의 기준</span><h2><a class="home-secondary" href="#general-4">매출·고객·환불 근거 찾기 →</a></h2><p>준비된 업무 예시의 근거와 적용 조건을 살펴봅니다.</p></article><article><span>02 · 모아둔 지식</span><h2><a class="home-secondary" href="#scenario-5">부서 지식 모음 보기 →</a></h2><p>문서를 찾아 버전과 검토 상태를 확인합니다.</p></article><article><span>03 · 새 자료에서 시작</span><h2><a class="home-secondary" href="#data">근거가 될 자료 가져오기 →</a></h2><p>파일·URL·공개 Sheets를 가져와 원본과 처리 정책을 남깁니다.</p></article></section>`;
+  $('#page').innerHTML=`<section class="home-intro"><div class="eyebrow">같은 업무를 다시 묻지 않도록</div><h1>확인한 업무 답을,<br>함께 쓰는 기준으로.</h1><p class="home-lead">부서 문서와 사람의 확인 내용을 연결해,<br> 다음 사람이 근거를 보고 판단할 수 있게 합니다.</p><div class="home-result"><span>남는 업무 기록 · 구성 예시</span><p><strong>업무 답 · 원문 근거 · 적용 조건 · 검토 기록</strong></p><small>실제 기준은 문서를 열어 확인합니다.</small></div><div class="home-start"><a class="button primary" href="#scenario-4">충전 업무 근거 찾기 <span aria-hidden="true">→</span></a><span class="home-entry-note">부서 문서를 열어 근거 확인</span></div><p class="home-ai-status">${paused?'AI 답변 생성 중지 · 원문 근거 조회 가능':'원문 근거부터 조회 · AI 답변은 요청할 때 생성'}<small>문서의 현재 버전 검토 완료 후 조회할 수 있습니다.</small></p></section><section class="home-path" aria-label="목적별 시작하기"><article><span>01 · 다른 업무의 기준</span><h2><a class="home-secondary" href="#general-4">매출·고객·환불 근거 찾기 →</a></h2><p>준비된 업무 예시의 근거와 적용 조건을 살펴봅니다.</p></article><article><span>02 · 모아둔 지식</span><h2><a class="home-secondary" href="#scenario-5">부서 지식 모음 보기 →</a></h2><p>문서를 찾아 버전과 검토 상태를 확인합니다.</p></article><article><span>03 · 지식의 전체 구조</span><h2><a class="home-secondary" href="#data">KB 리니지 보기 →</a></h2><p>업무별 KB의 연결 구조를 보고 각 문서의 내용을 확인합니다.</p></article></section>`;
  }
  function focusPage(){root.scrollTo?.(0,0);const h=$('#page h1');if(h){h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}}
  function navigation(mode){
@@ -52,11 +52,10 @@
    $('.workspace').innerHTML='업무 흐름';$('.aside-note').textContent='근거 확인 → 예외 보완 → 다음 업무에 재사용';
    nav.innerHTML=titles.map((t,i)=>`<a class="scenario-link ${tab===i+1?'active':''}" href="#general-${i+1}" ${tab===i+1?'aria-current="page"':''}><span>0${i+1}</span>${t}</a>`).join('');general?.mount($('#page'),tab);focusPage();return;
   }
-  const section=hash==='#data-lineage'?'lineage':['#data-privacy','#data-datasets'].includes(hash)?'privacy':['#data-policies','#data-mart'].includes(hash)?'policies':'jobs';
-  $('.workspace').innerHTML='작업 흐름';$('.aside-note').textContent='가져온 자료와 적용한 정책을 함께 확인합니다.';
-  nav.innerHTML=[['#data','자료 가져오기','jobs'],['#data-privacy','민감정보 처리','privacy'],['#data-policies','적용 정책과 결과','policies'],['#data-lineage','데이터 리니지','lineage']].map(([href,label,key],i)=>`<a class="scenario-link ${section===key?'active':''}" href="${href}" ${section===key?'aria-current="page"':''}><span>0${i+1}</span>${label}</a>`).join('');
-  if(!data)data=root.KnowHowDataPlatform?.createController();
-  if(data)data.mount($('#page'),{section});else $('#page').innerHTML='<h1>자료 가져오기</h1><p role="alert">데이터 화면을 불러오지 못했습니다. 새로고침해 주세요.</p>';
+  $('.workspace').innerHTML='지식 구조';$('.aside-note').textContent='KB 전체 구조 → 문서 내용 확인';
+  nav.innerHTML='<a class="scenario-link active" href="#data" aria-current="page"><span>01</span>KB 리니지</a>';
+  if(!data&&root.KnowHowKBLineage&&root.KnowHowKBCatalog)data=root.KnowHowKBLineage.createController({provider:root.KnowHowKBCatalog.createProvider({general})});
+  if(data)data.mount($('#page'));else $('#page').innerHTML='<h1>KB 리니지</h1><p role="alert">KB 화면을 불러오지 못했습니다. 새로고침해 주세요.</p>';
   focusPage();
  }
  root.addEventListener('hashchange',render);render();
