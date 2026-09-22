@@ -41,7 +41,8 @@ console.log(`PASS: ${count} question render states; paused/unpaused and review b
 const shell=fs.readFileSync('src/platform-shell.js','utf8');
 const homeSource=shell.slice(shell.indexOf(' function home(){'),shell.indexOf(' function focusPage()'));
 const homeHost={innerHTML:''},homeRoot={KNOWHOW_CONFIG:{}};
-const homeContext=vm.createContext({root:homeRoot,$:selector=>{assert.equal(selector,'#page');return homeHost},fetch:()=>{throw Error('Home render must not request anything')}});
+const homeContext=vm.createContext({window:homeRoot,root:homeRoot,$:selector=>{assert.equal(selector,'#page');return homeHost},fetch:()=>{throw Error('Home render must not request anything')}});
+vm.runInContext(fs.readFileSync('src/home-knowledge.js','utf8'),homeContext,{filename:'home-knowledge.js'});
 vm.runInContext(homeSource,homeContext);
 for(const pause of [undefined,true,false]){
  homeRoot.KNOWHOW_CONFIG.aiRequestsPaused=pause;vm.runInContext('home()',homeContext);
