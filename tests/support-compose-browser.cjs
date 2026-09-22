@@ -43,7 +43,7 @@ const charger = {record_key:'fixture-row-01',charger_id:'01',type:'DC콤보',loc
 const target = {station,charger,facts:{station_name:station.name,charger_id:'01',address:station.address,operator:station.operator,capacity:'200kW',speed:'급속',connector:'DC콤보',location:charger.location,hours:'미제공',access:'미제공',manufacturer:'미제공',current_status:'수집 당시 미확인'},source:{collected_at:'2026-09-22T00:00:00Z',original_sha256:'fixture-source'}};
 const emptyIncident = () => ({symptom:'',occurred_at:'',error_code:'',app_context:'',device_context:'',recipients:['app','device']});
 let fixture;
-function setup(overrides={}) {fixture={documents:documents(),requests:[],candidates:[],candidateOwners:{},reviewRequests:[],sessionSerial:0,tickets:[],createFailures:[],candidateFailures:[],changeOnPrepare:false,holdCandidate:false,releaseCandidate:null,...overrides};}
+function setup(overrides={}) {fixture={documents:documents(),standards:[],requests:[],candidates:[],candidateOwners:{},reviewRequests:[],sessionSerial:0,tickets:[],createFailures:[],candidateFailures:[],changeOnPrepare:false,holdCandidate:false,releaseCandidate:null,...overrides};}
 function snapshot(body) {
   const incident=Object.fromEntries(['symptom','occurred_at','error_code','app_context','device_context'].map(key=>[key,(body[key]||'').trim()]));
   const knowledge=fixture.documents.filter(d=>['counselor',...body.recipients].includes(d.department)||(d.id==='INTAKE-001'&&['symptom','error_code','app_context','device_context'].some(key=>incident[key])));
@@ -59,7 +59,7 @@ async function serve(req,res) {
     const action=url.pathname.split('/').at(-1);
     fixture.requests.push({action,body:clone(body)});
     if(action==='session')return respond(res,{session_id:`fixture-session-${++fixture.sessionSerial}`});
-    if(action==='knowledge')return respond(res,{documents:fixture.documents.map(d=>({...clone(d),hash:digest(d)})),candidates:clone(fixture.candidates.filter(c=>!fixture.candidateOwners[c.id]||fixture.candidateOwners[c.id]===body.session_id))});
+    if(action==='knowledge')return respond(res,{standards:clone(fixture.standards),documents:fixture.documents.map(d=>({...clone(d),hash:digest(d)})),candidates:clone(fixture.candidates.filter(c=>!fixture.candidateOwners[c.id]||fixture.candidateOwners[c.id]===body.session_id))});
     if(action==='context')return respond(res,clone(target));
     if(action==='search') {
       const all=[station,{...station,station_key:'fixture-station-b',name:'다른 합성 충전소',operator:'Fixture B'}];
@@ -138,6 +138,33 @@ async function main() {
   const requests = action => fixture.requests.filter(r=>r.action===action);
   const screenshot = async(page,name) => {if(evidenceDir){fs.mkdirSync(evidenceDir,{recursive:true});await page.screenshot({path:path.join(evidenceDir,name+'.png'),fullPage:true});}};
   try {
+    // A linked publication supersedes its fixture option by stable identity.
+    setup();const publishedChoice=await open({...emptyIncident(),symptom:'상담사가 이미 기록한 메모'});
+    await choose(publishedChoice,'symptoms',0);
+    const beforePublication=await field(publishedChoice,'symptom').inputValue(),immutableCatalog=clone(fixture.documents.find(d=>d.id==='INTAKE-001'));
+    const linked={id:'STD-INTAKE-001-symptoms-fixture-symptom',standard_id:'STD-INTAKE-001-symptoms-fixture-symptom',kb_id:'INTAKE-001',field:'symptoms',published:true,publication_id:'STD-INTAKE-001-symptoms-fixture-symptom',version:2,title:'최신 발행 증상 정의',value:'최신 발행 증상 정의',definition:'현재 적용되는 표준 뜻'};
+    fixture.standards=[{...linked,version:1,title:'지난 발행 증상',value:'지난 발행 증상'},linked,{...linked,id:'STD-new',standard_id:'STD-new',publication_id:'STD-new',title:'신규 발행 증상',value:'신규 발행 증상'}, {...linked,id:'OTHER-FIELD',standard_id:'OTHER-FIELD',field:'errors',title:'다른 입력 항목',value:'다른 입력 항목'}, {...linked,id:'OTHER-KB',standard_id:'OTHER-KB',kb_id:'APP-001',title:'다른 KB 항목',value:'다른 KB 항목'}, {...linked,id:'UNPUBLISHED',standard_id:'UNPUBLISHED',published:false,title:'미발행 증상',value:'미발행 증상'}];
+    await publishedChoice.reload();await publishedChoice.locator('#support-intake > fieldset:not([disabled])').waitFor();
+    assert.equal(await field(publishedChoice,'symptom').inputValue(),beforePublication,'publication refresh must preserve already selected original value and handwritten text');
+    await publishedChoice.locator('[data-open-catalog="symptoms"]').click();
+    const sourceChoices=publishedChoice.locator('.support-catalog-options');
+    assert.equal(await sourceChoices.locator('.support-catalog-option').count(),4,'one replaced fixture + unknown + custom + one new standard');
+    assert.equal(await sourceChoices.getByRole('heading',{name:'최신 발행 증상 정의',exact:true}).count(),1);
+    assert.equal(await sourceChoices.getByRole('heading',{name:'신규 발행 증상',exact:true}).count(),1);
+    assert.doesNotMatch(await sourceChoices.innerText(),/합성 증상 항목|FIXTURE 충전 진행 멈춤|지난 발행 증상|다른 입력 항목|다른 KB 항목|미발행 증상/);
+    assert.equal(await sourceChoices.locator('a[href="#data?kb=STD-INTAKE-001-symptoms-fixture-symptom"]').count(),1);
+    await publishedChoice.locator('[data-catalog-choice="0"]').click();
+    assert.equal(await field(publishedChoice,'symptom').inputValue(),'상담사가 이미 기록한 메모\n최신 발행 증상 정의','explicit selection updates only the tracked choice');
+    await publishedChoice.reload();await publishedChoice.locator('#support-intake > fieldset:not([disabled])').waitFor();
+    assert.equal(await field(publishedChoice,'symptom').inputValue(),'상담사가 이미 기록한 메모\n최신 발행 증상 정의');
+    assert.deepEqual(fixture.documents.find(d=>d.id==='INTAKE-001'),immutableCatalog,'immutable catalog source is never replaced');
+    await publishedChoice.goto(base+'/#support-kb');await publishedChoice.locator('.support-reference-manuals > summary').click();
+    assert.equal(await publishedChoice.locator('a[href="#data?kb=INTAKE-001"]').isVisible(),true);
+    cases.push('Latest linked publication replaces its fixture choice by stable ID; preserves source and existing draft; unrelated/unpublished standards stay excluded');
+    if(process.env.SUPPORT_COMPOSE_FOCUS==='published-standard'){
+      assert.deepEqual(browserErrors,[]);assert.deepEqual(externalRequests,[]);
+      console.log(JSON.stringify({passed:true,scope:'Synthetic API/browser publication catalog regression; no model call',cases,browserErrors,externalRequests},null,2));return;
+    }
     // Run both independent regressions before failing, so a broken first path
     // cannot hide the session-recovery failure in the second path.
     const regressionFailures=[];
