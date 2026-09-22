@@ -19,6 +19,8 @@ test('pending content retains visible status, source and exact KB version', () =
   assert.match(html, /aria-label="확정 전 KB 추가 내용"/);
   assert.match(html, /data-pending-status="pending">확정 전/);
   assert.match(html, /담당자 확인 전인 내용/);
+  assert.match(html, /기존 KB 본문과 별도로 보관됩니다/);
+  assert.doesNotMatch(html, /기존 확정 기준/);
   assert.match(html, /직접 입력 · 내용 확인 전/);
   assert.match(html, /INTAKE-001 · v1/);
   assert.match(html, /상담사 · 시연 역할/);

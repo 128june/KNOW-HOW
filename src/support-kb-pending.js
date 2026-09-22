@@ -73,7 +73,7 @@
       && (options.field == null || candidate.field === options.field));
     return `<section class="support-kb-pending${options.compact === true ? ' is-compact' : ''}" aria-label="확정 전 KB 추가 내용">
       <div class="support-kb-pending-heading"><h3>확정 전 추가 내용</h3><span>${rows.length}건</span></div>
-      <p class="support-kb-pending-notice">담당자 확인 전인 내용입니다. 기존 확정 기준과 별도로 보관됩니다.</p>
+      <p class="support-kb-pending-notice">담당자 확인 전인 내용입니다. 기존 KB 본문과 별도로 보관됩니다.</p>
       ${rows.length ? `<ul class="support-kb-pending-list">${rows.map(candidate => renderCandidate(candidate, options)).join('')}</ul>` : '<p class="support-kb-pending-empty">표시할 확정 전 내용이 없습니다.</p>'}
     </section>`;
   }
